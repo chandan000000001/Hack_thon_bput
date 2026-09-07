@@ -85,7 +85,8 @@ create table recommended_actions (
     requires_approval boolean not null default false,
     priority severity_level not null default 'low',
     executed boolean not null default false,
-    executed_at timestamptz
+    executed_at timestamptz,
+    created_at timestamptz not null default now()
 );
 
 create table incidents (

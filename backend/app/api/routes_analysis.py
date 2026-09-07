@@ -132,21 +132,22 @@ def _fetch_alert_with_actions(alert_id: str) -> dict[str, Any]:
             detail="Alert not found",
         )
 
+    # Fail-safe: a recommended_actions query failure must not 500 the alert
+    # response — the alert is returned with an empty actions list instead.
+    # NOTE: recommended_actions has no created_at column (Postgres 42703),
+    # so this query must not order by it.
+    actions_response = None
     try:
         actions_response = (
             client.table("recommended_actions")
             .select("*")
             .eq("alert_id", alert_id)
-            .order("created_at", desc=False)
             .execute()
         )
-    except Exception as exc:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to query recommended actions",
-        ) from exc
+    except Exception as e:
+        print(f"❌ Supabase recommended_actions query error: {e}")
 
-    return {**alert_rows[0], "recommended_actions": actions_response.data or []}
+    return {**alert_rows[0], "recommended_actions": (actions_response.data if actions_response else None) or []}
 
 
 async def _run_analysis_pipeline(

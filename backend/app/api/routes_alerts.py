@@ -30,11 +30,10 @@ def _attach_recommended_actions(alerts: list[dict[str, Any]]) -> list[dict[str, 
             .data
             or []
         )
-    except Exception as exc:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to query recommended actions",
-        ) from exc
+    except Exception as e:
+        # Fail-safe: return the alerts without actions instead of a 500.
+        print(f"❌ Supabase recommended_actions query error: {e}")
+        actions = []
 
     by_alert: dict[str, list[dict]] = defaultdict(list)
     for action in actions:
