@@ -1,0 +1,282 @@
+{
+  "generated_at": "2026-09-07T20:54:37.420614+00:00",
+  "git_commit": null,
+  "thresholds": {
+    "risk_score_flag": 41,
+    "media_manipulation_probability_flag": 0.5,
+    "hybrid_blend": {
+      "heuristic_weight": 0.45,
+      "ml_weight": 0.55
+    }
+  },
+  "artifacts": {
+    "email_tfidf.pkl": "43e287df596c4fedfe801385ff5339e6aba24b856cbd4bc14e1aad10e1531f12",
+    "email_phishing_xgb.pkl": "f899c5126b8aaca262a5eb0a341ba4518d24e72f3288ae564bc658870d07f32e",
+    "url_xgb.pkl": "44a31d78d871415d08bdf711f25f95e0bff88df3af611b4981c4a9a19810e06d",
+    "deepfake_cnn.pt": "bb202e2fe8a6a01d34390533554e82cf98b009533040f5df353afacc48a1ebcf",
+    "network_xgb.pkl": "39dd3d33e7cccaedd98dcb7e0b051c0c6d7a1a62afd3c3eaaf844ca162f40bc4",
+    "network_scaler.pkl": "29bd792998528ee3e5a5b5cbf5ec2dddb0197ff786ec309b5c6e1226791dbf1a"
+  },
+  "datasets": {
+    "email": {
+      "path": "backend/ml/data/test_emails.csv",
+      "provenance_status": "unknown"
+    },
+    "url": {
+      "path": "backend/ml/data/test_urls.csv",
+      "provenance_status": "unknown"
+    },
+    "message": {
+      "path": "datasets/messages/sms_labelled.csv",
+      "provenance_status": "unknown"
+    },
+    "account_takeover": {
+      "path": "datasets/auth_logs/labelled_auth_logs.json",
+      "provenance_status": "unknown"
+    },
+    "network": {
+      "path": "datasets/network/labelled_network.json",
+      "provenance_status": "unknown"
+    },
+    "deepfake_image": {
+      "path": "backend/ml/data/image_manifest.csv",
+      "provenance_status": "unknown"
+    }
+  },
+  "modules": {
+    "email_phishing": {
+      "heuristics": {
+        "samples": 24000,
+        "positives": 22638,
+        "flagged": 461,
+        "tp": 309,
+        "fp": 152,
+        "tn": 1210,
+        "fn": 22329,
+        "accuracy": 0.0633,
+        "precision": 0.6703,
+        "recall": 0.0136,
+        "false_positive_rate": 0.1116,
+        "false_negative_rate": 0.9864,
+        "mean_latency_ms": 0.161,
+        "p95_latency_ms": 0.193,
+        "f1": 0.0268
+      },
+      "hybrid": {
+        "samples": 24000,
+        "positives": 22638,
+        "flagged": 22107,
+        "tp": 22074,
+        "fp": 33,
+        "tn": 1329,
+        "fn": 564,
+        "accuracy": 0.9751,
+        "precision": 0.9985,
+        "recall": 0.9751,
+        "false_positive_rate": 0.0242,
+        "false_negative_rate": 0.0249,
+        "mean_latency_ms": 4.039,
+        "p95_latency_ms": 11.601,
+        "f1": 0.9867
+      }
+    },
+    "url": {
+      "heuristics": {
+        "samples": 200,
+        "positives": 100,
+        "flagged": 85,
+        "tp": 85,
+        "fp": 0,
+        "tn": 100,
+        "fn": 15,
+        "accuracy": 0.925,
+        "precision": 1.0,
+        "recall": 0.85,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.15,
+        "mean_latency_ms": 0.026,
+        "p95_latency_ms": 0.048,
+        "f1": 0.9189
+      },
+      "hybrid": {
+        "samples": 200,
+        "positives": 100,
+        "flagged": 100,
+        "tp": 100,
+        "fp": 0,
+        "tn": 100,
+        "fn": 0,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.0,
+        "mean_latency_ms": 0.488,
+        "p95_latency_ms": 1.4,
+        "f1": 1.0
+      }
+    },
+    "message": {
+      "heuristics": {
+        "samples": 600,
+        "positives": 300,
+        "flagged": 137,
+        "tp": 137,
+        "fp": 0,
+        "tn": 300,
+        "fn": 163,
+        "accuracy": 0.7283,
+        "precision": 1.0,
+        "recall": 0.4567,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.5433,
+        "mean_latency_ms": 0.029,
+        "p95_latency_ms": 0.05,
+        "f1": 0.627
+      },
+      "hybrid": {
+        "samples": 600,
+        "positives": 300,
+        "flagged": 104,
+        "tp": 101,
+        "fp": 3,
+        "tn": 297,
+        "fn": 199,
+        "accuracy": 0.6633,
+        "precision": 0.9712,
+        "recall": 0.3367,
+        "false_positive_rate": 0.01,
+        "false_negative_rate": 0.6633,
+        "mean_latency_ms": 2.953,
+        "p95_latency_ms": 10.677,
+        "f1": 0.5
+      }
+    },
+    "account_takeover": {
+      "heuristics": {
+        "samples": 60,
+        "positives": 30,
+        "flagged": 22,
+        "tp": 22,
+        "fp": 0,
+        "tn": 30,
+        "fn": 8,
+        "accuracy": 0.8667,
+        "precision": 1.0,
+        "recall": 0.7333,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.2667,
+        "mean_latency_ms": 0.026,
+        "p95_latency_ms": 0.039,
+        "f1": 0.8462
+      },
+      "hybrid": {
+        "samples": 60,
+        "positives": 30,
+        "flagged": 22,
+        "tp": 22,
+        "fp": 0,
+        "tn": 30,
+        "fn": 8,
+        "accuracy": 0.8667,
+        "precision": 1.0,
+        "recall": 0.7333,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.2667,
+        "mean_latency_ms": 0.026,
+        "p95_latency_ms": 0.039,
+        "f1": 0.8462
+      }
+    },
+    "network": {
+      "heuristics": {
+        "samples": 60,
+        "positives": 30,
+        "flagged": 22,
+        "tp": 22,
+        "fp": 0,
+        "tn": 30,
+        "fn": 8,
+        "accuracy": 0.8667,
+        "precision": 1.0,
+        "recall": 0.7333,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.2667,
+        "mean_latency_ms": 0.024,
+        "p95_latency_ms": 0.036,
+        "f1": 0.8462
+      },
+      "hybrid": {
+        "samples": 60,
+        "positives": 30,
+        "flagged": 2,
+        "tp": 0,
+        "fp": 2,
+        "tn": 28,
+        "fn": 30,
+        "accuracy": 0.4667,
+        "precision": 0.0,
+        "recall": 0.0,
+        "false_positive_rate": 0.0667,
+        "false_negative_rate": 1.0,
+        "mean_latency_ms": 21.238,
+        "p95_latency_ms": 72.364,
+        "f1": 0.0
+      }
+    },
+    "deepfake_image": {
+      "heuristics": {
+        "samples": 1000,
+        "positives": 500,
+        "flagged": 1000,
+        "tp": 500,
+        "fp": 500,
+        "tn": 0,
+        "fn": 0,
+        "accuracy": 0.5,
+        "precision": 0.5,
+        "recall": 1.0,
+        "false_positive_rate": 1.0,
+        "false_negative_rate": 0.0,
+        "mean_latency_ms": 0.281,
+        "p95_latency_ms": 0.321,
+        "f1": 0.6667
+      },
+      "hybrid": {
+        "samples": 1000,
+        "positives": 500,
+        "flagged": 478,
+        "tp": 449,
+        "fp": 29,
+        "tn": 471,
+        "fn": 51,
+        "accuracy": 0.92,
+        "precision": 0.9393,
+        "recall": 0.898,
+        "false_positive_rate": 0.058,
+        "false_negative_rate": 0.102,
+        "mean_latency_ms": 3.158,
+        "p95_latency_ms": 2.42,
+        "f1": 0.9182
+      }
+    }
+  },
+  "macro_averages": {
+    "heuristics": {
+      "accuracy": 0.6583,
+      "precision": 0.8617,
+      "recall": 0.6311,
+      "f1": 0.6553,
+      "false_positive_rate": 0.1853,
+      "false_negative_rate": 0.3688
+    },
+    "hybrid": {
+      "accuracy": 0.8153,
+      "precision": 0.8182,
+      "recall": 0.6572,
+      "f1": 0.7085,
+      "false_positive_rate": 0.0265,
+      "false_negative_rate": 0.3428
+    }
+  }
+}

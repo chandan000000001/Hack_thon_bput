@@ -1,0 +1,48 @@
+# CYBERGUARD — Docker Compose
+#
+# Supabase (database, auth, storage, realtime) is EXTERNAL and cloud-hosted;
+# these services are stateless, so nothing data-related runs in Compose.
+#
+#   backend  -> http://localhost:8000  (FastAPI + uvicorn)
+#   frontend -> http://localhost:3000  (Nginx serving the built React SPA)
+#
+# Prerequisite: backend/.env contains the Supabase URL/keys and OpenRouter key,
+# and db/schema.sql has been executed in the Supabase SQL editor (see
+# backend/docs/deployment.md).
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    networks:
+      - cyberguard-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_USE_MOCK: "false"
+        VITE_API_BASE_URL: http://localhost:8000/api/v1
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-https://YOUR-PROJECT.supabase.co}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-your-anon-key}
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - cyberguard-net
+    restart: unless-stopped
+
+networks:
+  cyberguard-net:
+    driver: bridge

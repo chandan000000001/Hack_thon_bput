@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "source": "urlhaus_recent",
+      "url": "https://urlhaus.abuse.ch/downloads/csv_recent/",
+      "licence_note": "URLhaus database by abuse.ch, licensed CC0 1.0.",
+      "fetched_at": "2026-09-07T19:17:42.487665+00:00",
+      "sha256": "a36ef105dd975aeddaa2eb6cfe03ebace418ce08ffe71ce6296f27c37a04999c",
+      "status": "fetched",
+      "rows_written": 500
+    },
+    {
+      "source": "umbrella_top1m",
+      "url": "http://s3-us-west-1.amazonaws.com/umbrella-static/top-1m.csv.zip",
+      "licence_note": "Cisco Umbrella Top 1M list; free to use with attribution to Cisco Umbrella.",
+      "fetched_at": "2026-09-07T19:17:48.389688+00:00",
+      "sha256": "ec57cbbf704782abcd061b8554be7e87101daa92ef7276c8456711a82f49d482",
+      "status": "fetched",
+      "rows_written": 500
+    },
+    {
+      "source": "sms_spam_uci",
+      "url": "https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip",
+      "licence_note": "SMS Spam Collection v.1 (Almeida et al.), CC BY 4.0, distributed via the UCI Machine Learning Repository.",
+      "fetched_at": "2026-09-07T19:17:50.554647+00:00",
+      "sha256": "1587ea43e58e82b14ff1f5425c88e17f8496bfcdb67a583dbff9eefaf9963ce3",
+      "status": "fetched",
+      "rows_written": 600
+    },
+    {
+      "source": "synthetic_labelled_emails",
+      "generator": "scripts/generate_synthetic_datasets.py",
+      "seed": 42,
+      "status": "synthetic",
+      "rows_written": 400,
+      "licence_note": "Synthetic data generated for this project; contains no real personal data.",
+      "created_at": "2026-09-07T19:17:50.621460+00:00"
+    },
+    {
+      "source": "synthetic_labelled_auth_logs",
+      "generator": "scripts/generate_synthetic_datasets.py",
+      "seed": 42,
+      "status": "synthetic",
+      "rows_written": 60,
+      "licence_note": "Synthetic data generated for this project; contains no real personal data.",
+      "created_at": "2026-09-07T19:17:50.621460+00:00"
+    },
+    {
+      "source": "synthetic_labelled_network",
+      "generator": "scripts/generate_synthetic_datasets.py",
+      "seed": 42,
+      "status": "synthetic",
+      "rows_written": 60,
+      "licence_note": "Synthetic data generated for this project; contains no real personal data.",
+      "created_at": "2026-09-07T19:17:50.621460+00:00"
+    },
+    {
+      "source": "synthetic_labelled_media",
+      "generator": "scripts/generate_synthetic_datasets.py",
+      "seed": 42,
+      "status": "synthetic",
+      "rows_written": 40,
+      "licence_note": "Synthetic images generated with Pillow for this project.",
+      "created_at": "2026-09-07T19:17:50.621460+00:00"
+    }
+  ]
+}

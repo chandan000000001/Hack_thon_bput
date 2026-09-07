@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+supabase
+pydantic
+pydantic-settings
+httpx
+python-multipart
+Pillow
+opencv-python-headless
+numpy
+datasets
+scikit-learn
+xgboost
+torch
+torchvision
+pandas
+joblib

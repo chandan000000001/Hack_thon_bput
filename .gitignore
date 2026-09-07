@@ -1,0 +1,82 @@
+# ============================================================================
+# CYBERGUARD — root .gitignore
+# ============================================================================
+
+# ---- Secrets (NEVER commit; .env.example placeholders are tracked) --------
+.env
+.env.*
+!**/.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+secrets*.json
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+build/
+develop-eggs/
+.eggs/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# ---- Node / frontend ----
+node_modules/
+dist/
+.parcel-cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.eslintcache
+
+# ---- ML artifacts ----------------------------------------------------------
+# Regenerable via: python ml/fetch_data.py && python ml/preprocess.py
+backend/ml/data/
+# Trained weights are small and committed for convenience; uncomment to ignore:
+# backend/ml/models/*.pkl
+# backend/ml/models/*.pt
+
+# ---- Framework / tooling caches ----
+.cache/
+.scrapyrt/
+.pytype/
+.dmypy.json
+.dmypy
+
+# ---- OS / editor noise ----
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.excalidraw/
+
+# ---- Logs ----
+*.log
+logs/

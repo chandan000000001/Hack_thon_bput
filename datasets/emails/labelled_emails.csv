@@ -1,0 +1,2401 @@
+label,sender,subject,body
+benign,registrar@university.edu,Library hours during exam week,"Dear student,
+
+Your order #840 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Regards, The Team"
+benign,hr@company.example,Seminar: Introduction to Databases,"Good morning,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Best wishes, Support Staff"
+benign,notices@university.edu,Library hours during exam week,"Hello,
+
+Your order #842 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Regards, The Team"
+benign,alumni@university.edu,Alumni meetup invitation,"Hello,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Regards, The Team"
+benign,alumni@university.edu,Office closed on Monday,"Hi there,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Thanks, Administration"
+benign,notices@university.edu,Team meeting moved to Friday,"Dear customer,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Thanks, Administration"
+benign,hr@company.example,Your order has shipped,"Dear student,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Kind regards, Campus Services"
+benign,events@university.edu,Seminar: Introduction to Databases,"Dear student,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Thanks, Administration"
+benign,notices@university.edu,Course registration confirmation,"Good morning,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Best wishes, Support Staff"
+benign,registrar@university.edu,Water bill for June available,"Dear student,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Thanks, Administration"
+benign,receipts@shop.example,Seminar: Introduction to Databases,"Hello,
+
+Your order #8410 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Thanks, Administration"
+benign,registrar@university.edu,Your order has shipped,"Hello,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Thanks, Administration"
+benign,billing@utility.example,Weekly campus newsletter,"Hi there,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Thanks, Administration"
+benign,receipts@shop.example,Monthly payment receipt,"Hello,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Regards, The Team"
+benign,alumni@university.edu,Your order has shipped,"Hi there,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Best wishes, Support Staff"
+benign,newsletter@news.example,Water bill for June available,"Hi there,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Kind regards, Campus Services"
+benign,receipts@shop.example,Library hours during exam week,"Dear student,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Thanks, Administration"
+benign,registrar@university.edu,Your order has shipped,"Good morning,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Regards, The Team"
+benign,billing@utility.example,Office closed on Monday,"Dear customer,
+
+The weekly team meeting has been moved to Friday at 11 AM. The agenda is attached in the shared drive.
+
+Thanks, Administration"
+benign,hr@company.example,Your order has shipped,"Good morning,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Thanks, Administration"
+benign,events@university.edu,Alumni meetup invitation,"Dear customer,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Regards, The Team"
+benign,hr@company.example,Water bill for June available,"Dear customer,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Kind regards, Campus Services"
+benign,registrar@university.edu,Team meeting moved to Friday,"Hi there,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Kind regards, Campus Services"
+benign,events@university.edu,Office closed on Monday,"Good morning,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Thanks, Administration"
+benign,alumni@university.edu,Library hours during exam week,"Hello,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Thanks, Administration"
+benign,it-helpdesk@company.example,Seminar: Introduction to Databases,"Dear student,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Regards, The Team"
+benign,billing@utility.example,Library hours during exam week,"Dear student,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Regards, The Team"
+benign,alumni@university.edu,Seminar: Introduction to Databases,"Dear student,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Regards, The Team"
+benign,hr@company.example,Weekly campus newsletter,"Hi there,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Kind regards, Campus Services"
+benign,it-helpdesk@company.example,Course registration confirmation,"Hello,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Thanks, Administration"
+benign,newsletter@news.example,Your order has shipped,"Hello,
+
+Your order #8430 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Kind regards, Campus Services"
+benign,registrar@university.edu,Course registration confirmation,"Hello,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Regards, The Team"
+benign,hr@company.example,Course registration confirmation,"Good morning,
+
+The weekly team meeting has been moved to Friday at 11 AM. The agenda is attached in the shared drive.
+
+Thanks, Administration"
+benign,alumni@university.edu,Alumni meetup invitation,"Dear customer,
+
+Your order #8433 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Regards, The Team"
+benign,newsletter@news.example,Office closed on Monday,"Dear student,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Best wishes, Support Staff"
+benign,registrar@university.edu,Your order has shipped,"Hi there,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Thanks, Administration"
+benign,notices@university.edu,Alumni meetup invitation,"Good morning,
+
+Your order #8436 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Regards, The Team"
+benign,notices@university.edu,Seminar: Introduction to Databases,"Hello,
+
+Your order #8437 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Kind regards, Campus Services"
+benign,notices@university.edu,Weekly campus newsletter,"Hello,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Regards, The Team"
+benign,newsletter@news.example,Course registration confirmation,"Hi there,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Regards, The Team"
+benign,billing@utility.example,Your order has shipped,"Dear customer,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Regards, The Team"
+benign,registrar@university.edu,Seminar: Introduction to Databases,"Dear customer,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Best wishes, Support Staff"
+benign,events@university.edu,Course registration confirmation,"Hello,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Kind regards, Campus Services"
+benign,events@university.edu,Weekly campus newsletter,"Hello,
+
+Your order #8443 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Regards, The Team"
+benign,receipts@shop.example,Water bill for June available,"Dear customer,
+
+The weekly team meeting has been moved to Friday at 11 AM. The agenda is attached in the shared drive.
+
+Best wishes, Support Staff"
+benign,hr@company.example,Monthly payment receipt,"Dear customer,
+
+Your order #8445 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Kind regards, Campus Services"
+benign,billing@utility.example,Water bill for June available,"Hello,
+
+The central library will remain open until 10 PM during examination week. No action is required from students.
+
+Kind regards, Campus Services"
+benign,registrar@university.edu,Your order has shipped,"Hi there,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Best wishes, Support Staff"
+benign,billing@utility.example,Your order has shipped,"Dear customer,
+
+The central library will remain open until 10 PM during examination week. No action is required from students.
+
+Regards, The Team"
+benign,events@university.edu,Library hours during exam week,"Dear customer,
+
+Your payment of $93.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Best wishes, Support Staff"
+benign,newsletter@news.example,Office closed on Monday,"Good morning,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Regards, The Team"
+benign,receipts@shop.example,Monthly payment receipt,"Hi there,
+
+The central library will remain open until 10 PM during examination week. No action is required from students.
+
+Kind regards, Campus Services"
+benign,it-helpdesk@company.example,Library hours during exam week,"Hello,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Best wishes, Support Staff"
+benign,alumni@university.edu,Water bill for June available,"Hi there,
+
+The central library will remain open until 10 PM during examination week. No action is required from students.
+
+Kind regards, Campus Services"
+benign,hr@company.example,Seminar: Introduction to Databases,"Good morning,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Regards, The Team"
+benign,events@university.edu,Seminar: Introduction to Databases,"Good morning,
+
+Your order #8455 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Kind regards, Campus Services"
+benign,registrar@university.edu,Office closed on Monday,"Good morning,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Thanks, Administration"
+benign,newsletter@news.example,Your order has shipped,"Dear student,
+
+Your order #8457 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Thanks, Administration"
+benign,events@university.edu,Team meeting moved to Friday,"Dear student,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Thanks, Administration"
+benign,registrar@university.edu,Library hours during exam week,"Dear customer,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Kind regards, Campus Services"
+benign,registrar@university.edu,Water bill for June available,"Hi there,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Thanks, Administration"
+benign,hr@company.example,Weekly campus newsletter,"Hello,
+
+Your order #8461 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Thanks, Administration"
+benign,newsletter@news.example,Team meeting moved to Friday,"Dear customer,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Thanks, Administration"
+benign,alumni@university.edu,Library hours during exam week,"Good morning,
+
+Your payment of $101.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Kind regards, Campus Services"
+benign,hr@company.example,Monthly payment receipt,"Hello,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Regards, The Team"
+benign,newsletter@news.example,Monthly payment receipt,"Good morning,
+
+Your order #8465 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Thanks, Administration"
+benign,receipts@shop.example,Monthly payment receipt,"Good morning,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Thanks, Administration"
+benign,notices@university.edu,Seminar: Introduction to Databases,"Dear customer,
+
+Your payment of $39.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Kind regards, Campus Services"
+benign,notices@university.edu,Weekly campus newsletter,"Hi there,
+
+Your payment of $46.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Regards, The Team"
+benign,billing@utility.example,Water bill for June available,"Dear customer,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Kind regards, Campus Services"
+benign,registrar@university.edu,Seminar: Introduction to Databases,"Hi there,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Kind regards, Campus Services"
+benign,it-helpdesk@company.example,Alumni meetup invitation,"Good morning,
+
+The weekly team meeting has been moved to Friday at 11 AM. The agenda is attached in the shared drive.
+
+Best wishes, Support Staff"
+benign,hr@company.example,Library hours during exam week,"Dear student,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Kind regards, Campus Services"
+benign,it-helpdesk@company.example,Your order has shipped,"Hi there,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Thanks, Administration"
+benign,alumni@university.edu,Office closed on Monday,"Good morning,
+
+The weekly team meeting has been moved to Friday at 11 AM. The agenda is attached in the shared drive.
+
+Regards, The Team"
+benign,hr@company.example,Team meeting moved to Friday,"Dear customer,
+
+The central library will remain open until 10 PM during examination week. No action is required from students.
+
+Regards, The Team"
+benign,it-helpdesk@company.example,Office closed on Monday,"Hi there,
+
+Your payment of $102.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Regards, The Team"
+benign,registrar@university.edu,Office closed on Monday,"Hello,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Regards, The Team"
+benign,receipts@shop.example,Course registration confirmation,"Dear student,
+
+Your payment of $26.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Regards, The Team"
+benign,receipts@shop.example,Library hours during exam week,"Hi there,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Thanks, Administration"
+benign,newsletter@news.example,Seminar: Introduction to Databases,"Dear student,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Best wishes, Support Staff"
+benign,alumni@university.edu,Weekly campus newsletter,"Hello,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Thanks, Administration"
+benign,hr@company.example,Alumni meetup invitation,"Dear student,
+
+The central library will remain open until 10 PM during examination week. No action is required from students.
+
+Kind regards, Campus Services"
+benign,events@university.edu,Weekly campus newsletter,"Dear student,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Kind regards, Campus Services"
+benign,events@university.edu,Alumni meetup invitation,"Hi there,
+
+Your payment of $68.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Kind regards, Campus Services"
+benign,events@university.edu,Library hours during exam week,"Good morning,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Regards, The Team"
+benign,it-helpdesk@company.example,Office closed on Monday,"Hello,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Thanks, Administration"
+benign,registrar@university.edu,Monthly payment receipt,"Good morning,
+
+Your payment of $89.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Best wishes, Support Staff"
+benign,it-helpdesk@company.example,Office closed on Monday,"Dear student,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Regards, The Team"
+benign,receipts@shop.example,Office closed on Monday,"Dear customer,
+
+The weekly team meeting has been moved to Friday at 11 AM. The agenda is attached in the shared drive.
+
+Thanks, Administration"
+benign,events@university.edu,Water bill for June available,"Hello,
+
+Your payment of $20.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Thanks, Administration"
+benign,receipts@shop.example,Office closed on Monday,"Good morning,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Thanks, Administration"
+benign,billing@utility.example,Course registration confirmation,"Dear customer,
+
+Your order #8492 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Best wishes, Support Staff"
+benign,hr@company.example,Seminar: Introduction to Databases,"Dear student,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Thanks, Administration"
+benign,registrar@university.edu,Your order has shipped,"Dear student,
+
+Your order #8494 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Regards, The Team"
+benign,hr@company.example,Library hours during exam week,"Hello,
+
+Your order #8495 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Best wishes, Support Staff"
+benign,registrar@university.edu,Course registration confirmation,"Dear customer,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Regards, The Team"
+benign,events@university.edu,Course registration confirmation,"Dear customer,
+
+Your order #8497 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Regards, The Team"
+benign,notices@university.edu,Seminar: Introduction to Databases,"Dear customer,
+
+Your order #8498 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Regards, The Team"
+benign,alumni@university.edu,Course registration confirmation,"Hello,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Regards, The Team"
+benign,registrar@university.edu,Course registration confirmation,"Hi there,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Thanks, Administration"
+benign,billing@utility.example,Alumni meetup invitation,"Good morning,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Best wishes, Support Staff"
+benign,hr@company.example,Course registration confirmation,"Dear customer,
+
+Your payment of $104.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Regards, The Team"
+benign,newsletter@news.example,Water bill for June available,"Dear customer,
+
+Your order #843 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Thanks, Administration"
+benign,billing@utility.example,Seminar: Introduction to Databases,"Dear student,
+
+Your order #844 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Thanks, Administration"
+benign,it-helpdesk@company.example,Weekly campus newsletter,"Good morning,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Regards, The Team"
+benign,hr@company.example,Your order has shipped,"Dear customer,
+
+The weekly team meeting has been moved to Friday at 11 AM. The agenda is attached in the shared drive.
+
+Regards, The Team"
+benign,registrar@university.edu,Office closed on Monday,"Dear customer,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Best wishes, Support Staff"
+benign,events@university.edu,Library hours during exam week,"Hi there,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Best wishes, Support Staff"
+benign,notices@university.edu,Alumni meetup invitation,"Dear customer,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Kind regards, Campus Services"
+benign,it-helpdesk@company.example,Monthly payment receipt,"Dear customer,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Regards, The Team"
+benign,billing@utility.example,Your order has shipped,"Dear student,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Best wishes, Support Staff"
+benign,notices@university.edu,Office closed on Monday,"Dear student,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Regards, The Team"
+benign,billing@utility.example,Team meeting moved to Friday,"Good morning,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Kind regards, Campus Services"
+benign,events@university.edu,Alumni meetup invitation,"Good morning,
+
+The central library will remain open until 10 PM during examination week. No action is required from students.
+
+Kind regards, Campus Services"
+benign,events@university.edu,Team meeting moved to Friday,"Dear customer,
+
+The weekly team meeting has been moved to Friday at 11 AM. The agenda is attached in the shared drive.
+
+Kind regards, Campus Services"
+benign,newsletter@news.example,Office closed on Monday,"Dear student,
+
+Your order #8416 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Best wishes, Support Staff"
+benign,it-helpdesk@company.example,Weekly campus newsletter,"Dear customer,
+
+Your payment of $29.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Best wishes, Support Staff"
+benign,newsletter@news.example,Seminar: Introduction to Databases,"Dear customer,
+
+The central library will remain open until 10 PM during examination week. No action is required from students.
+
+Kind regards, Campus Services"
+benign,it-helpdesk@company.example,Your order has shipped,"Hello,
+
+The central library will remain open until 10 PM during examination week. No action is required from students.
+
+Kind regards, Campus Services"
+benign,receipts@shop.example,Your order has shipped,"Hello,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Regards, The Team"
+benign,receipts@shop.example,Team meeting moved to Friday,"Dear customer,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Regards, The Team"
+benign,billing@utility.example,Monthly payment receipt,"Dear student,
+
+The weekly team meeting has been moved to Friday at 11 AM. The agenda is attached in the shared drive.
+
+Kind regards, Campus Services"
+benign,hr@company.example,Monthly payment receipt,"Hello,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Kind regards, Campus Services"
+benign,newsletter@news.example,Alumni meetup invitation,"Dear customer,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Regards, The Team"
+benign,registrar@university.edu,Alumni meetup invitation,"Hi there,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Thanks, Administration"
+benign,registrar@university.edu,Alumni meetup invitation,"Hello,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Best wishes, Support Staff"
+benign,it-helpdesk@company.example,Seminar: Introduction to Databases,"Good morning,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Kind regards, Campus Services"
+benign,events@university.edu,Course registration confirmation,"Hello,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Thanks, Administration"
+benign,billing@utility.example,Team meeting moved to Friday,"Dear customer,
+
+The weekly team meeting has been moved to Friday at 11 AM. The agenda is attached in the shared drive.
+
+Thanks, Administration"
+benign,alumni@university.edu,Course registration confirmation,"Dear customer,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Thanks, Administration"
+benign,it-helpdesk@company.example,Your order has shipped,"Hello,
+
+Your payment of $37.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Best wishes, Support Staff"
+benign,receipts@shop.example,Course registration confirmation,"Good morning,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Best wishes, Support Staff"
+benign,it-helpdesk@company.example,Library hours during exam week,"Dear customer,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Regards, The Team"
+benign,billing@utility.example,Your order has shipped,"Dear student,
+
+Your payment of $58.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Thanks, Administration"
+benign,newsletter@news.example,Alumni meetup invitation,"Dear student,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Kind regards, Campus Services"
+benign,alumni@university.edu,Your order has shipped,"Hello,
+
+Your order #8436 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Best wishes, Support Staff"
+benign,billing@utility.example,Water bill for June available,"Hi there,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Best wishes, Support Staff"
+benign,billing@utility.example,Library hours during exam week,"Hello,
+
+Your payment of $86.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Regards, The Team"
+benign,events@university.edu,Your order has shipped,"Dear student,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Thanks, Administration"
+benign,billing@utility.example,Water bill for June available,"Good morning,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Best wishes, Support Staff"
+benign,alumni@university.edu,Weekly campus newsletter,"Dear student,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Thanks, Administration"
+benign,newsletter@news.example,Monthly payment receipt,"Hi there,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Regards, The Team"
+benign,it-helpdesk@company.example,Seminar: Introduction to Databases,"Good morning,
+
+The weekly team meeting has been moved to Friday at 11 AM. The agenda is attached in the shared drive.
+
+Regards, The Team"
+benign,receipts@shop.example,Course registration confirmation,"Dear student,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Thanks, Administration"
+benign,registrar@university.edu,Your order has shipped,"Dear student,
+
+Your order #8445 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Thanks, Administration"
+benign,hr@company.example,Monthly payment receipt,"Hello,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Regards, The Team"
+benign,newsletter@news.example,Library hours during exam week,"Hello,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Thanks, Administration"
+benign,hr@company.example,Course registration confirmation,"Hello,
+
+The central library will remain open until 10 PM during examination week. No action is required from students.
+
+Thanks, Administration"
+benign,billing@utility.example,Course registration confirmation,"Dear customer,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Regards, The Team"
+benign,notices@university.edu,Monthly payment receipt,"Dear customer,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Kind regards, Campus Services"
+benign,events@university.edu,Course registration confirmation,"Hello,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Kind regards, Campus Services"
+benign,hr@company.example,Team meeting moved to Friday,"Good morning,
+
+Your payment of $94.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Kind regards, Campus Services"
+benign,receipts@shop.example,Seminar: Introduction to Databases,"Good morning,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Regards, The Team"
+benign,alumni@university.edu,Office closed on Monday,"Dear customer,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Thanks, Administration"
+benign,events@university.edu,Monthly payment receipt,"Good morning,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Kind regards, Campus Services"
+benign,registrar@university.edu,Your order has shipped,"Hi there,
+
+Your payment of $32.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Kind regards, Campus Services"
+benign,hr@company.example,Your order has shipped,"Hi there,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Kind regards, Campus Services"
+benign,hr@company.example,Library hours during exam week,"Dear customer,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Best wishes, Support Staff"
+benign,newsletter@news.example,Library hours during exam week,"Hi there,
+
+Your payment of $53.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Thanks, Administration"
+benign,billing@utility.example,Seminar: Introduction to Databases,"Hi there,
+
+Your payment of $60.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Regards, The Team"
+benign,events@university.edu,Seminar: Introduction to Databases,"Good morning,
+
+Your order #8461 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Regards, The Team"
+benign,newsletter@news.example,Team meeting moved to Friday,"Hello,
+
+The central library will remain open until 10 PM during examination week. No action is required from students.
+
+Regards, The Team"
+benign,newsletter@news.example,Alumni meetup invitation,"Good morning,
+
+Your payment of $81.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Best wishes, Support Staff"
+benign,registrar@university.edu,Course registration confirmation,"Dear student,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Thanks, Administration"
+benign,alumni@university.edu,Water bill for June available,"Dear customer,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Kind regards, Campus Services"
+benign,notices@university.edu,Office closed on Monday,"Dear student,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Thanks, Administration"
+benign,notices@university.edu,Seminar: Introduction to Databases,"Hi there,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Kind regards, Campus Services"
+benign,newsletter@news.example,Alumni meetup invitation,"Hello,
+
+The weekly team meeting has been moved to Friday at 11 AM. The agenda is attached in the shared drive.
+
+Best wishes, Support Staff"
+benign,alumni@university.edu,Course registration confirmation,"Dear student,
+
+The weekly team meeting has been moved to Friday at 11 AM. The agenda is attached in the shared drive.
+
+Best wishes, Support Staff"
+benign,billing@utility.example,Seminar: Introduction to Databases,"Dear customer,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Best wishes, Support Staff"
+benign,it-helpdesk@company.example,Weekly campus newsletter,"Hello,
+
+The weekly team meeting has been moved to Friday at 11 AM. The agenda is attached in the shared drive.
+
+Thanks, Administration"
+benign,events@university.edu,Course registration confirmation,"Dear student,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Kind regards, Campus Services"
+benign,billing@utility.example,Seminar: Introduction to Databases,"Dear student,
+
+Your payment of $61.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Thanks, Administration"
+benign,registrar@university.edu,Office closed on Monday,"Good morning,
+
+The central library will remain open until 10 PM during examination week. No action is required from students.
+
+Best wishes, Support Staff"
+benign,events@university.edu,Library hours during exam week,"Hi there,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Thanks, Administration"
+benign,billing@utility.example,Course registration confirmation,"Hello,
+
+Your order #8476 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Thanks, Administration"
+benign,alumni@university.edu,Team meeting moved to Friday,"Dear student,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Best wishes, Support Staff"
+benign,registrar@university.edu,Library hours during exam week,"Good morning,
+
+Your order #8478 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Regards, The Team"
+benign,newsletter@news.example,Water bill for June available,"Hello,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Best wishes, Support Staff"
+benign,registrar@university.edu,Your order has shipped,"Hello,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Kind regards, Campus Services"
+benign,hr@company.example,Course registration confirmation,"Dear student,
+
+The water bill for June is now available in your account. The amount is unchanged from May.
+
+Thanks, Administration"
+benign,events@university.edu,Course registration confirmation,"Dear customer,
+
+Your order #8482 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Best wishes, Support Staff"
+benign,alumni@university.edu,Team meeting moved to Friday,"Dear customer,
+
+Your order #8483 shipped today and should arrive within five business days. Thank you for your purchase.
+
+Regards, The Team"
+benign,registrar@university.edu,Monthly payment receipt,"Dear customer,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Thanks, Administration"
+benign,notices@university.edu,Monthly payment receipt,"Dear student,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Best wishes, Support Staff"
+benign,hr@company.example,Course registration confirmation,"Good morning,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Thanks, Administration"
+benign,it-helpdesk@company.example,Water bill for June available,"Good morning,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Best wishes, Support Staff"
+benign,it-helpdesk@company.example,Your order has shipped,"Hi there,
+
+You are invited to the alumni meetup on the 24th at the old student union building.
+
+Best wishes, Support Staff"
+benign,receipts@shop.example,Office closed on Monday,"Hello,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Best wishes, Support Staff"
+benign,events@university.edu,Office closed on Monday,"Hi there,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Kind regards, Campus Services"
+benign,hr@company.example,Water bill for June available,"Good morning,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Kind regards, Campus Services"
+benign,billing@utility.example,Seminar: Introduction to Databases,"Good morning,
+
+Your registration for the autumn term has been confirmed. Timetables are published on the portal.
+
+Kind regards, Campus Services"
+benign,hr@company.example,Office closed on Monday,"Hi there,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Best wishes, Support Staff"
+benign,newsletter@news.example,Weekly campus newsletter,"Good morning,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Kind regards, Campus Services"
+benign,it-helpdesk@company.example,Water bill for June available,"Dear customer,
+
+Our newsletter this week covers campus sports results, the new cafe opening, and volunteering options.
+
+Best wishes, Support Staff"
+benign,alumni@university.edu,Library hours during exam week,"Good morning,
+
+The seminar takes place in Hall B at 3 PM on Thursday. Seats are limited to 80 attendees.
+
+Regards, The Team"
+benign,newsletter@news.example,Your order has shipped,"Hello,
+
+The office will be closed on Monday for scheduled maintenance. Regular service resumes Tuesday at 9 AM.
+
+Kind regards, Campus Services"
+benign,registrar@university.edu,Course registration confirmation,"Hi there,
+
+Your payment of $56.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Kind regards, Campus Services"
+benign,notices@university.edu,Weekly campus newsletter,"Hello,
+
+Your payment of $63.00 was received on the 3rd. This receipt confirms the settled balance.
+
+Thanks, Administration"
+phishing,no-reply@amaz0n-pay.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://secure-login.amaz0n-pay.xyz/verify?ref=100000
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,support@company-portal-login.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://secure-login.company-portal-login.xyz/verify?ref=100001
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,account-services@appleid-support.top,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://secure-login.appleid-support.top/verify?ref=100002
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,support@paypa1-secure.top,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: https://paypa1-secure.top/account/confirm?id=100003
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,security-alert@company-portal-login.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://company-portal-login.xyz/account/confirm?id=100004
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,billing@appleid-support.top,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: https://appleid-support.top/account/confirm?id=100005
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,no-reply@amaz0n-pay.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://secure-login.amaz0n-pay.xyz/verify?ref=100006
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,support@micr0soft-verify.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: https://micr0soft-verify.xyz/account/confirm?id=100007
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,security-alert@amaz0n-pay.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.9/signin/100008
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,security-alert@netflix-billing.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.10/signin/100009
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,billing@netflix-billing.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.netflix-billing.xyz/verify?ref=100010
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,support@company-portal-login.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://185.220.101.12/login?session=100011
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,security-alert@appleid-support.top,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://appleid-support.top/account/confirm?id=100012
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,billing@amaz0n-pay.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://45.33.32.14/signin/100013
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@paypa1-secure.top,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://paypa1-secure.top/account/confirm?id=100014
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,billing@appleid-support.top,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: https://appleid-support.top/account/confirm?id=100015
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,support@micr0soft-verify.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.17/signin/100016
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,security-alert@appleid-support.top,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://185.220.101.18/login?session=100017
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,billing@company-portal-login.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.19/signin/100018
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,support@company-portal-login.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.20/login?session=100019
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,security-alert@paypa1-secure.top,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.21/signin/100020
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,security-alert@appleid-support.top,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://185.220.101.22/login?session=100021
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,security-alert@appleid-support.top,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://secure-login.appleid-support.top/verify?ref=100022
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,billing@appleid-support.top,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://45.33.32.24/signin/100023
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,security-alert@company-portal-login.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.25/signin/100024
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,billing@company-portal-login.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://45.33.32.26/signin/100025
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,security-alert@amaz0n-pay.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: https://amaz0n-pay.xyz/account/confirm?id=100026
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,billing@appleid-support.top,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://185.220.101.28/login?session=100027
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,support@company-portal-login.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://185.220.101.29/login?session=100028
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,support@paypa1-secure.top,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://secure-login.paypa1-secure.top/verify?ref=100029
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,account-services@paypa1-secure.top,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.paypa1-secure.top/verify?ref=100030
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,security-alert@netflix-billing.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://secure-login.netflix-billing.xyz/verify?ref=100031
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,support@amaz0n-pay.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://185.220.101.33/login?session=100032
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,support@amaz0n-pay.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: https://amaz0n-pay.xyz/account/confirm?id=100033
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,security-alert@amaz0n-pay.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://45.33.32.35/signin/100034
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,no-reply@micr0soft-verify.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: https://micr0soft-verify.xyz/account/confirm?id=100035
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,support@netflix-billing.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.37/login?session=100036
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,security-alert@company-portal-login.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://45.33.32.38/signin/100037
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,security-alert@company-portal-login.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://45.33.32.39/signin/100038
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@amaz0n-pay.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://185.220.101.40/login?session=100039
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,account-services@netflix-billing.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: https://netflix-billing.xyz/account/confirm?id=100040
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@netflix-billing.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://45.33.32.42/signin/100041
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,account-services@micr0soft-verify.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://secure-login.micr0soft-verify.xyz/verify?ref=100042
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,no-reply@paypa1-secure.top,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://45.33.32.44/signin/100043
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,security-alert@company-portal-login.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.45/signin/100044
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@amaz0n-pay.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://45.33.32.46/signin/100045
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,security-alert@micr0soft-verify.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.47/login?session=100046
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,security-alert@netflix-billing.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: https://netflix-billing.xyz/account/confirm?id=100047
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,no-reply@amaz0n-pay.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.49/login?session=100048
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@amaz0n-pay.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://secure-login.amaz0n-pay.xyz/verify?ref=100049
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,support@appleid-support.top,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: https://appleid-support.top/account/confirm?id=100050
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@amaz0n-pay.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://45.33.32.52/signin/100051
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@company-portal-login.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.company-portal-login.xyz/verify?ref=100052
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@amaz0n-pay.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://185.220.101.54/login?session=100053
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,no-reply@netflix-billing.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://secure-login.netflix-billing.xyz/verify?ref=100054
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@company-portal-login.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://45.33.32.56/signin/100055
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,support@amaz0n-pay.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: https://amaz0n-pay.xyz/account/confirm?id=100056
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,security-alert@netflix-billing.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://secure-login.netflix-billing.xyz/verify?ref=100057
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,security-alert@micr0soft-verify.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://45.33.32.59/signin/100058
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,no-reply@netflix-billing.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://netflix-billing.xyz/account/confirm?id=100059
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@micr0soft-verify.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.61/login?session=100060
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,account-services@company-portal-login.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: https://company-portal-login.xyz/account/confirm?id=100061
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@appleid-support.top,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://185.220.101.63/login?session=100062
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,support@paypa1-secure.top,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: https://paypa1-secure.top/account/confirm?id=100063
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,no-reply@micr0soft-verify.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://45.33.32.65/signin/100064
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@appleid-support.top,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.appleid-support.top/verify?ref=100065
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,security-alert@appleid-support.top,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://185.220.101.67/login?session=100066
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@amaz0n-pay.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://45.33.32.68/signin/100067
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,no-reply@micr0soft-verify.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://micr0soft-verify.xyz/account/confirm?id=100068
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@appleid-support.top,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://45.33.32.70/signin/100069
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@appleid-support.top,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://185.220.101.71/login?session=100070
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,billing@company-portal-login.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://company-portal-login.xyz/account/confirm?id=100071
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,security-alert@netflix-billing.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.netflix-billing.xyz/verify?ref=100072
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,support@company-portal-login.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://185.220.101.74/login?session=100073
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,support@paypa1-secure.top,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://secure-login.paypa1-secure.top/verify?ref=100074
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,no-reply@company-portal-login.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.76/signin/100075
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,support@amaz0n-pay.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://185.220.101.77/login?session=100076
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,billing@company-portal-login.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.78/login?session=100077
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@micr0soft-verify.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://45.33.32.79/signin/100078
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,billing@amaz0n-pay.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://185.220.101.80/login?session=100079
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,account-services@netflix-billing.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://185.220.101.81/login?session=100080
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,support@company-portal-login.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://45.33.32.82/signin/100081
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,security-alert@appleid-support.top,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://185.220.101.83/login?session=100082
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,no-reply@paypa1-secure.top,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.paypa1-secure.top/verify?ref=100083
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,no-reply@amaz0n-pay.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: https://amaz0n-pay.xyz/account/confirm?id=100084
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@company-portal-login.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: https://company-portal-login.xyz/account/confirm?id=100085
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,no-reply@company-portal-login.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://company-portal-login.xyz/account/confirm?id=100086
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,account-services@micr0soft-verify.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.micr0soft-verify.xyz/verify?ref=100087
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,no-reply@company-portal-login.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.89/login?session=100088
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@appleid-support.top,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://185.220.101.90/login?session=100089
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,security-alert@amaz0n-pay.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://amaz0n-pay.xyz/account/confirm?id=100090
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,no-reply@amaz0n-pay.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://secure-login.amaz0n-pay.xyz/verify?ref=100091
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,billing@micr0soft-verify.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.93/login?session=100092
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,account-services@paypa1-secure.top,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://secure-login.paypa1-secure.top/verify?ref=100093
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@company-portal-login.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://45.33.32.95/signin/100094
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,support@amaz0n-pay.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: https://amaz0n-pay.xyz/account/confirm?id=100095
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,support@netflix-billing.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://45.33.32.97/signin/100096
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,account-services@company-portal-login.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.98/signin/100097
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,account-services@netflix-billing.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://secure-login.netflix-billing.xyz/verify?ref=100098
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@paypa1-secure.top,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.100/signin/100099
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,account-services@micr0soft-verify.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: https://micr0soft-verify.xyz/account/confirm?id=100100
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,no-reply@amaz0n-pay.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://secure-login.amaz0n-pay.xyz/verify?ref=100101
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,no-reply@paypa1-secure.top,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://185.220.101.103/login?session=100102
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@appleid-support.top,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://secure-login.appleid-support.top/verify?ref=100103
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,support@amaz0n-pay.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: https://amaz0n-pay.xyz/account/confirm?id=100104
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@company-portal-login.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://secure-login.company-portal-login.xyz/verify?ref=100105
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,support@appleid-support.top,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://45.33.32.107/signin/100106
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,security-alert@micr0soft-verify.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://micr0soft-verify.xyz/account/confirm?id=100107
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@netflix-billing.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://45.33.32.109/signin/100108
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,billing@paypa1-secure.top,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://185.220.101.110/login?session=100109
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,account-services@company-portal-login.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://185.220.101.111/login?session=100110
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,account-services@netflix-billing.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://secure-login.netflix-billing.xyz/verify?ref=100111
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,security-alert@appleid-support.top,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://appleid-support.top/account/confirm?id=100112
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,support@appleid-support.top,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.114/login?session=100113
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@netflix-billing.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://185.220.101.115/login?session=100114
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,no-reply@micr0soft-verify.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: https://micr0soft-verify.xyz/account/confirm?id=100115
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,billing@micr0soft-verify.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.117/login?session=100116
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,billing@micr0soft-verify.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://micr0soft-verify.xyz/account/confirm?id=100117
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,no-reply@appleid-support.top,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://secure-login.appleid-support.top/verify?ref=100118
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,no-reply@company-portal-login.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://company-portal-login.xyz/account/confirm?id=100119
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,security-alert@paypa1-secure.top,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: https://paypa1-secure.top/account/confirm?id=100120
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@appleid-support.top,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.appleid-support.top/verify?ref=100121
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,billing@micr0soft-verify.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.123/login?session=100122
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,no-reply@appleid-support.top,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://appleid-support.top/account/confirm?id=100123
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,no-reply@company-portal-login.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: https://company-portal-login.xyz/account/confirm?id=100124
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,security-alert@appleid-support.top,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.appleid-support.top/verify?ref=100125
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,security-alert@micr0soft-verify.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: https://micr0soft-verify.xyz/account/confirm?id=100126
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,no-reply@netflix-billing.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.128/signin/100127
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,billing@micr0soft-verify.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.129/signin/100128
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,security-alert@micr0soft-verify.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.130/signin/100129
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,support@company-portal-login.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://secure-login.company-portal-login.xyz/verify?ref=100130
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,security-alert@paypa1-secure.top,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: https://paypa1-secure.top/account/confirm?id=100131
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,security-alert@netflix-billing.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://secure-login.netflix-billing.xyz/verify?ref=100132
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,no-reply@amaz0n-pay.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.amaz0n-pay.xyz/verify?ref=100133
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,billing@amaz0n-pay.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://185.220.101.135/login?session=100134
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,no-reply@paypa1-secure.top,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://45.33.32.136/signin/100135
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,no-reply@amaz0n-pay.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: https://amaz0n-pay.xyz/account/confirm?id=100136
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,support@micr0soft-verify.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://45.33.32.138/signin/100137
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,security-alert@appleid-support.top,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: https://appleid-support.top/account/confirm?id=100138
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,account-services@micr0soft-verify.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: https://micr0soft-verify.xyz/account/confirm?id=100139
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,support@company-portal-login.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://secure-login.company-portal-login.xyz/verify?ref=100140
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,support@paypa1-secure.top,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.142/login?session=100141
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@netflix-billing.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://secure-login.netflix-billing.xyz/verify?ref=100142
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,no-reply@amaz0n-pay.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://45.33.32.144/signin/100143
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,security-alert@netflix-billing.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: https://netflix-billing.xyz/account/confirm?id=100144
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,account-services@appleid-support.top,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://secure-login.appleid-support.top/verify?ref=100145
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@appleid-support.top,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://185.220.101.147/login?session=100146
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,support@paypa1-secure.top,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.paypa1-secure.top/verify?ref=100147
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,security-alert@amaz0n-pay.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.amaz0n-pay.xyz/verify?ref=100148
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,billing@company-portal-login.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://185.220.101.150/login?session=100149
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,support@netflix-billing.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: https://netflix-billing.xyz/account/confirm?id=100150
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,security-alert@micr0soft-verify.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://micr0soft-verify.xyz/account/confirm?id=100151
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,account-services@appleid-support.top,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://185.220.101.153/login?session=100152
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@netflix-billing.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: https://netflix-billing.xyz/account/confirm?id=100153
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,no-reply@company-portal-login.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://45.33.32.155/signin/100154
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,support@micr0soft-verify.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://45.33.32.156/signin/100155
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,billing@paypa1-secure.top,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.paypa1-secure.top/verify?ref=100156
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@amaz0n-pay.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.amaz0n-pay.xyz/verify?ref=100157
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,security-alert@netflix-billing.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://secure-login.netflix-billing.xyz/verify?ref=100158
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,no-reply@amaz0n-pay.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://secure-login.amaz0n-pay.xyz/verify?ref=100159
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,no-reply@amaz0n-pay.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://45.33.32.161/signin/100160
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@amaz0n-pay.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://amaz0n-pay.xyz/account/confirm?id=100161
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@appleid-support.top,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.163/signin/100162
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,security-alert@micr0soft-verify.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://45.33.32.164/signin/100163
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,billing@netflix-billing.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.165/login?session=100164
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,no-reply@netflix-billing.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://185.220.101.166/login?session=100165
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,billing@paypa1-secure.top,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: https://paypa1-secure.top/account/confirm?id=100166
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,no-reply@micr0soft-verify.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.micr0soft-verify.xyz/verify?ref=100167
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,security-alert@amaz0n-pay.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.169/signin/100168
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,account-services@company-portal-login.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://secure-login.company-portal-login.xyz/verify?ref=100169
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,billing@amaz0n-pay.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://amaz0n-pay.xyz/account/confirm?id=100170
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@netflix-billing.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://185.220.101.172/login?session=100171
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,billing@paypa1-secure.top,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://45.33.32.173/signin/100172
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,support@netflix-billing.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://netflix-billing.xyz/account/confirm?id=100173
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,billing@netflix-billing.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: https://netflix-billing.xyz/account/confirm?id=100174
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@netflix-billing.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.176/login?session=100175
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,security-alert@company-portal-login.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: https://company-portal-login.xyz/account/confirm?id=100176
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@appleid-support.top,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://secure-login.appleid-support.top/verify?ref=100177
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,support@appleid-support.top,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://45.33.32.179/signin/100178
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,security-alert@paypa1-secure.top,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://185.220.101.180/login?session=100179
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,billing@appleid-support.top,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://secure-login.appleid-support.top/verify?ref=100180
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,no-reply@paypa1-secure.top,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://45.33.32.182/signin/100181
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,account-services@paypa1-secure.top,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: https://paypa1-secure.top/account/confirm?id=100182
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@appleid-support.top,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.184/signin/100183
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,billing@amaz0n-pay.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://45.33.32.185/signin/100184
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@amaz0n-pay.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.amaz0n-pay.xyz/verify?ref=100185
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,support@company-portal-login.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.187/signin/100186
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,account-services@amaz0n-pay.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: https://amaz0n-pay.xyz/account/confirm?id=100187
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@netflix-billing.xyz,Security alert: verify password immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://45.33.32.189/signin/100188
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,security-alert@amaz0n-pay.xyz,Your account will be suspended within 24 hours,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.190/login?session=100189
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,billing@company-portal-login.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: http://45.33.32.191/signin/100190
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,billing@netflix-billing.xyz,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must confirm your account within 24 hours: https://netflix-billing.xyz/account/confirm?id=100191
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,account-services@netflix-billing.xyz,Action required: confirm your account now,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://secure-login.netflix-billing.xyz/verify?ref=100192
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,support@netflix-billing.xyz,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://secure-login.netflix-billing.xyz/verify?ref=100193
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,billing@appleid-support.top,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://45.33.32.195/signin/100194
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,security-alert@paypa1-secure.top,Payment declined: update your billing immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://secure-login.paypa1-secure.top/verify?ref=100195
+
+Your account has been compromised and will be terminated.
+
+Security Team"
+phishing,no-reply@appleid-support.top,Unusual activity detected: confirm your account,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://secure-login.appleid-support.top/verify?ref=100196
+
+Ignoring this notice will lead to legal action against your account.
+
+Security Team"
+phishing,security-alert@amaz0n-pay.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must verify your password within 24 hours: http://secure-login.amaz0n-pay.xyz/verify?ref=100197
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,support@appleid-support.top,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must enter your password on the secure page within 24 hours: http://45.33.32.199/signin/100198
+
+Failure to act will result in your account closed permanently.
+
+Security Team"
+phishing,billing@company-portal-login.xyz,URGENT: verify your account immediately,"Dear customer,
+
+We detected unusual activity on your profile. You must update your password now within 24 hours: http://185.220.101.200/login?session=100199
+
+Your account has been compromised and will be terminated.
+
+Security Team"

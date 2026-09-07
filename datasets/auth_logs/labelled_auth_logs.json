@@ -1,0 +1,2926 @@
+[
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "alice.j",
+        "ip": "10.0.0.20",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:06:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.0.21",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:59:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.0.22",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:21:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.0.23",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T15:18:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "bob.k",
+        "ip": "10.0.1.20",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:41:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "10.0.1.21",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:34:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "10.0.1.22",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:33:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "carol.m",
+        "ip": "10.0.2.20",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:56:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "10.0.2.21",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:08:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "10.0.2.22",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:54:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "dave.p",
+        "ip": "10.0.3.20",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:29:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "10.0.3.21",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:17:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "10.0.3.22",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:12:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "10.0.3.23",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T15:51:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "erin.r",
+        "ip": "10.0.4.20",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:21:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "10.0.4.21",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:10:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "alice.j",
+        "ip": "10.0.5.20",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:29:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.5.21",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:41:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.5.22",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:16:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.5.23",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T15:45:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "bob.k",
+        "ip": "10.0.6.20",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "10.0.6.21",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:47:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "carol.m",
+        "ip": "10.0.7.20",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:50:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "10.0.7.21",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:18:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "10.0.7.22",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:36:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "dave.p",
+        "ip": "10.0.8.20",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:48:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "10.0.8.21",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:12:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "10.0.8.22",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:11:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "10.0.8.23",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T15:39:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "erin.r",
+        "ip": "10.0.9.20",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:57:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "10.0.9.21",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:25:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "10.0.9.22",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:52:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "10.0.9.23",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T15:27:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "alice.j",
+        "ip": "10.0.10.20",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:20:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.10.21",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:05:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.10.22",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:25:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.10.23",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T15:42:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "bob.k",
+        "ip": "10.0.11.20",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:11:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "10.0.11.21",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:08:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "carol.m",
+        "ip": "10.0.12.20",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:20:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "10.0.12.21",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:59:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "10.0.12.22",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:15:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "dave.p",
+        "ip": "10.0.13.20",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:16:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "10.0.13.21",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:24:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "erin.r",
+        "ip": "10.0.14.20",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:28:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "10.0.14.21",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:48:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "alice.j",
+        "ip": "10.0.15.20",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:21:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.15.21",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:19:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.15.22",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:37:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "bob.k",
+        "ip": "10.0.16.20",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:36:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "10.0.16.21",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:00:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "10.0.16.22",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:16:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "10.0.16.23",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T15:41:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "carol.m",
+        "ip": "10.0.17.20",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:44:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "10.0.17.21",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:15:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "10.0.17.22",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:03:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "dave.p",
+        "ip": "10.0.18.20",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:07:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "10.0.18.21",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:29:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "10.0.18.22",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:19:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "10.0.18.23",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T15:10:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "erin.r",
+        "ip": "10.0.19.20",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:43:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "10.0.19.21",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:32:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "10.0.19.22",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:59:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "alice.j",
+        "ip": "10.0.0.20",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:49:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.0.21",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:19:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.0.22",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:44:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.0.23",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T15:07:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "bob.k",
+        "ip": "10.0.1.20",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:58:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "10.0.1.21",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:18:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "10.0.1.22",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:23:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "10.0.1.23",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T15:39:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "carol.m",
+        "ip": "10.0.2.20",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:14:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "10.0.2.21",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:08:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "dave.p",
+        "ip": "10.0.3.20",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:09:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "10.0.3.21",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:29:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "10.0.3.22",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:47:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "erin.r",
+        "ip": "10.0.4.20",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:23:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "10.0.4.21",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:26:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "10.0.4.22",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:44:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "10.0.4.23",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T15:35:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "alice.j",
+        "ip": "10.0.5.20",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:48:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.5.21",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:34:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.5.22",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:51:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "bob.k",
+        "ip": "10.0.6.20",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:52:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "10.0.6.21",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:13:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "10.0.6.22",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:48:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "10.0.6.23",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T15:15:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "carol.m",
+        "ip": "10.0.7.20",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:48:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "10.0.7.21",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:38:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "10.0.7.22",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:55:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "10.0.7.23",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T15:50:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "dave.p",
+        "ip": "10.0.8.20",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:33:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "10.0.8.21",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:28:00Z"
+      }
+    ]
+  },
+  {
+    "label": "benign",
+    "events": [
+      {
+        "user": "erin.r",
+        "ip": "10.0.9.20",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:45:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "10.0.9.21",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T11:23:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "10.0.9.22",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T13:04:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "10.0.9.23",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T15:58:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:02:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:04:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:06:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:08:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:10:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "bob.k",
+        "ip": "10.0.1.9",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:14:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:00:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:03:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:06:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:09:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "carol.m",
+        "ip": "10.0.2.9",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:10:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:00:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:01:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:02:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T11:05:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:02:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:04:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:06:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:08:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:10:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "10.0.3.9",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:39:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:00:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:03:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:06:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:09:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:00:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "45.33.32.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:01:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "45.33.32.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:02:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T11:05:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:02:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:04:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:06:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "alice.j",
+        "ip": "10.0.5.9",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:43:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:00:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:03:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:06:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:09:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "bob.k",
+        "ip": "10.0.6.9",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:41:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:00:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "45.33.32.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:01:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "45.33.32.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:02:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T11:05:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:02:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:04:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:06:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "10.0.7.9",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:17:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:00:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:03:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:06:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:09:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:00:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:01:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:02:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T11:05:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:02:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:04:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:06:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:08:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "erin.r",
+        "ip": "10.0.9.9",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:40:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:00:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:03:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:06:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:09:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "alice.j",
+        "ip": "10.0.10.9",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:35:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:00:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "45.33.32.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:01:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "45.33.32.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:02:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T11:05:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:02:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:04:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:06:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "10.0.11.9",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:20:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:00:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:03:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:06:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:09:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:00:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "45.33.32.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:01:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "45.33.32.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:02:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T11:05:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:02:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:04:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:06:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:08:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:10:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "dave.p",
+        "ip": "10.0.13.9",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:44:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:00:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:03:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:06:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:09:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "erin.r",
+        "ip": "10.0.14.9",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:38:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:00:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "45.33.32.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:01:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "45.33.32.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:02:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T11:05:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:02:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:04:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:06:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "10.0.15.9",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:39:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:00:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:03:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:06:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:09:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:00:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "45.33.32.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:01:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "45.33.32.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:02:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T11:05:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:02:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:04:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:06:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:08:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "carol.m",
+        "ip": "10.0.17.9",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:10:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:00:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:03:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:06:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:09:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "dave.p",
+        "ip": "10.0.18.9",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:36:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:00:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "45.33.32.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:01:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "45.33.32.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:02:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T11:05:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:02:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:04:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:06:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "10.0.19.9",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:39:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:00:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:03:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:06:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:09:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:00:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "45.33.32.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:01:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "45.33.32.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:02:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T11:05:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:02:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:04:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:06:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:08:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "bob.k",
+        "ip": "10.0.1.9",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:36:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:00:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:03:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:06:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:09:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "carol.m",
+        "ip": "10.0.2.9",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:43:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:00:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:01:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:02:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T11:05:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:02:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:04:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:06:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "10.0.3.9",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:42:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:00:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:03:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:06:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:09:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:00:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "45.33.32.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:01:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "45.33.32.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:02:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T11:05:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:02:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:04:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:06:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:08:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "alice.j",
+        "ip": "10.0.5.9",
+        "location": "London, UK",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:26:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:00:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:03:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:06:00Z"
+      },
+      {
+        "user": "alice.j",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:09:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "bob.k",
+        "ip": "10.0.6.9",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:08:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:00:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "45.33.32.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:01:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "45.33.32.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:02:00Z"
+      },
+      {
+        "user": "bob.k",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T11:05:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:02:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:04:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:06:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:08:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "10.0.7.9",
+        "location": "New York, US",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:23:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:00:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:03:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:06:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:09:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:00:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.11",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:01:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.12",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T11:02:00Z"
+      },
+      {
+        "user": "carol.m",
+        "ip": "45.33.32.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T11:05:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:02:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:04:00Z"
+      },
+      {
+        "user": "dave.p",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T09:06:00Z"
+      }
+    ]
+  },
+  {
+    "label": "attack",
+    "events": [
+      {
+        "user": "erin.r",
+        "ip": "10.0.9.9",
+        "location": "Singapore, SG",
+        "device": "Windows-Chrome",
+        "status": "success",
+        "timestamp": "2026-07-01T09:00:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "success",
+        "timestamp": "2026-07-01T09:20:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.7",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:00:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.8",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:03:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.9",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:06:00Z"
+      },
+      {
+        "user": "erin.r",
+        "ip": "185.220.101.10",
+        "location": "Moscow, RU",
+        "device": "Linux-Firefox",
+        "status": "failed",
+        "timestamp": "2026-07-01T10:09:00Z"
+      }
+    ]
+  }
+]

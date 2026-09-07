@@ -1,0 +1,202 @@
+[
+  {
+    "file": "datasets/media/benign_00.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_01.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_02.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_03.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_04.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_05.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_06.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_07.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_08.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_09.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_10.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_11.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_12.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_13.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_14.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_15.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_16.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_17.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_18.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/benign_19.png",
+    "label": "benign",
+    "method_of_creation": "Programmatic smooth gradient with sinusoidal ripple (Pillow); single PNG save, no compression history."
+  },
+  {
+    "file": "datasets/media/manipulated_00.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_01.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_02.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_03.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_04.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_05.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_06.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_07.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_08.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_09.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_10.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_11.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_12.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_13.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_14.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_15.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_16.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_17.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_18.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  },
+  {
+    "file": "datasets/media/manipulated_19.png",
+    "label": "manipulated",
+    "method_of_creation": "Same gradient with a 64x64 region pasted from a separately JPEG quality-60 recompressed copy (spliced ELA discontinuity)."
+  }
+]
