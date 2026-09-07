@@ -292,5 +292,7 @@ def analyze_url_heuristics(url: str) -> list[dict]:
 
     probability = predict_url(url)
     if probability is not None:
+        # Safety principle: ML may raise but never lower the heuristic
+        # verdict (monotonic blending — see ml_inference.blend_scores).
         indicators.append(ml_indicator("url_xgb.pkl", probability))
     return indicators

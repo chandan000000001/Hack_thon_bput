@@ -131,13 +131,15 @@ def heuristic_flag(score: int) -> bool:
 
 def split_score(indicators: list[dict]) -> tuple[int, int]:
     """(heuristic_score, hybrid_score) from a detector's indicator list.
-    With ml_enabled=False the hybrid score equals the heuristic score."""
+    With ml_enabled=False the hybrid score equals the heuristic score.
+    Hybrid blending is monotonic: ML can raise but never lower the
+    heuristic verdict (safety property, see ml_inference.blend_scores)."""
     heuristic_indicators, ml_probability = split_ml_indicator(indicators)
     heuristic_score = calculate_score(heuristic_indicators)
     if ml_probability is not None:
         from app.services.ml_inference import blend_scores
 
-        return heuristic_score, max(0, min(100, round(0.45 * heuristic_score + 0.55 * ml_probability * 100)))
+        return heuristic_score, blend_scores(heuristic_score, ml_probability)
     return heuristic_score, heuristic_score
 
 

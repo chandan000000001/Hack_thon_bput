@@ -192,6 +192,8 @@ def analyze_network_heuristics(flows: list[dict], api_logs: list[dict]) -> list[
                 probabilities.append(probability)
         if probabilities:
             # Most malicious flow in the batch drives the ML contribution.
+        # Safety principle: ML may raise but never lower the heuristic
+        # verdict (monotonic blending — see ml_inference.blend_scores).
             indicators.append(ml_indicator("network_xgb.pkl", max(probabilities)))
         elif unfeaturised:
             indicators.append(

@@ -102,16 +102,23 @@ def analyze_media(file_bytes: bytes, file_name: str, content_type: str) -> dict[
     probability = float(result["manipulation_probability"])
     indicators = result["indicators"]
 
-    # --- Hybrid blending (ML Step 3) ---
+    # --- Hybrid blending (ML Step 3, monotonic safety property: the ML
+    # signal may raise the ELA probability but never lower it) ---
     if media_type == "image":
         cnn_probability = predict_image(file_bytes)
         if cnn_probability is not None:
-            probability = round(0.5 * probability + 0.5 * cnn_probability, 4)
+            ela_probability = probability
+            probability = round(0.5 * ela_probability + 0.5 * cnn_probability, 4)
+            probability = max(ela_probability, probability)
+            result["authenticity_score"] = round(1.0 - probability, 4)
             indicators.append(ml_indicator("deepfake_cnn.pt", cnn_probability))
     elif media_type == "video":
         cnn_probability = _video_cnn_probability(file_bytes, file_name)
         if cnn_probability is not None:
-            probability = round(0.5 * probability + 0.5 * cnn_probability, 4)
+            ela_probability = probability
+            probability = round(0.5 * ela_probability + 0.5 * cnn_probability, 4)
+            probability = max(ela_probability, probability)
+            result["authenticity_score"] = round(1.0 - probability, 4)
             indicators.append(ml_indicator("deepfake_cnn.pt", cnn_probability))
     elif media_type == "audio":
         # Honest limitation: no trained audio model exists yet; WAV analysis

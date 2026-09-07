@@ -290,9 +290,17 @@ def predict_network(feature_row: list) -> float | None:
 # ---------------------------------------------------------------------------
 
 def blend_scores(heuristic_score: int, ml_probability: float) -> int:
-    """hybrid_score = round(0.45 * heuristic + 0.55 * ml_probability * 100)."""
+    """Monotonic hybrid blending — SAFETY PRINCIPLE: a trained model may
+    raise a score but may NEVER lower it below the heuristic verdict.
+
+        final_score = max(heuristic_score, round(0.45 * heuristic_score + 0.55 * ml_probability * 100))
+
+    This prevents a weak or mismatched ML signal from diluting a strong
+    heuristic verdict (e.g. a C2-port exfiltration event must never be
+    downgraded to Safe because the model saw no similar attack)."""
     blended = round(0.45 * heuristic_score + 0.55 * ml_probability * 100)
-    return max(0, min(100, blended))
+    blended = max(0, min(100, blended))
+    return max(heuristic_score, blended)
 
 
 def ml_indicator(artifact: str, probability: float) -> dict:

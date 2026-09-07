@@ -322,5 +322,7 @@ def analyze_email_heuristics(sender: str, subject: str, body: str) -> list[dict]
 
     probability = predict_email("\n".join([sender, subject, body]))
     if probability is not None:
+        # Safety principle: ML may raise but never lower the heuristic
+        # verdict (monotonic blending — see ml_inference.blend_scores).
         indicators.append(ml_indicator("email_phishing_xgb.pkl", probability))
     return indicators

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-07T20:54:37.420614+00:00",
-  "git_commit": null,
+  "generated_at": "2026-09-07T22:27:31.991184+00:00",
+  "git_commit": "73f03fafa85b663570484414571e53fb2e137bb9",
   "thresholds": {
     "risk_score_flag": 41,
     "media_manipulation_probability_flag": 0.5,
@@ -58,26 +58,26 @@
         "recall": 0.0136,
         "false_positive_rate": 0.1116,
         "false_negative_rate": 0.9864,
-        "mean_latency_ms": 0.161,
-        "p95_latency_ms": 0.193,
+        "mean_latency_ms": 0.155,
+        "p95_latency_ms": 0.175,
         "f1": 0.0268
       },
       "hybrid": {
         "samples": 24000,
         "positives": 22638,
-        "flagged": 22107,
-        "tp": 22074,
-        "fp": 33,
-        "tn": 1329,
-        "fn": 564,
-        "accuracy": 0.9751,
-        "precision": 0.9985,
-        "recall": 0.9751,
-        "false_positive_rate": 0.0242,
-        "false_negative_rate": 0.0249,
-        "mean_latency_ms": 4.039,
-        "p95_latency_ms": 11.601,
-        "f1": 0.9867
+        "flagged": 22243,
+        "tp": 22086,
+        "fp": 157,
+        "tn": 1205,
+        "fn": 552,
+        "accuracy": 0.9705,
+        "precision": 0.9929,
+        "recall": 0.9756,
+        "false_positive_rate": 0.1153,
+        "false_negative_rate": 0.0244,
+        "mean_latency_ms": 2.278,
+        "p95_latency_ms": 8.07,
+        "f1": 0.9842
       }
     },
     "url": {
@@ -94,8 +94,8 @@
         "recall": 0.85,
         "false_positive_rate": 0.0,
         "false_negative_rate": 0.15,
-        "mean_latency_ms": 0.026,
-        "p95_latency_ms": 0.048,
+        "mean_latency_ms": 0.031,
+        "p95_latency_ms": 0.045,
         "f1": 0.9189
       },
       "hybrid": {
@@ -111,8 +111,8 @@
         "recall": 1.0,
         "false_positive_rate": 0.0,
         "false_negative_rate": 0.0,
-        "mean_latency_ms": 0.488,
-        "p95_latency_ms": 1.4,
+        "mean_latency_ms": 0.972,
+        "p95_latency_ms": 3.735,
         "f1": 1.0
       }
     },
@@ -130,26 +130,26 @@
         "recall": 0.4567,
         "false_positive_rate": 0.0,
         "false_negative_rate": 0.5433,
-        "mean_latency_ms": 0.029,
-        "p95_latency_ms": 0.05,
+        "mean_latency_ms": 0.046,
+        "p95_latency_ms": 0.085,
         "f1": 0.627
       },
       "hybrid": {
         "samples": 600,
         "positives": 300,
-        "flagged": 104,
-        "tp": 101,
+        "flagged": 160,
+        "tp": 157,
         "fp": 3,
         "tn": 297,
-        "fn": 199,
-        "accuracy": 0.6633,
-        "precision": 0.9712,
-        "recall": 0.3367,
+        "fn": 143,
+        "accuracy": 0.7567,
+        "precision": 0.9812,
+        "recall": 0.5233,
         "false_positive_rate": 0.01,
-        "false_negative_rate": 0.6633,
-        "mean_latency_ms": 2.953,
-        "p95_latency_ms": 10.677,
-        "f1": 0.5
+        "false_negative_rate": 0.4767,
+        "mean_latency_ms": 1.45,
+        "p95_latency_ms": 4.946,
+        "f1": 0.6826
       }
     },
     "account_takeover": {
@@ -166,8 +166,8 @@
         "recall": 0.7333,
         "false_positive_rate": 0.0,
         "false_negative_rate": 0.2667,
-        "mean_latency_ms": 0.026,
-        "p95_latency_ms": 0.039,
+        "mean_latency_ms": 0.02,
+        "p95_latency_ms": 0.031,
         "f1": 0.8462
       },
       "hybrid": {
@@ -183,8 +183,8 @@
         "recall": 0.7333,
         "false_positive_rate": 0.0,
         "false_negative_rate": 0.2667,
-        "mean_latency_ms": 0.026,
-        "p95_latency_ms": 0.039,
+        "mean_latency_ms": 0.02,
+        "p95_latency_ms": 0.031,
         "f1": 0.8462
       }
     },
@@ -202,26 +202,26 @@
         "recall": 0.7333,
         "false_positive_rate": 0.0,
         "false_negative_rate": 0.2667,
-        "mean_latency_ms": 0.024,
-        "p95_latency_ms": 0.036,
+        "mean_latency_ms": 0.018,
+        "p95_latency_ms": 0.029,
         "f1": 0.8462
       },
       "hybrid": {
         "samples": 60,
         "positives": 30,
-        "flagged": 2,
-        "tp": 0,
+        "flagged": 24,
+        "tp": 22,
         "fp": 2,
         "tn": 28,
-        "fn": 30,
-        "accuracy": 0.4667,
-        "precision": 0.0,
-        "recall": 0.0,
+        "fn": 8,
+        "accuracy": 0.8333,
+        "precision": 0.9167,
+        "recall": 0.7333,
         "false_positive_rate": 0.0667,
-        "false_negative_rate": 1.0,
-        "mean_latency_ms": 21.238,
-        "p95_latency_ms": 72.364,
-        "f1": 0.0
+        "false_negative_rate": 0.2667,
+        "mean_latency_ms": 11.641,
+        "p95_latency_ms": 33.949,
+        "f1": 0.8148
       }
     },
     "deepfake_image": {
@@ -238,26 +238,26 @@
         "recall": 1.0,
         "false_positive_rate": 1.0,
         "false_negative_rate": 0.0,
-        "mean_latency_ms": 0.281,
-        "p95_latency_ms": 0.321,
+        "mean_latency_ms": 1.41,
+        "p95_latency_ms": 2.808,
         "f1": 0.6667
       },
       "hybrid": {
         "samples": 1000,
         "positives": 500,
-        "flagged": 478,
-        "tp": 449,
-        "fp": 29,
-        "tn": 471,
-        "fn": 51,
-        "accuracy": 0.92,
-        "precision": 0.9393,
-        "recall": 0.898,
-        "false_positive_rate": 0.058,
-        "false_negative_rate": 0.102,
-        "mean_latency_ms": 3.158,
-        "p95_latency_ms": 2.42,
-        "f1": 0.9182
+        "flagged": 1000,
+        "tp": 500,
+        "fp": 500,
+        "tn": 0,
+        "fn": 0,
+        "accuracy": 0.5,
+        "precision": 0.5,
+        "recall": 1.0,
+        "false_positive_rate": 1.0,
+        "false_negative_rate": 0.0,
+        "mean_latency_ms": 5.111,
+        "p95_latency_ms": 2.422,
+        "f1": 0.6667
       }
     }
   },
@@ -271,12 +271,12 @@
       "false_negative_rate": 0.3688
     },
     "hybrid": {
-      "accuracy": 0.8153,
-      "precision": 0.8182,
-      "recall": 0.6572,
-      "f1": 0.7085,
-      "false_positive_rate": 0.0265,
-      "false_negative_rate": 0.3428
+      "accuracy": 0.8212,
+      "precision": 0.8985,
+      "recall": 0.8276,
+      "f1": 0.8324,
+      "false_positive_rate": 0.1987,
+      "false_negative_rate": 0.1724
     }
   }
 }
