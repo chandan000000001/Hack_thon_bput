@@ -80,3 +80,4 @@ desktop.ini
 # ---- Logs ----
 *.log
 logs/
+backend/scripts/test_api.py

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { KeyRound, Loader2, Lock, Mail, Shield, User } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { isMockMode } from '../services/api';
@@ -8,10 +8,14 @@ type Mode = 'signin' | 'signup' | 'forgot';
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const login = useAuthStore((s) => s.login);
   const signUp = useAuthStore((s) => s.signUp);
   const requestPasswordReset = useAuthStore((s) => s.requestPasswordReset);
-  const [mode, setMode] = useState<Mode>('signin');
+  const modeParam = searchParams.get('mode');
+  const initialMode: Mode =
+    modeParam === 'signup' || modeParam === 'forgot' ? modeParam : 'signin';
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [email, setEmail] = useState('admin@cyberguard.local');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
