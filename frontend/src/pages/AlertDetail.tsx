@@ -4,6 +4,7 @@ import { ArrowLeft, FolderPlus, Loader2 } from 'lucide-react';
 import * as api from '../services/api';
 import { useApi } from '../hooks/useApi';
 import { useUiStore } from '../store/uiStore';
+import { useAuthStore } from '../store/authStore';
 import type { Alert, RecommendedAction } from '../types';
 import RiskGauge from '../components/common/RiskGauge';
 import SeverityBadge from '../components/common/SeverityBadge';
@@ -32,6 +33,8 @@ export default function AlertDetail() {
   const [tab, setTab] = useState<Tab>('indicators');
   const [creating, setCreating] = useState(false);
   const [savingStatus, setSavingStatus] = useState(false);
+  const readOnly = !useAuthStore((s) => s.can('analyze'));
+
 
   if (loading) {
     return (
@@ -85,13 +88,20 @@ export default function AlertDetail() {
 
   return (
     <div className="space-y-5">
+      {readOnly && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs text-amber-400">
+          Read-only role — mutation actions are disabled. Contact an administrator for elevated access.
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <Link to="/alerts" className="inline-flex items-center gap-1.5 text-xs text-cyan-400 hover:text-cyan-300">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to Alerts
         </Link>
         <button
           onClick={createIncident}
-          disabled={creating}
+          disabled={creating || readOnly}
+          title={readOnly ? 'Read-only role' : undefined}
           className="flex items-center gap-2 rounded-lg bg-cyan-500/15 px-4 py-2 text-xs font-bold text-cyan-300 ring-1 ring-cyan-500/40 hover:bg-cyan-500/25 disabled:opacity-60"
         >
           {creating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FolderPlus className="h-3.5 w-3.5" />}
@@ -108,7 +118,8 @@ export default function AlertDetail() {
               <SeverityBadge severity={alert.severity} />
               <select
                 value={alert.status}
-                disabled={savingStatus}
+                disabled={savingStatus || readOnly}
+                title={readOnly ? 'Read-only role' : undefined}
                 onChange={(e) => handleStatusChange(e.target.value as Alert['status'])}
                 className="rounded-full bg-slate-800 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-slate-200 ring-1 ring-slate-600 outline-none focus:ring-cyan-500/60 disabled:opacity-60"
               >

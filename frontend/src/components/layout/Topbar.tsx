@@ -81,6 +81,17 @@ export default function Topbar() {
               <Shield className="h-3.5 w-3.5" />
             </span>
             <span className="hidden md:inline">{user?.name ?? 'Operator'}</span>
+            <span
+              className={`hidden rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ring-1 ${
+                user?.role === 'admin'
+                  ? 'bg-red-500/15 text-red-400 ring-red-500/40'
+                  : user?.role === 'analyst'
+                    ? 'bg-cyan-500/15 text-cyan-400 ring-cyan-500/40'
+                    : 'bg-slate-600/30 text-slate-300 ring-slate-500/40'
+              }`}
+            >
+              {user?.role ?? 'viewer'}
+            </span>
             <ChevronDown className="h-3.5 w-3.5 text-slate-500" />
           </button>
           {menuOpen && (

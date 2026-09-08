@@ -5,9 +5,9 @@ import sys
 # --- CONFIGURATION (read from environment; never hardcode secrets) ---
 import os
 
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://YOUR-PROJECT.supabase.co")
-ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "your-anon-key")
-PASSWORD = os.environ.get("CYBERGUARD_PASSWORD", "")
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://jspkfzdaulhlquatwdsl.supabase.co")
+ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpzcGtmemRhdWxobHF1YXR3ZHNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3NTUzNjksImV4cCI6MjEwNDMzMTM2OX0.mtDHAWN4Fu33VsuOJFQnJgi29LWylQ2slWGra4NRFAw")
+PASSWORD = os.environ.get("CYBERGUARD_PASSWORD", "2Q0dePe5ILuh6Vrs")
 EMAIL = os.environ.get("CYBERGUARD_EMAIL", "admin@cyberguard.local")
 BASE_URL = os.environ.get("API_BASE_URL", "http://localhost:8000/api/v1")
 

@@ -1,20 +1,31 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Lock, Mail, Shield } from 'lucide-react';
+import { KeyRound, Loader2, Lock, Mail, Shield, User } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { isMockMode } from '../services/api';
+
+type Mode = 'signin' | 'signup' | 'forgot';
 
 export default function Login() {
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
+  const signUp = useAuthStore((s) => s.signUp);
+  const requestPasswordReset = useAuthStore((s) => s.requestPasswordReset);
+  const [mode, setMode] = useState<Mode>('signin');
   const [email, setEmail] = useState('admin@cyberguard.local');
-  const [password, setPassword] = useState('demo1234');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const resetMessages = () => {
     setError(null);
+    setNotice(null);
+  };
+
+  const handleSignIn = async () => {
     setLoading(true);
     try {
       await login(email, password);
@@ -25,6 +36,55 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  const handleSignUp = async () => {
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { confirmationPending } = await signUp(fullName.trim(), email, password);
+      if (confirmationPending) {
+        resetMessages();
+        setNotice('Check your email to confirm your account, then sign in.');
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sign up failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgot = async () => {
+    setLoading(true);
+    try {
+      await requestPasswordReset(email);
+      resetMessages();
+      setNotice('Reset link sent to your email.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not send reset link');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    resetMessages();
+    if (mode === 'signin') return handleSignIn();
+    if (mode === 'signup') return handleSignUp();
+    return handleForgot();
+  };
+
+  const submitLabel =
+    mode === 'signin' ? 'Sign In' : mode === 'signup' ? 'Create Account' : 'Send Reset Link';
 
   return (
     <div className="cyber-grid flex min-h-screen items-center justify-center bg-slate-950 px-4">
@@ -48,7 +108,58 @@ export default function Login() {
               </span>
             </div>
           )}
+
+          {/* Mode tabs */}
+          <div className="mb-5 grid grid-cols-3 gap-1 rounded-lg bg-slate-800/60 p-1">
+            {(
+              [
+                ['signin', 'Sign In'],
+                ['signup', 'Create Account'],
+                ['forgot', 'Forgot Password'],
+              ] as [Mode, string][]
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => {
+                  setMode(value);
+                  resetMessages();
+                }}
+                className={`rounded-md px-2 py-1.5 text-[11px] font-semibold ${
+                  mode === value
+                    ? 'bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-500/40'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {mode === 'forgot' && (
+            <p className="mb-4 text-center text-xs text-slate-500">
+              Enter your account email and we will send you a password reset link.
+            </p>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
+            {mode === 'signup' && (
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">Full Name</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                  <input
+                    type="text"
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="w-full rounded-lg border border-slate-700/60 bg-slate-800/60 py-2.5 pl-10 pr-3 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-cyan-500/60"
+                    placeholder="Jane Analyst"
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">Email</label>
               <div className="relative">
@@ -63,24 +174,49 @@ export default function Login() {
                 />
               </div>
             </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-lg border border-slate-700/60 bg-slate-800/60 py-2.5 pl-10 pr-3 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-cyan-500/60"
-                  placeholder="••••••••"
-                />
+
+            {mode !== 'forgot' && (
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-lg border border-slate-700/60 bg-slate-800/60 py-2.5 pl-10 pr-3 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-cyan-500/60"
+                    placeholder={mode === 'signup' ? 'Minimum 8 characters' : '••••••••'}
+                  />
+                </div>
               </div>
-            </div>
+            )}
+
+            {mode === 'signup' && (
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">Confirm Password</label>
+                <div className="relative">
+                  <KeyRound className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                  <input
+                    type="password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full rounded-lg border border-slate-700/60 bg-slate-800/60 py-2.5 pl-10 pr-3 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-cyan-500/60"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+            )}
 
             {error && (
               <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-3.5 py-2.5 text-xs text-red-400">
                 {error}
+              </div>
+            )}
+            {notice && (
+              <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3.5 py-2.5 text-xs text-emerald-400">
+                {notice}
               </div>
             )}
 
@@ -90,19 +226,21 @@ export default function Login() {
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-cyan-500 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-400 disabled:opacity-60"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {loading ? 'Authenticating...' : 'Sign In'}
+              {loading ? 'Please wait...' : submitLabel}
             </button>
           </form>
 
           <div className="mt-5 rounded-lg border border-slate-700/50 bg-slate-800/40 px-3.5 py-2.5 text-center">
-            <p className="font-mono text-[11px] text-slate-400">
-              Use your Supabase account (e.g. <span className="text-cyan-400">admin@cyberguard.local</span>)
+            <p className="font-mono text-[11px] leading-relaxed text-slate-400">
+              Seeded demo accounts: <span className="text-cyan-400">admin@</span>,{' '}
+              <span className="text-cyan-400">analyst@</span>,{' '}
+              <span className="text-cyan-400">viewer@cyberguard.local</span>
             </p>
           </div>
         </div>
 
         <p className="mt-6 text-center text-[11px] text-slate-600">
-          Simulated SOC environment — all data is mock and analysis is heuristic. No real threats are processed.
+          Simulated SOC environment — all data is mock in mock mode and analysis is heuristic. No real threats are processed.
         </p>
       </div>
     </div>

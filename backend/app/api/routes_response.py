@@ -4,7 +4,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, Query
 
-from app.core.security import CurrentUser, get_current_user
+from app.core.security import CurrentUser, get_current_user, require_role
 from app.schemas.responses import ResponseExecuteRequest, ResponseExecutionResponse
 from app.services import response_service
 
@@ -21,7 +21,7 @@ async def get_response_catalog(
 
 @router.post("/execute", response_model=ResponseExecutionResponse)
 async def execute_response(
-    payload: ResponseExecuteRequest, user: CurrentUser = Depends(get_current_user)
+    payload: ResponseExecuteRequest, user: CurrentUser = Depends(require_role("analyst"))
 ) -> dict[str, Any]:
     """Execute (or approve) a catalog response action against a target."""
     return await response_service.execute_response(

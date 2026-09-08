@@ -27,7 +27,7 @@ from app.ai.prompt_templates import (
     format_phishing_user_prompt,
     format_url_user_prompt,
 )
-from app.core.security import get_current_user
+from app.core.security import CurrentUser, get_current_user, require_role
 from app.core.storage import (
     MAX_MEDIA_SIZE_BYTES,
     download_media,
@@ -188,7 +188,7 @@ async def _run_analysis_pipeline(
 
 @router.post("/email")
 async def analyze_email(
-    payload: EmailAnalysisRequest, _user: dict = Depends(get_current_user)
+    payload: EmailAnalysisRequest, _analyst: CurrentUser = Depends(require_role("analyst"))
 ) -> dict:
     """Full phishing analysis pipeline for an email."""
     raw_data = payload.model_dump(mode="json")
@@ -208,7 +208,7 @@ async def analyze_email(
 
 @router.post("/url")
 async def analyze_url(
-    payload: UrlAnalysisRequest, _user: dict = Depends(get_current_user)
+    payload: UrlAnalysisRequest, _analyst: CurrentUser = Depends(require_role("analyst"))
 ) -> dict:
     """Full malicious URL analysis pipeline for a single URL."""
     raw_data = payload.model_dump(mode="json")
@@ -226,7 +226,7 @@ async def analyze_url(
 
 @router.post("/impersonation")
 async def analyze_impersonation(
-    payload: ImpersonationAnalysisRequest, _user: dict = Depends(get_current_user)
+    payload: ImpersonationAnalysisRequest, _analyst: CurrentUser = Depends(require_role("analyst"))
 ) -> dict:
     """Full digital impersonation analysis pipeline for a message."""
     raw_data = payload.model_dump(mode="json")
@@ -246,7 +246,7 @@ async def analyze_impersonation(
 
 @router.post("/account-takeover")
 async def analyze_account_takeover(
-    payload: AccountTakeoverAnalysisRequest, _user: dict = Depends(get_current_user)
+    payload: AccountTakeoverAnalysisRequest, _analyst: CurrentUser = Depends(require_role("analyst"))
 ) -> dict:
     """Full account takeover analysis pipeline for authentication logs."""
     raw_data = payload.model_dump(mode="json")
@@ -264,7 +264,7 @@ async def analyze_account_takeover(
 
 @router.post("/network")
 async def analyze_network(
-    payload: NetworkAnalysisRequest, _user: dict = Depends(get_current_user)
+    payload: NetworkAnalysisRequest, _analyst: CurrentUser = Depends(require_role("analyst"))
 ) -> dict:
     """Full network/API abuse analysis pipeline for flows and API logs."""
     raw_data = payload.model_dump(mode="json")
@@ -364,7 +364,7 @@ async def _run_deepfake_pipeline(
 
 @router.post("/media")
 async def analyze_media_upload(
-    file: UploadFile, _user: dict = Depends(get_current_user)
+    file: UploadFile, _analyst: CurrentUser = Depends(require_role("analyst"))
 ) -> dict:
     """Full deepfake/media-forensics pipeline for an uploaded media file."""
     content_type = file.content_type or ""
@@ -433,7 +433,7 @@ async def analyze_media_upload(
 
 @router.post("/media/event/{event_id}")
 async def analyze_media_event(
-    event_id: str, _user: dict = Depends(get_current_user)
+    event_id: str, _analyst: CurrentUser = Depends(require_role("analyst"))
 ) -> dict:
     """Re-run the deepfake pipeline for an already-ingested media event."""
     try:

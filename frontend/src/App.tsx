@@ -2,6 +2,9 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import MainLayout from './components/layout/MainLayout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import Login from './pages/Login';
+import ResetPassword from './pages/ResetPassword';
+import AdminUsers from './pages/AdminUsers';
+import RoleGuard from './components/layout/RoleGuard';
 import Dashboard from './pages/Dashboard';
 import PhishingAnalysis from './pages/PhishingAnalysis';
 import UrlAnalysis from './pages/UrlAnalysis';
@@ -23,6 +26,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route
           element={
             <ProtectedRoute>
@@ -45,6 +49,14 @@ export default function App() {
           <Route path="/audit-logs" element={<AuditLogs />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
+          <Route
+            path="/admin/users"
+            element={
+              <RoleGuard minimumRole="admin">
+                <AdminUsers />
+              </RoleGuard>
+            }
+          />
         </Route>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

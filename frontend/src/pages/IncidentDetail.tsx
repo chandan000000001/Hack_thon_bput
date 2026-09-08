@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, Loader2, Users } from 'lucide-reac
 import * as api from '../services/api';
 import { useApi } from '../hooks/useApi';
 import { useUiStore } from '../store/uiStore';
+import { useAuthStore } from '../store/authStore';
 import { ANALYSTS, formatTime } from '../constants';
 import type { IncidentStatus } from '../types';
 import SeverityBadge from '../components/common/SeverityBadge';
@@ -23,6 +24,8 @@ export default function IncidentDetail() {
   const addToast = useUiStore((s) => s.addToast);
   const { data: incident, loading, error, refetch } = useApi(() => api.getIncident(id ?? ''), [id]);
   const [busy, setBusy] = useState(false);
+  const readOnly = !useAuthStore((s) => s.can('analyze'));
+
 
   if (loading) {
     return (
@@ -80,6 +83,12 @@ export default function IncidentDetail() {
 
   return (
     <div className="space-y-5">
+      {readOnly && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs text-amber-400">
+          Read-only role — mutation actions are disabled. Contact an administrator for elevated access.
+        </div>
+      )}
+
       <Link to="/incidents" className="inline-flex items-center gap-1.5 text-xs text-cyan-400 hover:text-cyan-300">
         <ArrowLeft className="h-3.5 w-3.5" /> Back to Incidents
       </Link>
@@ -103,6 +112,8 @@ export default function IncidentDetail() {
               <Users className="h-3.5 w-3.5 text-slate-500" />
               <select
                 value={incident.assignedTo ?? 'Unassigned'}
+                disabled={readOnly}
+                title={readOnly ? 'Read-only role' : undefined}
                 onChange={(e) => assign(e.target.value)}
                 className="rounded-lg border border-slate-700/60 bg-slate-800 px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-cyan-500/60"
               >
@@ -117,7 +128,8 @@ export default function IncidentDetail() {
               {nextLabel && (
                 <button
                   onClick={transition}
-                  disabled={busy}
+                  disabled={busy || readOnly}
+                  title={readOnly ? 'Read-only role' : undefined}
                   className="flex items-center gap-1.5 rounded-lg bg-cyan-500/15 px-3.5 py-1.5 text-xs font-bold text-cyan-300 ring-1 ring-cyan-500/40 hover:bg-cyan-500/25 disabled:opacity-60"
                 >
                   {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ArrowRight className="h-3.5 w-3.5" />}
@@ -126,7 +138,8 @@ export default function IncidentDetail() {
               )}
               <button
                 onClick={escalate}
-                disabled={busy}
+                disabled={busy || readOnly}
+                title={readOnly ? 'Read-only role' : undefined}
                 className="flex items-center gap-1.5 rounded-lg bg-red-500/10 px-3.5 py-1.5 text-xs font-bold text-red-400 ring-1 ring-red-500/40 hover:bg-red-500/20 disabled:opacity-60"
               >
                 <ArrowUpRight className="h-3.5 w-3.5" />

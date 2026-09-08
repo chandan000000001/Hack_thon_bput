@@ -18,6 +18,7 @@ import ChartCard from '../components/common/ChartCard';
 import SeverityBadge from '../components/common/SeverityBadge';
 import { PanelSkeleton } from '../components/common/LoadingSkeleton';
 import { formatBytes, formatTime } from '../constants';
+import { useAuthStore } from '../store/authStore';
 
 const tooltipStyle = {
   backgroundColor: '#0f172a',
@@ -47,6 +48,8 @@ export default function NetworkThreats() {
   const [apiSearch, setApiSearch] = useState('');
   const [expandedFlow, setExpandedFlow] = useState<NetworkFlow | null>(null);
   const [expandedApi, setExpandedApi] = useState<ApiLogEntry | null>(null);
+  const readOnly = !useAuthStore((s) => s.can('analyze'));
+
 
   const { data: flows, loading: flowsLoading } = useApi(() => api.listNetworkFlows(), []);
   const { data: apiLogs, loading: apiLoading } = useApi(() => api.listApiLogs(), []);
@@ -153,6 +156,12 @@ export default function NetworkThreats() {
         title="Network & API Threat Detection"
         description="Traffic anomalies, C2 beaconing, exfiltration, API rate abuse and credential stuffing."
       />
+      {readOnly && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs text-amber-400">
+          Read-only role — mutation actions are disabled. Contact an administrator for elevated access.
+        </div>
+      )}
+
 
       {/* Tabs */}
       <div className="flex gap-1 rounded-xl border border-slate-700/50 bg-slate-800/60 p-1 backdrop-blur">

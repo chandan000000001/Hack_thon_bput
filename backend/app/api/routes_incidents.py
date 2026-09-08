@@ -4,7 +4,7 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.core.security import CurrentUser, get_current_user
+from app.core.security import CurrentUser, get_current_user, require_role
 from app.schemas.incidents import (
     IncidentAssign,
     IncidentCreate,
@@ -36,7 +36,7 @@ async def get_incident(
 
 @router.post("", response_model=IncidentResponse, status_code=status.HTTP_201_CREATED)
 async def create_incident(
-    payload: IncidentCreate, user: CurrentUser = Depends(get_current_user)
+    payload: IncidentCreate, user: CurrentUser = Depends(require_role("analyst"))
 ) -> dict[str, Any]:
     """Create an incident, optionally linking existing alerts."""
     return await incident_service.create_incident(
@@ -51,7 +51,7 @@ async def create_incident(
 async def update_incident_status(
     incident_id: str,
     payload: IncidentStatusUpdate,
-    user: CurrentUser = Depends(get_current_user),
+    user: CurrentUser = Depends(require_role("analyst")),
 ) -> dict[str, Any]:
     """Change an incident's status."""
     return await incident_service.update_incident_status(
@@ -63,7 +63,7 @@ async def update_incident_status(
 async def assign_incident(
     incident_id: str,
     payload: IncidentAssign,
-    user: CurrentUser = Depends(get_current_user),
+    user: CurrentUser = Depends(require_role("analyst")),
 ) -> dict[str, Any]:
     """Assign an incident to an analyst."""
     return await incident_service.assign_incident(
@@ -75,7 +75,7 @@ async def assign_incident(
 async def escalate_incident(
     incident_id: str,
     payload: IncidentEscalate,
-    user: CurrentUser = Depends(get_current_user),
+    user: CurrentUser = Depends(require_role("analyst")),
 ) -> dict[str, Any]:
     """Escalate an incident to critical severity with a reason."""
     return await incident_service.escalate_incident(

@@ -11,6 +11,7 @@ import MitreTags from '../components/common/MitreTags';
 import RecommendedActionsPanel from '../components/common/RecommendedActionsPanel';
 import { PanelSkeleton } from '../components/common/LoadingSkeleton';
 import { useUiStore } from '../store/uiStore';
+import { useAuthStore } from '../store/authStore';
 import { ArrowRight } from 'lucide-react';
 
 const SAFE_SAMPLE = 'https://www.github.com/login';
@@ -21,6 +22,8 @@ export default function UrlAnalysis() {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const readOnly = !useAuthStore((s) => s.can('analyze'));
+
 
   const analyze = async () => {
     if (!url.trim()) {
@@ -62,6 +65,12 @@ export default function UrlAnalysis() {
         title="Malicious URL & Website Detection"
         description="Lexical and structural analysis of URLs for phishing, spoofing and malware distribution patterns."
       />
+      {readOnly && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs text-amber-400">
+          Read-only role — mutation actions are disabled. Contact an administrator for elevated access.
+        </div>
+      )}
+
 
       <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-5 backdrop-blur">
         <div className="flex flex-col gap-3 md:flex-row">
@@ -77,7 +86,8 @@ export default function UrlAnalysis() {
           </div>
           <button
             onClick={analyze}
-            disabled={loading}
+            disabled={loading || readOnly}
+            title={readOnly ? 'Read-only role' : undefined}
             className="flex items-center justify-center gap-2 rounded-lg bg-cyan-500 px-6 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-400 disabled:opacity-60"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}

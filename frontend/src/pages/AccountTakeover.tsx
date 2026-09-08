@@ -21,6 +21,7 @@ import RecommendedActionsPanel from '../components/common/RecommendedActionsPane
 import ChartCard from '../components/common/ChartCard';
 import { PanelSkeleton } from '../components/common/LoadingSkeleton';
 import { useUiStore } from '../store/uiStore';
+import { useAuthStore } from '../store/authStore';
 import { formatTime } from '../constants';
 
 const SAMPLE_AUTH_LOG = JSON.stringify(
@@ -49,6 +50,8 @@ export default function AccountTakeover() {
   const [jsonInput, setJsonInput] = useState(SAMPLE_AUTH_LOG);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const readOnly = !useAuthStore((s) => s.can('analyze'));
+
 
   const failedPerHour = useMemo(() => {
     const buckets = Array.from({ length: 24 }, (_, i) => ({
@@ -152,6 +155,12 @@ export default function AccountTakeover() {
         title="Credential Theft & Account Takeover Detection"
         description="Login anomaly detection: brute force, password spraying, impossible travel and MFA abuse."
       />
+      {readOnly && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs text-amber-400">
+          Read-only role — mutation actions are disabled. Contact an administrator for elevated access.
+        </div>
+      )}
+
 
       {/* Recent login events */}
       <div>
@@ -200,7 +209,8 @@ export default function AccountTakeover() {
           />
           <button
             onClick={analyze}
-            disabled={analyzing}
+            disabled={analyzing || readOnly}
+            title={readOnly ? 'Read-only role' : undefined}
             className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-cyan-500 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-400 disabled:opacity-60"
           >
             {analyzing ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}

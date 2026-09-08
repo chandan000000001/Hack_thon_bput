@@ -4,6 +4,7 @@ import * as api from '../services/api';
 import type { Incident, IncidentStatus } from '../types';
 import { useApi } from '../hooks/useApi';
 import PageHeader from '../components/common/PageHeader';
+import { useAuthStore } from '../store/authStore';
 import DataTable, { type Column } from '../components/common/DataTable';
 import SeverityBadge from '../components/common/SeverityBadge';
 import StatusPill from '../components/common/StatusPill';
@@ -15,6 +16,8 @@ const STATUS_OPTIONS: IncidentStatus[] = ['open', 'investigating', 'contained', 
 export default function Incidents() {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<IncidentStatus | ''>('');
+  const readOnly = !useAuthStore((s) => s.can('analyze'));
+
   const { data, loading } = useApi(() => api.listIncidents(), []);
 
   const filtered = useMemo(
@@ -39,6 +42,12 @@ export default function Incidents() {
   return (
     <div className="space-y-4">
       <PageHeader title="Incident Management" description="Track, assign and progress security incidents through their lifecycle." />
+      {readOnly && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs text-amber-400">
+          Read-only role — mutation actions are disabled. Contact an administrator for elevated access.
+        </div>
+      )}
+
 
       <div className="flex flex-wrap gap-2">
         <button

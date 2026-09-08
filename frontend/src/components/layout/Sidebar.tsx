@@ -15,12 +15,14 @@ import {
   Shield,
   ShieldAlert,
   UserX,
+  Users,
   Video,
   Zap,
 } from 'lucide-react';
 import { useUiStore } from '../../store/uiStore';
+import { useAuthStore, type Role } from '../../store/authStore';
 
-const NAV_ITEMS: { to: string; label: string; icon: typeof Bell }[] = [
+const NAV_ITEMS: { to: string; label: string; icon: typeof Bell; minRole?: Role }[] = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/phishing', label: 'Phishing Analysis', icon: Mail },
   { to: '/url-analysis', label: 'URL Analysis', icon: Link },
@@ -34,11 +36,16 @@ const NAV_ITEMS: { to: string; label: string; icon: typeof Bell }[] = [
   { to: '/audit-logs', label: 'Audit Logs', icon: ScrollText },
   { to: '/reports', label: 'Reports', icon: FileBarChart },
   { to: '/settings', label: 'Settings', icon: Settings },
+  { to: '/admin/users', label: 'User Management', icon: Users, minRole: 'admin' },
 ];
 
 export default function Sidebar() {
   const collapsed = useUiStore((s) => s.sidebarCollapsed);
   const setAssistantOpen = useUiStore((s) => s.setAssistantOpen);
+  const can = useAuthStore((s) => s.can);
+
+  // Role-aware navigation: admin-only entries are hidden for other roles.
+  const visibleItems = NAV_ITEMS.filter((item) => !item.minRole || can('admin'));
 
   return (
     <aside
@@ -61,7 +68,7 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-3">
-        {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+        {visibleItems.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}

@@ -18,6 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api import (
+    routes_admin,
     routes_alerts,
     routes_analysis,
     routes_assistant,
@@ -61,6 +62,7 @@ app.include_router(routes_response.router, prefix=settings.API_V1_PREFIX)
 app.include_router(routes_dashboard.router, prefix=settings.API_V1_PREFIX)
 app.include_router(routes_audit.router, prefix=settings.API_V1_PREFIX)
 app.include_router(routes_assistant.router, prefix=settings.API_V1_PREFIX)
+app.include_router(routes_admin.router, prefix=settings.API_V1_PREFIX)
 
 
 @app.exception_handler(RequestValidationError)

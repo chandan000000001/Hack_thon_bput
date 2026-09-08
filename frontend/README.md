@@ -83,6 +83,24 @@ All four are Vite environment variables read at build/dev time from `frontend/.e
 - **Mock fallback**: endpoints not yet integrated in real mode still serve mock data, with a `[CYBERGUARD] endpoint not yet integrated, using mock:` console warning, so no page breaks during phased integration.
 - Set `VITE_USE_MOCK=true` (or remove it) at any time to return to the fully self-contained mock demo.
 
+### Roles & Authentication Flows
+
+Three roles are enforced by the backend (`profiles.role`) and mirrored in the UI:
+
+| Role | Level | Can do |
+|---|---|---|
+| **viewer** | 1 | Read-only: dashboards, alerts, incidents, reports. All submit/execute/status-change controls are disabled with a "Read-only role" tooltip and a banner on each page. |
+| **analyst** | 2 | Everything viewer can, plus run analyses, ingest events, change alert statuses, execute response actions, and manage incidents. |
+| **admin** | 3 | Everything analyst can, plus **Admin → User Management** (`/admin/users`) to change other users' roles (audit-logged, self-demote blocked). |
+
+- The role comes from the `profiles` table (fetched via `GET /auth/me` after every login and session restore). A missing profile falls back to **viewer**.
+- **Sign-up default role is viewer**: "Create Account" on the Login page calls `supabase.auth.signUp` with the full name stored in the user metadata. New sign-ups get the `viewer` role until an admin elevates them.
+- **Forgot / Reset Password**: "Forgot Password" sends a Supabase reset email pointing at `/reset-password`, where the user sets a new password (`supabase.auth.updateUser`) and is returned to the sign-in page.
+- **Required Supabase configuration** (Authentication → URL Configuration):
+  - **Site URL**: your app origin, e.g. `http://localhost:5173` (or the deployed URL).
+  - **Redirect URLs** must include `<origin>/reset-password` (e.g. `http://localhost:5173/reset-password`) — otherwise the reset email link will not return to the app.
+- Seeded demo accounts (roles assigned by `backend/db/migrations/0003_roles_and_seed.sql`): `admin@cyberguard.local`, `analyst@cyberguard.local`, `viewer@cyberguard.local`. In **mock mode** the role defaults to `admin` so every feature stays testable without a backend.
+
 ## Tech Stack
 
 - Vite 5 + React 18 + TypeScript (strict: `noUnusedLocals`, `noUnusedParameters`)

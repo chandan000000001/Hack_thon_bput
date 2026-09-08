@@ -10,7 +10,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 from pydantic import BaseModel
 
-from app.core.security import get_current_user
+from app.core.security import CurrentUser, get_current_user, require_role
 from app.core.storage import (
     SIGNED_URL_EXPIRY_SECONDS,
     create_media_signed_url,
@@ -65,49 +65,49 @@ def _ingest_payload(payload: BaseModel) -> dict:
 
 @router.post("/email")
 def ingest_email_event(
-    payload: EmailEvent, _user: dict = Depends(get_current_user)
+    payload: EmailEvent, _analyst: CurrentUser = Depends(require_role("analyst"))
 ) -> dict:
     return _ingest_payload(payload)
 
 
 @router.post("/url")
 def ingest_url_event(
-    payload: UrlEvent, _user: dict = Depends(get_current_user)
+    payload: UrlEvent, _analyst: CurrentUser = Depends(require_role("analyst"))
 ) -> dict:
     return _ingest_payload(payload)
 
 
 @router.post("/message")
 def ingest_message_event(
-    payload: MessageEvent, _user: dict = Depends(get_current_user)
+    payload: MessageEvent, _analyst: CurrentUser = Depends(require_role("analyst"))
 ) -> dict:
     return _ingest_payload(payload)
 
 
 @router.post("/auth-log")
 def ingest_auth_log_event(
-    payload: AuthLogEvent, _user: dict = Depends(get_current_user)
+    payload: AuthLogEvent, _analyst: CurrentUser = Depends(require_role("analyst"))
 ) -> dict:
     return _ingest_payload(payload)
 
 
 @router.post("/network")
 def ingest_network_flow_event(
-    payload: NetworkFlowEvent, _user: dict = Depends(get_current_user)
+    payload: NetworkFlowEvent, _analyst: CurrentUser = Depends(require_role("analyst"))
 ) -> dict:
     return _ingest_payload(payload)
 
 
 @router.post("/api-log")
 def ingest_api_log_event(
-    payload: ApiLogEvent, _user: dict = Depends(get_current_user)
+    payload: ApiLogEvent, _analyst: CurrentUser = Depends(require_role("analyst"))
 ) -> dict:
     return _ingest_payload(payload)
 
 
 @router.post("/media")
 def ingest_media_event(
-    file: UploadFile, _user: dict = Depends(get_current_user)
+    file: UploadFile, _analyst: CurrentUser = Depends(require_role("analyst"))
 ) -> dict:
     """Upload image/audio/video media and register it as a deepfake_media event."""
     content_type = file.content_type or ""

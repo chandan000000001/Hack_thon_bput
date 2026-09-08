@@ -4,6 +4,7 @@ import * as api from '../services/api';
 import type { ResponseActionCatalog } from '../types';
 import { useApi } from '../hooks/useApi';
 import { useUiStore } from '../store/uiStore';
+import { useAuthStore } from '../store/authStore';
 import PageHeader from '../components/common/PageHeader';
 import DataTable, { type Column } from '../components/common/DataTable';
 import { PanelSkeleton } from '../components/common/LoadingSkeleton';
@@ -18,6 +19,8 @@ export default function ResponseActions() {
   const [target, setTarget] = useState('');
   const [approved, setApproved] = useState(false);
   const [executing, setExecuting] = useState(false);
+  const readOnly = !useAuthStore((s) => s.can('analyze'));
+
 
   const selected = useMemo(
     () => catalog?.find((c) => c.id === selectedAction) ?? null,
@@ -92,6 +95,12 @@ export default function ResponseActions() {
         title="Response Actions"
         description="Simulated response playbook execution. Destructive actions require explicit human approval and every execution is recorded in the audit log."
       />
+      {readOnly && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs text-amber-400">
+          Read-only role — mutation actions are disabled. Contact an administrator for elevated access.
+        </div>
+      )}
+
 
       {/* Action catalog */}
       <div>
@@ -144,6 +153,8 @@ export default function ResponseActions() {
                 <input
                   type="checkbox"
                   checked={approved}
+                  disabled={readOnly}
+                  title={readOnly ? 'Read-only role' : undefined}
                   onChange={(e) => setApproved(e.target.checked)}
                   className="h-4 w-4 rounded border-slate-600 bg-slate-700 accent-cyan-500"
                 />
@@ -153,7 +164,8 @@ export default function ResponseActions() {
 
             <button
               onClick={execute}
-              disabled={executing || !selectedAction || !target.trim() || (selected?.requiresApproval === true && !approved)}
+              disabled={executing || readOnly || !selectedAction || !target.trim() || (selected?.requiresApproval === true && !approved)}
+              title={readOnly ? 'Read-only role' : undefined}
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-cyan-500 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {executing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}

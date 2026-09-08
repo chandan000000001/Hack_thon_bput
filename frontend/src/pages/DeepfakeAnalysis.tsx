@@ -11,6 +11,7 @@ import ExplanationPanel from '../components/common/ExplanationPanel';
 import RecommendedActionsPanel from '../components/common/RecommendedActionsPanel';
 import { PanelSkeleton } from '../components/common/LoadingSkeleton';
 import { useUiStore } from '../store/uiStore';
+import { useAuthStore } from '../store/authStore';
 
 function MiniGauge({ label, value }: { label: string; value: number }) {
   const pct = Math.round(value * 100);
@@ -48,6 +49,8 @@ export default function DeepfakeAnalysis() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const readOnly = !useAuthStore((s) => s.can('analyze'));
+
 
   const analyze = async () => {
     if (!file) {
@@ -77,6 +80,12 @@ export default function DeepfakeAnalysis() {
         title="Deepfake & Manipulated Media Detection"
         description="Heuristic media forensics for images, audio and video. Deterministic per-file results in mock mode."
       />
+      {readOnly && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs text-amber-400">
+          Read-only role — mutation actions are disabled. Contact an administrator for elevated access.
+        </div>
+      )}
+
 
       <div className="grid gap-5 lg:grid-cols-2">
         <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-5 backdrop-blur">
@@ -94,7 +103,8 @@ export default function DeepfakeAnalysis() {
           />
           <button
             onClick={analyze}
-            disabled={loading || !file}
+            disabled={loading || !file || readOnly}
+            title={readOnly ? 'Read-only role' : undefined}
             className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-cyan-500 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}
@@ -160,6 +170,8 @@ export default function DeepfakeAnalysis() {
               </div>
               <button
                 onClick={() => addToast('Media flagged for manual verification by forensic analysts', 'medium')}
+                disabled={readOnly}
+                title={readOnly ? 'Read-only role' : undefined}
                 className="flex w-full items-center justify-center gap-2 rounded-lg border border-amber-500/50 bg-amber-500/10 py-2.5 text-sm font-bold text-amber-400 hover:bg-amber-500/20"
               >
                 <Flag className="h-4 w-4" />

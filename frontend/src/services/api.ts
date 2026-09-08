@@ -315,6 +315,46 @@ export async function addAlert(alert: Alert): Promise<void> {
   return notYetIntegrated('addAlert', async () => mockApi.mockAddAlert(alert));
 }
 
+// ---------------------------------------------------------------------------
+// RBAC (auth/me is resolved inside the auth store; admin endpoints here)
+// ---------------------------------------------------------------------------
+
+export interface AdminUser {
+  id: string;
+  email: string | null;
+  full_name: string | null;
+  role: 'viewer' | 'analyst' | 'admin';
+  created_at: string | null;
+}
+
+export async function listAdminUsers(): Promise<AdminUser[]> {
+  if (USE_MOCK) {
+    await new Promise((r) => setTimeout(r, 300));
+    return [
+      { id: 'USR-001', email: 'admin@cyberguard.local', full_name: 'SOC Administrator', role: 'admin', created_at: new Date('2026-01-05').toISOString() },
+      { id: 'USR-002', email: 'analyst@cyberguard.local', full_name: 'Demo Analyst', role: 'analyst', created_at: new Date('2026-01-06').toISOString() },
+      { id: 'USR-003', email: 'viewer@cyberguard.local', full_name: 'Demo Viewer', role: 'viewer', created_at: new Date('2026-01-07').toISOString() },
+    ];
+  }
+  const rows = await apiFetch('/admin/users');
+  return (Array.isArray(rows) ? rows : []) as AdminUser[];
+}
+
+export async function updateUserRole(
+  userId: string,
+  role: 'viewer' | 'analyst' | 'admin'
+): Promise<AdminUser> {
+  if (USE_MOCK) {
+    await new Promise((r) => setTimeout(r, 300));
+    return { id: userId, email: null, full_name: null, role, created_at: null };
+  }
+  const row = await apiFetch(`/admin/users/${userId}/role`, {
+    method: 'PATCH',
+    body: JSON.stringify({ role }),
+  });
+  return row as AdminUser;
+}
+
 export function isMockMode(): boolean {
   return USE_MOCK;
 }
