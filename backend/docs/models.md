@@ -94,3 +94,28 @@ When `ML_ENABLED=false` (or a model file is missing), the predictors return `Non
 ## Evaluation evidence
 
 All metrics in this document's companion report are produced by `scripts/evaluate.py` against the labelled datasets (URLhaus, Cisco Umbrella, UCI SMS + seeded synthetic sets and the held-out ML splits) — no metric is invented. Since ML Step 3 the report contains **two passes**: heuristics-only (`ML_ENABLED=false`) and hybrid (0.45/0.55 blend), plus SHA-256 hashes of every artifact. Headline hybrid results: email F1 **0.9867**, url F1 **1.0000** (held-out, small-sample caveat), deepfake F1 **0.9182**; macro accuracy **0.8153** (see `evidence/reports/evaluation.md`).
+
+## Explanation provider chain
+
+Analysis explanations (phishing, URL, impersonation, deepfake, account
+takeover, network/API) are produced by `app/ai/llm_gateway.py`, which tries
+providers strictly in order and returns as soon as one succeeds:
+
+| # | Provider | Timeout | Notes |
+|---|----------|---------|-------|
+| 1 | OpenRouter | `OPENROUTER_TIMEOUT_SECONDS` (default 100 s) | strict-JSON instruction, unchanged headers/parsing |
+| 2 | Groq | `GROQ_TIMEOUT_SECONDS` (default 60 s) | OpenAI-compatible `api.groq.com` endpoint, model `GROQ_MODEL` (default `llama-3.1-8b-instant`); skipped instantly when `GROQ_API_KEY` is empty |
+| 3 | rule_based | instant (< 5 ms) | template-generated locally from the indicator list already present in the prompt context when both remote providers fail; never fails |
+
+- **Provenance:** every analysis response carries `explanation_provider`
+  (`openrouter` | `groq` | `rule_based` | `cache:<original_provider>`) and
+  `explanation_latency_ms`. Each provider failure logs one warning line:
+  `LLM provider <name> failed after <ms> ms: <reason>`.
+- **Cache:** successful explanations are cached in-memory for 3600 s (max 256
+  entries, thread-safe LRU) keyed by sha256 of module name + normalized input
+  (for media: sha256 of the file bytes). Cache hits return with
+  `explanation_provider = "cache:<original_provider>"` and zero latency.
+- **Worst-case latency bound:** 100 s (OpenRouter) + 60 s (Groq) + < 1 s
+  (rule_based) per analysis; typically far less, and zero on cache hits.
+- Detection heuristics, ML models, scoring bands and route signatures are
+  unchanged by this chain — only the explanation source is affected.

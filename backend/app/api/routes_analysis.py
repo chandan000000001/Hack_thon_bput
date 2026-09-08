@@ -12,7 +12,7 @@ from typing import Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 from pydantic import BaseModel, Field
 
-from app.ai.openrouter_client import call_openrouter
+from app.ai.llm_gateway import explain, make_cache_key, make_cache_key_from_bytes
 from app.ai.prompt_templates import (
     ACCOUNT_TAKEOVER_SYSTEM_PROMPT,
     DEEPFAKE_SYSTEM_PROMPT,
@@ -172,7 +172,10 @@ async def _run_analysis_pipeline(
     _heuristic_score, hybrid_score, _ml_probability = score_with_ml(indicators)
     severity = get_severity(hybrid_score)
 
-    llm_output = await call_openrouter(system_prompt, user_prompt)
+    explained = await explain(
+        module, system_prompt, user_prompt, make_cache_key(module, raw_data)
+    )
+    llm_output = explained["explanation"]
 
     alert_id = create_alert_in_db(
         event_id=event_id,
@@ -183,7 +186,10 @@ async def _run_analysis_pipeline(
         severity=severity,
         llm_output=llm_output,
     )
-    return _fetch_alert_with_actions(alert_id)
+    alert = _fetch_alert_with_actions(alert_id)
+    alert["explanation_provider"] = explained["provider"]
+    alert["explanation_latency_ms"] = explained["latency_ms"]
+    return alert
 
 
 @router.post("/email")
@@ -293,6 +299,8 @@ def _finalize_deepfake_response(
     file_name: str,
     content_type: str,
     llm_output: dict[str, Any],
+    explanation_provider: str,
+    explanation_latency_ms: int,
 ) -> dict[str, Any]:
     """Persist the deepfake alert and build the unified API response."""
     raw_data = {
@@ -319,6 +327,8 @@ def _finalize_deepfake_response(
         "alert_id": alert_id,
         "storage_path": storage_path,
         "explanation": alert.get("explanation"),
+        "explanation_provider": explanation_provider,
+        "explanation_latency_ms": explanation_latency_ms,
         "mitre_techniques": alert.get("mitre"),
         "recommended_actions": [
             {
@@ -348,9 +358,11 @@ async def _run_deepfake_pipeline(
             detail=str(exc),
         ) from exc
 
-    llm_output = await call_openrouter(
+    explained = await explain(
+        "deepfake",
         DEEPFAKE_SYSTEM_PROMPT,
         format_deepfake_user_prompt(result),
+        make_cache_key_from_bytes("deepfake", file_bytes),
     )
     return _finalize_deepfake_response(
         event_id=event_id,
@@ -358,7 +370,9 @@ async def _run_deepfake_pipeline(
         storage_path=storage_path,
         file_name=file_name,
         content_type=content_type,
-        llm_output=llm_output,
+        llm_output=explained["explanation"],
+        explanation_provider=explained["provider"],
+        explanation_latency_ms=explained["latency_ms"],
     )
 
 

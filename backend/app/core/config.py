@@ -23,6 +23,11 @@ class Settings(BaseSettings):
 
     OPENROUTER_API_KEY: str = ""
     OPENROUTER_MODEL: str = "meta-llama/llama-3.1-8b-instruct:free"
+    OPENROUTER_TIMEOUT_SECONDS: float = 100
+
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "llama-3.1-8b-instant"
+    GROQ_TIMEOUT_SECONDS: float = 60
 
     ML_ENABLED: bool = True
     ML_MODELS_DIR: str = "ml/models"
@@ -34,6 +39,23 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> list[str]:
         """Parse the comma-separated CORS_ORIGINS variable into a list."""
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
+
+    # Lowercase accessor aliases used by the LLM provider clients.
+    @property
+    def groq_api_key(self) -> str:
+        return self.GROQ_API_KEY
+
+    @property
+    def groq_model(self) -> str:
+        return self.GROQ_MODEL
+
+    @property
+    def openrouter_timeout_seconds(self) -> float:
+        return self.OPENROUTER_TIMEOUT_SECONDS
+
+    @property
+    def groq_timeout_seconds(self) -> float:
+        return self.GROQ_TIMEOUT_SECONDS
 
 
 @lru_cache

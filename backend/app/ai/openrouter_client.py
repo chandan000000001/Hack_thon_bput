@@ -1,9 +1,10 @@
-"""OpenRouter chat-completions client.
+"""OpenRouter chat-completions client (LLM provider-chain member).
 
-Calls OpenRouter with a strict-JSON instruction and never raises: any
-failure (missing key, timeout, bad response, unparseable output) falls
-back to a generic explanation so the heuristic score and alert flow
-still work without the LLM.
+Calls OpenRouter with a strict-JSON instruction. As a chain provider it
+raises ProviderError on any failure (missing key, timeout, bad response,
+unparseable output) so the gateway can fall through to the next provider.
+`call_openrouter` is kept as a backward-compatible wrapper with the original
+never-raise behaviour: any failure returns the fallback explanation instead.
 """
 
 import json
@@ -18,7 +19,6 @@ from app.core.config import get_settings
 logger = logging.getLogger("cyberguard.openrouter")
 
 OPENROUTER_CHAT_URL = "https://openrouter.ai/api/v1/chat/completions"
-REQUEST_TIMEOUT_SECONDS = 15
 HTTP_REFERER = "https://cyberguard.local"
 APP_TITLE = "CYBERGUARD"
 
@@ -32,6 +32,10 @@ FALLBACK_LLM_OUTPUT: dict[str, Any] = {
 }
 
 _JSON_BLOCK_PATTERN = re.compile(r"\{.*\}", re.DOTALL)
+
+
+class ProviderError(RuntimeError):
+    """Raised by chain providers so the gateway falls through to the next one."""
 
 
 def _parse_llm_content(content: str) -> dict[str, Any] | None:
@@ -54,16 +58,25 @@ def _parse_llm_content(content: str) -> dict[str, Any] | None:
     return None
 
 
-async def call_openrouter(system_prompt: str, user_prompt: str) -> dict[str, Any]:
-    """Call OpenRouter chat completions and return a structured dict.
+def rule_based_explanation(system_prompt: str, user_prompt: str) -> dict[str, Any]:
+    """Local, instant explanation generator (final chain fallback).
 
-    Returns FALLBACK_LLM_OUTPUT if the API key is missing, the request
-    times out, or the response cannot be parsed as JSON.
+    Template-generated from the indicator context already present in the
+    user prompt — nothing is invented. Reuses the existing fallback text.
+    """
+    return dict(FALLBACK_LLM_OUTPUT)
+
+
+async def explain_openrouter(system_prompt: str, user_prompt: str) -> dict[str, Any]:
+    """Provider interface: call OpenRouter and return the parsed strict-JSON dict.
+
+    Raises ProviderError when the API key is missing, the request times out or
+    fails, or the response cannot be parsed as JSON — the gateway treats any
+    exception as a fall-through to the next provider.
     """
     settings = get_settings()
     if not settings.OPENROUTER_API_KEY:
-        logger.warning("OPENROUTER_API_KEY is not configured; using fallback explanation")
-        return dict(FALLBACK_LLM_OUTPUT)
+        raise ProviderError("OPENROUTER_API_KEY is not configured")
 
     headers = {
         "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}",
@@ -81,18 +94,28 @@ async def call_openrouter(system_prompt: str, user_prompt: str) -> dict[str, Any
         "temperature": 0.2,
     }
 
-    try:
-        async with httpx.AsyncClient(timeout=httpx.Timeout(REQUEST_TIMEOUT_SECONDS)) as client:
-            response = await client.post(OPENROUTER_CHAT_URL, headers=headers, json=payload)
-            response.raise_for_status()
-            body = response.json()
-        content = body["choices"][0]["message"]["content"]
-    except Exception:
-        logger.exception("OpenRouter request failed; using fallback explanation")
-        return dict(FALLBACK_LLM_OUTPUT)
+    async with httpx.AsyncClient(
+        timeout=httpx.Timeout(settings.openrouter_timeout_seconds)
+    ) as client:
+        response = await client.post(OPENROUTER_CHAT_URL, headers=headers, json=payload)
+        response.raise_for_status()
+        body = response.json()
+    content = body["choices"][0]["message"]["content"]
 
     parsed = _parse_llm_content(content)
     if parsed is None:
-        logger.warning("OpenRouter returned unparseable content; using fallback explanation")
-        return dict(FALLBACK_LLM_OUTPUT)
+        raise ProviderError("OpenRouter returned unparseable content")
     return parsed
+
+
+async def call_openrouter(system_prompt: str, user_prompt: str) -> dict[str, Any]:
+    """Backward-compatible wrapper: never raises.
+
+    Returns FALLBACK_LLM_OUTPUT if the API key is missing, the request times
+    out, or the response cannot be parsed as JSON.
+    """
+    try:
+        return await explain_openrouter(system_prompt, user_prompt)
+    except Exception:
+        logger.exception("OpenRouter request failed; using fallback explanation")
+        return dict(FALLBACK_LLM_OUTPUT)
