@@ -66,29 +66,29 @@ export default function UrlAnalysis() {
         description="Lexical and structural analysis of URLs for phishing, spoofing and malware distribution patterns."
       />
       {readOnly && (
-        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs text-amber-400">
+        <div className="rounded-lg border border-red-400/40 bg-red-400/10 px-3.5 py-2 text-xs text-red-400">
           Read-only role — mutation actions are disabled. Contact an administrator for elevated access.
         </div>
       )}
 
 
-      <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-5 backdrop-blur">
+      <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-5 backdrop-blur">
         <div className="flex flex-col gap-3 md:flex-row">
           <div className="relative flex-1">
-            <Link2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+            <Link2 className="absolute left-3 top-1/2 h-4 w-4 -tranzinc-y-1/2 text-zinc-500" />
             <input
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://suspicious-domain.example/login"
               onKeyDown={(e) => e.key === 'Enter' && analyze()}
-              className="w-full rounded-lg border border-slate-700/60 bg-slate-800/60 py-2.5 pl-10 pr-3 font-mono text-sm text-slate-100 placeholder-slate-600 outline-none focus:border-cyan-500/60"
+              className="w-full rounded-lg border border-zinc-700/60 bg-zinc-800/60 py-2.5 pl-10 pr-3 font-mono text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-red-500/60"
             />
           </div>
           <button
             onClick={analyze}
             disabled={loading || readOnly}
             title={readOnly ? 'Read-only role' : undefined}
-            className="flex items-center justify-center gap-2 rounded-lg bg-cyan-500 px-6 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-400 disabled:opacity-60"
+            className="flex items-center justify-center gap-2 rounded-lg bg-red-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-red-500 disabled:opacity-60"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}
             {loading ? 'Analyzing...' : 'Analyze URL'}
@@ -97,7 +97,7 @@ export default function UrlAnalysis() {
         <div className="mt-3 flex flex-wrap gap-2">
           <button
             onClick={() => setUrl(SAFE_SAMPLE)}
-            className="rounded-lg bg-slate-700/50 px-3 py-1.5 text-xs font-medium text-slate-300 ring-1 ring-slate-600/50 hover:bg-slate-700"
+            className="rounded-lg bg-zinc-700/50 px-3 py-1.5 text-xs font-medium text-zinc-300 ring-1 ring-zinc-600/50 hover:bg-zinc-700"
           >
             Load Safe URL
           </button>
@@ -111,9 +111,9 @@ export default function UrlAnalysis() {
       </div>
 
       {loading && (
-        <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-5 backdrop-blur">
-          <div className="mb-4 flex items-center gap-2 text-sm text-slate-400">
-            <Loader2 className="h-4 w-4 animate-spin text-cyan-400" />
+        <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-5 backdrop-blur">
+          <div className="mb-4 flex items-center gap-2 text-sm text-zinc-400">
+            <Loader2 className="h-4 w-4 animate-spin text-red-400" />
             Extracting lexical features and checking URL structure...
           </div>
           <PanelSkeleton rows={6} />
@@ -121,7 +121,7 @@ export default function UrlAnalysis() {
       )}
 
       {!loading && !result && (
-        <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed border-slate-700/60 bg-slate-800/20 p-8 text-center text-sm text-slate-500">
+        <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed border-zinc-700/60 bg-zinc-800/20 p-8 text-center text-sm text-zinc-500">
           Enter a URL above and press Analyze URL to see the full structural breakdown
         </div>
       )}
@@ -130,24 +130,24 @@ export default function UrlAnalysis() {
         <div className="grid gap-5 lg:grid-cols-3">
           {/* Left: score + breakdown */}
           <div className="space-y-4">
-            <div className="flex flex-col items-center rounded-xl border border-slate-700/50 bg-slate-800/60 p-5 backdrop-blur">
+            <div className="flex flex-col items-center rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-5 backdrop-blur">
               <RiskGauge score={result.riskScore} size="lg" />
               <div className="mt-4 flex items-center gap-2">
                 <SeverityBadge severity={result.severity} />
-                <span className="text-xs text-slate-400">
-                  Confidence <span className="font-mono font-semibold text-cyan-400">{result.confidence}%</span>
+                <span className="text-xs text-zinc-400">
+                  Confidence <span className="font-mono font-semibold text-red-400">{result.confidence}%</span>
                 </span>
               </div>
             </div>
 
             {breakdown && (
-              <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-4 backdrop-blur">
-                <h3 className="mb-3 text-sm font-semibold text-slate-100">URL Breakdown</h3>
+              <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-4 backdrop-blur">
+                <h3 className="mb-3 text-sm font-semibold text-zinc-100">URL Breakdown</h3>
                 <div className="space-y-2">
                   {breakdown.map((b) => (
                     <div key={b.label} className="flex items-baseline justify-between gap-3 text-xs">
-                      <span className="shrink-0 text-slate-500">{b.label}</span>
-                      <span className="break-all text-right font-mono text-slate-200">{b.value}</span>
+                      <span className="shrink-0 text-zinc-500">{b.label}</span>
+                      <span className="break-all text-right font-mono text-zinc-200">{b.value}</span>
                     </div>
                   ))}
                 </div>
@@ -155,15 +155,15 @@ export default function UrlAnalysis() {
             )}
 
             {result.redirectChain && result.redirectChain.length > 0 && (
-              <div className="rounded-xl border border-orange-500/40 bg-orange-500/5 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-orange-400">Simulated Redirect Chain</h3>
+              <div className="rounded-xl border border-red-600/40 bg-red-600/5 p-4">
+                <h3 className="mb-3 text-sm font-semibold text-red-400">Simulated Redirect Chain</h3>
                 <div className="space-y-2">
                   {result.redirectChain.map((hop, i) => (
                     <div key={i} className="flex items-center gap-2">
-                      <div className="flex-1 break-all rounded-lg border border-slate-700/50 bg-slate-800/60 px-2.5 py-1.5 font-mono text-[11px] text-slate-300">
+                      <div className="flex-1 break-all rounded-lg border border-zinc-700/50 bg-zinc-800/60 px-2.5 py-1.5 font-mono text-[11px] text-zinc-300">
                         {hop}
                       </div>
-                      {i < result.redirectChain!.length - 1 && <ArrowRight className="h-3.5 w-3.5 shrink-0 text-orange-400" />}
+                      {i < result.redirectChain!.length - 1 && <ArrowRight className="h-3.5 w-3.5 shrink-0 text-red-400" />}
                     </div>
                   ))}
                 </div>
@@ -174,12 +174,12 @@ export default function UrlAnalysis() {
           {/* Right: analysis */}
           <div className="space-y-4 lg:col-span-2">
             {result.lexicalFeatures && result.lexicalFeatures.length > 0 && (
-              <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-4 backdrop-blur">
-                <h3 className="mb-3 text-sm font-semibold text-slate-100">Lexical Features</h3>
-                <div className="overflow-hidden rounded-lg border border-slate-700/50">
+              <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-4 backdrop-blur">
+                <h3 className="mb-3 text-sm font-semibold text-zinc-100">Lexical Features</h3>
+                <div className="overflow-hidden rounded-lg border border-zinc-700/50">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-slate-700/50 bg-slate-900/80 text-[11px] uppercase tracking-wider text-slate-400">
+                      <tr className="border-b border-zinc-700/50 bg-zinc-900/80 text-[11px] uppercase tracking-wider text-zinc-400">
                         <th className="px-3 py-2">Feature</th>
                         <th className="px-3 py-2">Value</th>
                         <th className="px-3 py-2 text-right">Risk Contribution</th>
@@ -187,17 +187,17 @@ export default function UrlAnalysis() {
                     </thead>
                     <tbody>
                       {result.lexicalFeatures.map((f) => (
-                        <tr key={f.feature} className="border-b border-slate-800/60 last:border-0">
-                          <td className="px-3 py-2 text-slate-300">{f.feature}</td>
-                          <td className="px-3 py-2 font-mono text-slate-200">{f.value}</td>
+                        <tr key={f.feature} className="border-b border-zinc-800/60 last:border-0">
+                          <td className="px-3 py-2 text-zinc-300">{f.feature}</td>
+                          <td className="px-3 py-2 font-mono text-zinc-200">{f.value}</td>
                           <td className="px-3 py-2 text-right">
                             <span
                               className={`font-mono font-semibold ${
                                 f.riskContribution === 0
-                                  ? 'text-emerald-400'
+                                  ? 'text-zinc-200'
                                   : f.riskContribution >= 20
                                     ? 'text-red-400'
-                                    : 'text-amber-500'
+                                    : 'text-red-400'
                               }`}
                             >
                               +{f.riskContribution}
@@ -214,11 +214,11 @@ export default function UrlAnalysis() {
             <IndicatorList indicators={result.indicators} />
             <ExplanationPanel explanation={result.explanation} confidence={result.confidence} />
             <div>
-              <h3 className="mb-2 text-sm font-semibold text-slate-200">MITRE ATT&CK Mapping</h3>
+              <h3 className="mb-2 text-sm font-semibold text-zinc-200">MITRE ATT&CK Mapping</h3>
               <MitreTags techniques={result.mitreTechniques} />
             </div>
             <div>
-              <h3 className="mb-2 text-sm font-semibold text-slate-200">Recommended Response</h3>
+              <h3 className="mb-2 text-sm font-semibold text-zinc-200">Recommended Response</h3>
               <RecommendedActionsPanel
                 actions={result.recommendedActions}
                 onExecute={(actionId) => {

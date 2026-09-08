@@ -21,18 +21,18 @@ import { formatBytes, formatTime } from '../constants';
 import { useAuthStore } from '../store/authStore';
 
 const tooltipStyle = {
-  backgroundColor: '#0f172a',
-  border: '1px solid #334155',
+  backgroundColor: '#101010',
+  border: '1px solid #262626',
   borderRadius: '8px',
   fontSize: '12px',
-  color: '#e2e8f0',
+  color: '#fafafa',
 };
 
 function scoreColor(score: number): string {
   if (score >= 0.8) return 'text-red-500';
-  if (score >= 0.6) return 'text-orange-500';
-  if (score >= 0.4) return 'text-amber-500';
-  return 'text-emerald-400';
+  if (score >= 0.6) return 'text-red-600';
+  if (score >= 0.4) return 'text-red-400';
+  return 'text-zinc-200';
 }
 
 function flagSeverity(flags: string[]): 'critical' | 'high' | 'medium' | 'low' | 'safe' {
@@ -88,66 +88,66 @@ export default function NetworkThreats() {
   }, [apiLogs, apiSearch]);
 
   const flowColumns: Column<NetworkFlow>[] = [
-    { key: 'src', header: 'Source IP', render: (f) => <span className="font-mono text-xs text-slate-300">{f.sourceIp}</span>, sortValue: (f) => f.sourceIp },
-    { key: 'dst', header: 'Dest IP', render: (f) => <span className="font-mono text-xs text-slate-300">{f.destIp}</span>, sortValue: (f) => f.destIp },
-    { key: 'dom', header: 'Domain', render: (f) => <span className="font-mono text-xs text-cyan-400">{f.destDomain}</span>, sortValue: (f) => f.destDomain },
-    { key: 'port', header: 'Port', render: (f) => <span className={`font-mono text-xs ${[4444, 8888, 1337, 31337, 6667, 9001].includes(f.port) ? 'font-bold text-red-400' : 'text-slate-400'}`}>{f.port}</span>, sortValue: (f) => f.port },
-    { key: 'proto', header: 'Proto', render: (f) => <span className="text-xs text-slate-400">{f.protocol}</span>, sortValue: (f) => f.protocol },
-    { key: 'out', header: 'Bytes Out', render: (f) => <span className={`font-mono text-xs ${f.bytesOut > 1024 ** 3 ? 'font-bold text-red-400' : 'text-slate-300'}`}>{formatBytes(f.bytesOut)}</span>, sortValue: (f) => f.bytesOut },
+    { key: 'src', header: 'Source IP', render: (f) => <span className="font-mono text-xs text-zinc-300">{f.sourceIp}</span>, sortValue: (f) => f.sourceIp },
+    { key: 'dst', header: 'Dest IP', render: (f) => <span className="font-mono text-xs text-zinc-300">{f.destIp}</span>, sortValue: (f) => f.destIp },
+    { key: 'dom', header: 'Domain', render: (f) => <span className="font-mono text-xs text-red-400">{f.destDomain}</span>, sortValue: (f) => f.destDomain },
+    { key: 'port', header: 'Port', render: (f) => <span className={`font-mono text-xs ${[4444, 8888, 1337, 31337, 6667, 9001].includes(f.port) ? 'font-bold text-red-400' : 'text-zinc-400'}`}>{f.port}</span>, sortValue: (f) => f.port },
+    { key: 'proto', header: 'Proto', render: (f) => <span className="text-xs text-zinc-400">{f.protocol}</span>, sortValue: (f) => f.protocol },
+    { key: 'out', header: 'Bytes Out', render: (f) => <span className={`font-mono text-xs ${f.bytesOut > 1024 ** 3 ? 'font-bold text-red-400' : 'text-zinc-300'}`}>{formatBytes(f.bytesOut)}</span>, sortValue: (f) => f.bytesOut },
     { key: 'anom', header: 'Anomaly', render: (f) => <span className={`font-mono text-xs font-bold ${scoreColor(f.anomalyScore)}`}>{f.anomalyScore.toFixed(2)}</span>, sortValue: (f) => f.anomalyScore },
     {
       key: 'flags',
       header: 'Flags',
       render: (f) =>
         f.flags.length === 0 ? (
-          <span className="text-xs text-slate-600">—</span>
+          <span className="text-xs text-zinc-600">—</span>
         ) : (
           <div className="flex max-w-56 flex-wrap gap-1">
             {f.flags.map((fl) => (
-              <span key={fl} className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-500 ring-1 ring-amber-500/30">
+              <span key={fl} className="rounded bg-red-400/10 px-1.5 py-0.5 text-[10px] text-red-400 ring-1 ring-red-400/30">
                 {fl}
               </span>
             ))}
           </div>
         ),
     },
-    { key: 'time', header: 'Time', render: (f) => <span className="font-mono text-xs text-slate-500">{formatTime(f.timestamp)}</span>, sortValue: (f) => f.timestamp },
+    { key: 'time', header: 'Time', render: (f) => <span className="font-mono text-xs text-zinc-500">{formatTime(f.timestamp)}</span>, sortValue: (f) => f.timestamp },
   ];
 
   const apiColumns: Column<ApiLogEntry>[] = [
-    { key: 'ep', header: 'Endpoint', render: (l) => <span className="font-mono text-xs text-cyan-400">{l.endpoint}</span>, sortValue: (l) => l.endpoint },
-    { key: 'm', header: 'Method', render: (l) => <span className="rounded bg-slate-700/60 px-1.5 py-0.5 font-mono text-[10px] font-bold text-slate-300">{l.method}</span>, sortValue: (l) => l.method },
-    { key: 'ip', header: 'Source IP', render: (l) => <span className="font-mono text-xs text-slate-300">{l.sourceIp}</span>, sortValue: (l) => l.sourceIp },
+    { key: 'ep', header: 'Endpoint', render: (l) => <span className="font-mono text-xs text-red-400">{l.endpoint}</span>, sortValue: (l) => l.endpoint },
+    { key: 'm', header: 'Method', render: (l) => <span className="rounded bg-zinc-700/60 px-1.5 py-0.5 font-mono text-[10px] font-bold text-zinc-300">{l.method}</span>, sortValue: (l) => l.method },
+    { key: 'ip', header: 'Source IP', render: (l) => <span className="font-mono text-xs text-zinc-300">{l.sourceIp}</span>, sortValue: (l) => l.sourceIp },
     {
       key: 'code',
       header: 'Status',
       render: (l) => (
-        <span className={`font-mono text-xs font-bold ${l.statusCode >= 500 ? 'text-red-400' : l.statusCode >= 400 ? 'text-orange-400' : 'text-emerald-400'}`}>
+        <span className={`font-mono text-xs font-bold ${l.statusCode >= 500 ? 'text-red-400' : l.statusCode >= 400 ? 'text-red-400' : 'text-zinc-200'}`}>
           {l.statusCode}
         </span>
       ),
       sortValue: (l) => l.statusCode,
     },
-    { key: 'rt', header: 'Response', render: (l) => <span className="font-mono text-xs text-slate-400">{l.responseTime}ms</span>, sortValue: (l) => l.responseTime },
+    { key: 'rt', header: 'Response', render: (l) => <span className="font-mono text-xs text-zinc-400">{l.responseTime}ms</span>, sortValue: (l) => l.responseTime },
     { key: 'anom', header: 'Anomaly', render: (l) => <span className={`font-mono text-xs font-bold ${scoreColor(l.anomalyScore)}`}>{l.anomalyScore.toFixed(2)}</span>, sortValue: (l) => l.anomalyScore },
     {
       key: 'flags',
       header: 'Flags',
       render: (l) =>
         l.flags.length === 0 ? (
-          <span className="text-xs text-slate-600">—</span>
+          <span className="text-xs text-zinc-600">—</span>
         ) : (
           <div className="flex max-w-56 flex-wrap gap-1">
             {l.flags.map((fl) => (
-              <span key={fl} className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-500 ring-1 ring-amber-500/30">
+              <span key={fl} className="rounded bg-red-400/10 px-1.5 py-0.5 text-[10px] text-red-400 ring-1 ring-red-400/30">
                 {fl}
               </span>
             ))}
           </div>
         ),
     },
-    { key: 'ua', header: 'User Agent', render: (l) => <span className="block max-w-40 truncate font-mono text-[11px] text-slate-500">{l.userAgent}</span> },
-    { key: 'time', header: 'Time', render: (l) => <span className="font-mono text-xs text-slate-500">{formatTime(l.timestamp)}</span>, sortValue: (l) => l.timestamp },
+    { key: 'ua', header: 'User Agent', render: (l) => <span className="block max-w-40 truncate font-mono text-[11px] text-zinc-500">{l.userAgent}</span> },
+    { key: 'time', header: 'Time', render: (l) => <span className="font-mono text-xs text-zinc-500">{formatTime(l.timestamp)}</span>, sortValue: (l) => l.timestamp },
   ];
 
   return (
@@ -157,14 +157,14 @@ export default function NetworkThreats() {
         description="Traffic anomalies, C2 beaconing, exfiltration, API rate abuse and credential stuffing."
       />
       {readOnly && (
-        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs text-amber-400">
+        <div className="rounded-lg border border-red-400/40 bg-red-400/10 px-3.5 py-2 text-xs text-red-400">
           Read-only role — mutation actions are disabled. Contact an administrator for elevated access.
         </div>
       )}
 
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-xl border border-slate-700/50 bg-slate-800/60 p-1 backdrop-blur">
+      <div className="flex gap-1 rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-1 backdrop-blur">
         {(
           [
             ['flows', `Network Flows (${flows?.length ?? 0})`],
@@ -175,7 +175,7 @@ export default function NetworkThreats() {
             key={key}
             onClick={() => setTab(key)}
             className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium ${
-              tab === key ? 'bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-500/40' : 'text-slate-400 hover:text-slate-200'
+              tab === key ? 'bg-red-500/15 text-red-300 ring-1 ring-red-500/40' : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
             {label}
@@ -190,15 +190,15 @@ export default function NetworkThreats() {
               <AreaChart data={outboundChart} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
                 <defs>
                   <linearGradient id="gOut" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="#06b6d4" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#dc2626" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="#dc2626" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="time" tick={{ fill: '#94a3b8', fontSize: 9 }} interval={2} />
-                <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                <CartesianGrid stroke="#262626" strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="time" tick={{ fill: '#a3a3a3', fontSize: 9 }} interval={2} />
+                <YAxis tick={{ fill: '#a3a3a3', fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Area type="monotone" dataKey="mbOut" stroke="#06b6d4" fill="url(#gOut)" strokeWidth={2} name="MB out" />
+                <Area type="monotone" dataKey="mbOut" stroke="#dc2626" fill="url(#gOut)" strokeWidth={2} name="MB out" />
               </AreaChart>
             </ResponsiveContainer>
           </ChartCard>
@@ -207,7 +207,7 @@ export default function NetworkThreats() {
             value={flowSearch}
             onChange={(e) => setFlowSearch(e.target.value)}
             placeholder="Filter by IP, domain or flag..."
-            className="w-full rounded-lg border border-slate-700/60 bg-slate-800/60 px-3.5 py-2 text-sm text-slate-100 placeholder-slate-600 outline-none focus:border-cyan-500/60"
+            className="w-full rounded-lg border border-zinc-700/60 bg-zinc-800/60 px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-red-500/60"
           />
 
           {flowsLoading ? (
@@ -223,10 +223,10 @@ export default function NetworkThreats() {
           )}
 
           {expandedFlow && (
-            <div className="rounded-xl border border-cyan-500/30 bg-slate-800/60 p-4 backdrop-blur">
+            <div className="rounded-xl border border-red-500/30 bg-zinc-800/60 p-4 backdrop-blur">
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-100">
-                  <Network className="h-4 w-4 text-cyan-400" />
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-zinc-100">
+                  <Network className="h-4 w-4 text-red-400" />
                   Flow Detail — {expandedFlow.id}
                 </h3>
                 <SeverityBadge severity={flagSeverity(expandedFlow.flags)} />
@@ -240,13 +240,13 @@ export default function NetworkThreats() {
                     ['Volume', `${formatBytes(expandedFlow.bytesOut)} out / ${formatBytes(expandedFlow.bytesIn)} in`],
                   ] as const
                 ).map(([label, value]) => (
-                  <div key={label} className="rounded-lg bg-slate-900/60 p-2.5">
-                    <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
-                    <div className="mt-0.5 break-all font-mono text-slate-200">{value}</div>
+                  <div key={label} className="rounded-lg bg-zinc-900/60 p-2.5">
+                    <div className="text-[10px] uppercase tracking-wider text-zinc-500">{label}</div>
+                    <div className="mt-0.5 break-all font-mono text-zinc-200">{value}</div>
                   </div>
                 ))}
               </div>
-              <p className="mt-3 text-xs leading-relaxed text-slate-400">
+              <p className="mt-3 text-xs leading-relaxed text-zinc-400">
                 {expandedFlow.flags.length > 0
                   ? `This flow was flagged: ${expandedFlow.flags.join('; ')}. Anomaly score ${expandedFlow.anomalyScore.toFixed(2)} indicates ${
                       expandedFlow.anomalyScore >= 0.8
@@ -266,7 +266,7 @@ export default function NetworkThreats() {
             value={apiSearch}
             onChange={(e) => setApiSearch(e.target.value)}
             placeholder="Filter by endpoint, IP, user agent or flag..."
-            className="w-full rounded-lg border border-slate-700/60 bg-slate-800/60 px-3.5 py-2 text-sm text-slate-100 placeholder-slate-600 outline-none focus:border-cyan-500/60"
+            className="w-full rounded-lg border border-zinc-700/60 bg-zinc-800/60 px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-red-500/60"
           />
 
           {apiLoading ? (
@@ -282,10 +282,10 @@ export default function NetworkThreats() {
           )}
 
           {expandedApi && (
-            <div className="rounded-xl border border-cyan-500/30 bg-slate-800/60 p-4 backdrop-blur">
+            <div className="rounded-xl border border-red-500/30 bg-zinc-800/60 p-4 backdrop-blur">
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-100">
-                  <Network className="h-4 w-4 text-cyan-400" />
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-zinc-100">
+                  <Network className="h-4 w-4 text-red-400" />
                   API Log Detail — {expandedApi.id}
                 </h3>
                 <SeverityBadge severity={flagSeverity(expandedApi.flags)} />
@@ -299,13 +299,13 @@ export default function NetworkThreats() {
                     ['Result', `${expandedApi.statusCode} in ${expandedApi.responseTime}ms`],
                   ] as const
                 ).map(([label, value]) => (
-                  <div key={label} className="rounded-lg bg-slate-900/60 p-2.5">
-                    <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
-                    <div className="mt-0.5 break-all font-mono text-slate-200">{value}</div>
+                  <div key={label} className="rounded-lg bg-zinc-900/60 p-2.5">
+                    <div className="text-[10px] uppercase tracking-wider text-zinc-500">{label}</div>
+                    <div className="mt-0.5 break-all font-mono text-zinc-200">{value}</div>
                   </div>
                 ))}
               </div>
-              <p className="mt-3 text-xs leading-relaxed text-slate-400">
+              <p className="mt-3 text-xs leading-relaxed text-zinc-400">
                 {expandedApi.flags.length > 0
                   ? `Flagged for: ${expandedApi.flags.join('; ')}. Anomaly score ${expandedApi.anomalyScore.toFixed(2)} — ${
                       expandedApi.anomalyScore >= 0.8

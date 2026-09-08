@@ -1,0 +1,3 @@
+
+# Playwright session storage (contains live tokens — never commit)
+e2e/.auth/

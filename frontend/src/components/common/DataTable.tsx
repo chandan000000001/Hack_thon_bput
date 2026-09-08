@@ -45,23 +45,23 @@ export default function DataTable<T>({ columns, data, onRowClick, emptyMessage, 
 
   if (data.length === 0) {
     return (
-      <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 px-4 py-10 text-center text-sm text-slate-500">
+      <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/40 px-4 py-10 text-center text-sm text-zinc-500">
         {emptyMessage ?? 'No records found'}
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-700/50">
+    <div className="overflow-x-auto rounded-xl border border-zinc-700/50">
       <table className="w-full text-left text-sm">
         <thead>
-          <tr className="border-b border-slate-700/50 bg-slate-900/80">
+          <tr className="border-b border-zinc-700/50 bg-zinc-900/80">
             {columns.map((col) => (
-              <th key={col.key} className={`whitespace-nowrap px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-slate-400 ${col.className ?? ''}`}>
+              <th key={col.key} className={`whitespace-nowrap px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-zinc-400 ${col.className ?? ''}`}>
                 {col.sortValue ? (
                   <button
                     onClick={() => toggleSort(col.key)}
-                    className="flex items-center gap-1.5 uppercase tracking-wider hover:text-cyan-400"
+                    className="flex items-center gap-1.5 uppercase tracking-wider hover:text-red-400"
                   >
                     {col.header}
                     {sortKey === col.key ? (
@@ -82,9 +82,9 @@ export default function DataTable<T>({ columns, data, onRowClick, emptyMessage, 
             <tr
               key={rowKey(row)}
               onClick={() => onRowClick?.(row)}
-              className={`border-b border-slate-800/60 text-slate-300 ${
-                idx % 2 === 1 ? 'bg-slate-800/20' : ''
-              } ${onRowClick ? 'cursor-pointer hover:bg-cyan-500/5' : 'hover:bg-slate-800/40'}`}
+              className={`border-b border-zinc-800/60 text-zinc-300 ${
+                idx % 2 === 1 ? 'bg-zinc-800/20' : ''
+              } ${onRowClick ? 'cursor-pointer hover:bg-red-500/5' : 'hover:bg-zinc-800/40'}`}
             >
               {columns.map((col) => (
                 <td key={col.key} className={`px-4 py-2.5 align-middle ${col.className ?? ''}`}>

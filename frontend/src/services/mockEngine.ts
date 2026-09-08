@@ -18,13 +18,8 @@ export function getSeverityFromScore(score: number): Severity {
   return 'critical';
 }
 
-export const SEVERITY_COLORS: Record<Severity, string> = {
-  safe: '#10b981',
-  low: '#eab308',
-  medium: '#f59e0b',
-  high: '#f97316',
-  critical: '#ef4444',
-};
+// Severity colors are centralised in src/theme.ts (monochrome-red ramp).
+export { SEVERITY_COLORS } from '../theme';
 
 // ---------------------------------------------------------------------------
 // Shared helpers

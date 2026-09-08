@@ -1,4 +1,5 @@
 import { getSeverityFromScore } from '../../services/mockEngine';
+import { SEVERITY_COLORS } from '../../theme';
 import { SEVERITY_STYLES } from './SeverityBadge';
 
 const SIZES = {
@@ -14,13 +15,7 @@ export default function RiskGauge({ score, size = 'md' }: { score: number; size?
   const clamped = Math.max(0, Math.min(100, score));
   const offset = circumference * (1 - clamped / 100);
   const severity = getSeverityFromScore(clamped);
-  const color = {
-    safe: '#10b981',
-    low: '#eab308',
-    medium: '#f59e0b',
-    high: '#f97316',
-    critical: '#ef4444',
-  }[severity];
+  const color = SEVERITY_COLORS[severity];
 
   return (
     <div className="flex flex-col items-center">
@@ -30,7 +25,7 @@ export default function RiskGauge({ score, size = 'md' }: { score: number; size?
           cy={box / 2}
           r={radius}
           fill="none"
-          stroke="#1e293b"
+          stroke="#262626"
           strokeWidth={stroke}
         />
         <circle

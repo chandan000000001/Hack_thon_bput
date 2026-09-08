@@ -43,7 +43,7 @@ const SEVERITY_ORDER: Indicator['severity'][] = ['critical', 'high', 'medium', '
 export default function IndicatorList({ indicators }: { indicators: Indicator[] }) {
   if (indicators.length === 0) {
     return (
-      <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-6 text-center text-sm text-emerald-400">
+      <div className="rounded-xl border border-zinc-300/30 bg-zinc-300/5 px-4 py-6 text-center text-sm text-zinc-200">
         No malicious indicators detected
       </div>
     );
@@ -58,7 +58,7 @@ export default function IndicatorList({ indicators }: { indicators: Indicator[] 
       {grouped.map(({ sev, items }) => (
         <div key={sev}>
           <div className={`mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider ${SEVERITY_STYLES[sev].text}`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${sev === 'critical' ? 'bg-red-500' : sev === 'high' ? 'bg-orange-500' : sev === 'medium' ? 'bg-amber-500' : sev === 'low' ? 'bg-yellow-500' : 'bg-emerald-500'}`} />
+            <span className={`h-1.5 w-1.5 rounded-full ${SEVERITY_STYLES[sev].dot}`} />
             {sev} ({items.length})
           </div>
           <div className="space-y-2">
@@ -67,16 +67,16 @@ export default function IndicatorList({ indicators }: { indicators: Indicator[] 
               return (
                 <div
                   key={ind.id}
-                  className="flex items-start gap-3 rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2.5"
+                  className="flex items-start gap-3 rounded-lg border border-zinc-700/50 bg-zinc-800/40 px-3 py-2.5"
                 >
-                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-cyan-400" />
+                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-[13px] text-slate-100 break-all">{ind.value}</span>
-                      <span className="rounded bg-slate-700/60 px-1.5 py-0.5 font-mono text-[10px] text-slate-400">{ind.type}</span>
+                      <span className="font-mono text-[13px] text-zinc-100 break-all">{ind.value}</span>
+                      <span className="rounded bg-zinc-700/60 px-1.5 py-0.5 font-mono text-[10px] text-zinc-400">{ind.type}</span>
                       <SeverityBadge severity={ind.severity} />
                     </div>
-                    <p className="mt-1 text-xs leading-relaxed text-slate-400">{ind.description}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-zinc-400">{ind.description}</p>
                   </div>
                 </div>
               );

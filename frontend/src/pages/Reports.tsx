@@ -108,14 +108,14 @@ export default function Reports() {
             <button
               onClick={exportJson}
               disabled={loading}
-              className="flex items-center gap-2 rounded-lg bg-cyan-500/15 px-4 py-2 text-xs font-bold text-cyan-300 ring-1 ring-cyan-500/40 hover:bg-cyan-500/25 disabled:opacity-60"
+              className="flex items-center gap-2 rounded-lg bg-red-500/15 px-4 py-2 text-xs font-bold text-red-300 ring-1 ring-red-500/40 hover:bg-red-500/25 disabled:opacity-60"
             >
               <FileJson className="h-3.5 w-3.5" /> Export JSON Report
             </button>
             <button
               onClick={exportCsv}
               disabled={loading}
-              className="flex items-center gap-2 rounded-lg bg-emerald-500/15 px-4 py-2 text-xs font-bold text-emerald-400 ring-1 ring-emerald-500/40 hover:bg-emerald-500/25 disabled:opacity-60"
+              className="flex items-center gap-2 rounded-lg bg-zinc-300/15 px-4 py-2 text-xs font-bold text-zinc-200 ring-1 ring-zinc-300/40 hover:bg-zinc-300/25 disabled:opacity-60"
             >
               <FileSpreadsheet className="h-3.5 w-3.5" /> Export CSV Report
             </button>
@@ -132,58 +132,58 @@ export default function Reports() {
       ) : (
         <>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-4 backdrop-blur">
-              <div className="text-xs uppercase tracking-wider text-slate-400">Total Events Analyzed</div>
-              <div className="mt-1.5 text-2xl font-bold text-cyan-400">{summary.totalEventsAnalyzed.toLocaleString()}</div>
-              <div className="mt-1 text-xs text-slate-500">across all detection modules</div>
+            <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-wider text-zinc-400">Total Events Analyzed</div>
+              <div className="mt-1.5 text-2xl font-bold text-red-400">{summary.totalEventsAnalyzed.toLocaleString()}</div>
+              <div className="mt-1 text-xs text-zinc-500">across all detection modules</div>
             </div>
-            <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-4 backdrop-blur">
-              <div className="text-xs uppercase tracking-wider text-slate-400">Average Risk Score</div>
+            <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-wider text-zinc-400">Average Risk Score</div>
               <div className="mt-1.5 flex items-baseline gap-2">
                 <span className="text-2xl font-bold" style={{ color: SEVERITY_COLORS[getSeverityFromScore(avgRisk)] }}>
                   {avgRisk}
                 </span>
-                <span className="text-xs uppercase text-slate-500">{getSeverityFromScore(avgRisk)}</span>
+                <span className="text-xs uppercase text-zinc-500">{getSeverityFromScore(avgRisk)}</span>
               </div>
-              <div className="mt-1 text-xs text-slate-500">mean across {alerts?.length ?? 0} alerts</div>
+              <div className="mt-1 text-xs text-zinc-500">mean across {alerts?.length ?? 0} alerts</div>
             </div>
-            <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-4 backdrop-blur">
-              <div className="text-xs uppercase tracking-wider text-slate-400">Top Threat Module</div>
-              <div className="mt-1.5 flex items-center gap-2 text-lg font-bold text-orange-500">
+            <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-wider text-zinc-400">Top Threat Module</div>
+              <div className="mt-1.5 flex items-center gap-2 text-lg font-bold text-red-600">
                 <BarChart3 className="h-5 w-5" />
                 {topModule}
               </div>
-              <div className="mt-1 text-xs text-slate-500">most frequently detected category</div>
+              <div className="mt-1 text-xs text-zinc-500">most frequently detected category</div>
             </div>
-            <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-4 backdrop-blur">
-              <div className="text-xs uppercase tracking-wider text-slate-400">Threats by Category</div>
+            <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-4 backdrop-blur">
+              <div className="text-xs uppercase tracking-wider text-zinc-400">Threats by Category</div>
               <div className="mt-2 space-y-1.5">
                 {summary.threatCategories.slice(0, 3).map((c) => (
                   <div key={c.name} className="flex items-center justify-between text-xs">
-                    <span className="text-slate-300">{c.name}</span>
-                    <span className="font-mono font-bold text-slate-100">{c.count}</span>
+                    <span className="text-zinc-300">{c.name}</span>
+                    <span className="font-mono font-bold text-zinc-100">{c.count}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-5 backdrop-blur">
+          <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-5 backdrop-blur">
             <div className="mb-3 flex items-center gap-2">
-              <Download className="h-4 w-4 text-cyan-400" />
-              <h3 className="text-sm font-semibold text-slate-100">Export Contents</h3>
+              <Download className="h-4 w-4 text-red-400" />
+              <h3 className="text-sm font-semibold text-zinc-100">Export Contents</h3>
             </div>
-            <div className="grid gap-4 text-xs leading-relaxed text-slate-400 md:grid-cols-2">
+            <div className="grid gap-4 text-xs leading-relaxed text-zinc-400 md:grid-cols-2">
               <div>
-                <div className="mb-1 font-semibold text-slate-200">JSON Report</div>
+                <div className="mb-1 font-semibold text-zinc-200">JSON Report</div>
                 Full dashboard summary (event counts, risk distribution, threat categories, incident summary) plus every alert with its indicators' MITRE mappings. Suitable for programmatic processing or archiving.
               </div>
               <div>
-                <div className="mb-1 font-semibold text-slate-200">CSV Report</div>
+                <div className="mb-1 font-semibold text-zinc-200">CSV Report</div>
                 One row per alert with ID, title, module, severity, risk score, status, targets, source IP and MITRE technique IDs. Suitable for spreadsheets and SIEM import.
               </div>
             </div>
-            <p className="mt-3 border-t border-slate-700/50 pt-3 font-mono text-[11px] text-slate-600">
+            <p className="mt-3 border-t border-zinc-700/50 pt-3 font-mono text-[11px] text-zinc-600">
               Last dashboard refresh context: {formatTime(summary.recentAlerts[0]?.timestamp ?? new Date().toISOString())} (newest alert)
             </p>
           </div>

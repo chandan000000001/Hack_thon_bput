@@ -15,7 +15,7 @@ import { useAuthStore } from '../store/authStore';
 
 function MiniGauge({ label, value }: { label: string; value: number }) {
   const pct = Math.round(value * 100);
-  const color = pct >= 60 ? '#ef4444' : pct >= 35 ? '#f59e0b' : '#10b981';
+  const color = pct >= 60 ? '#dc2626' : pct >= 35 ? '#f87171' : '#e4e4e7';
   const radius = 40;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - value);
@@ -39,7 +39,7 @@ function MiniGauge({ label, value }: { label: string; value: number }) {
       <span className="-mt-[62px] text-lg font-bold" style={{ color }}>
         {pct}%
       </span>
-      <span className="mt-8 text-[11px] uppercase tracking-wider text-slate-400">{label}</span>
+      <span className="mt-8 text-[11px] uppercase tracking-wider text-zinc-400">{label}</span>
     </div>
   );
 }
@@ -81,17 +81,17 @@ export default function DeepfakeAnalysis() {
         description="Heuristic media forensics for images, audio and video. Deterministic per-file results in mock mode."
       />
       {readOnly && (
-        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs text-amber-400">
+        <div className="rounded-lg border border-red-400/40 bg-red-400/10 px-3.5 py-2 text-xs text-red-400">
           Read-only role — mutation actions are disabled. Contact an administrator for elevated access.
         </div>
       )}
 
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-5 backdrop-blur">
+        <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-5 backdrop-blur">
           <div className="mb-4 flex items-center gap-2">
-            <Video className="h-4 w-4 text-cyan-400" />
-            <h3 className="text-sm font-semibold text-slate-100">Upload Media</h3>
+            <Video className="h-4 w-4 text-red-400" />
+            <h3 className="text-sm font-semibold text-zinc-100">Upload Media</h3>
           </div>
           <FileUpload
             accept="image/*,audio/*,video/*"
@@ -105,7 +105,7 @@ export default function DeepfakeAnalysis() {
             onClick={analyze}
             disabled={loading || !file || readOnly}
             title={readOnly ? 'Read-only role' : undefined}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-cyan-500 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-40"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 py-2.5 text-sm font-bold text-white hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}
             {loading ? 'Analyzing media...' : 'Analyze Media'}
@@ -114,9 +114,9 @@ export default function DeepfakeAnalysis() {
 
         <div className="space-y-4">
           {loading && (
-            <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-5 backdrop-blur">
-              <div className="mb-4 flex items-center gap-2 text-sm text-slate-400">
-                <Loader2 className="h-4 w-4 animate-spin text-cyan-400" />
+            <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-5 backdrop-blur">
+              <div className="mb-4 flex items-center gap-2 text-sm text-zinc-400">
+                <Loader2 className="h-4 w-4 animate-spin text-red-400" />
                 Running media forensics: frame, spectral and metadata checks...
               </div>
               <PanelSkeleton rows={5} />
@@ -124,16 +124,16 @@ export default function DeepfakeAnalysis() {
           )}
 
           {!loading && !result && (
-            <div className="flex h-full min-h-64 flex-col items-center justify-center rounded-xl border border-dashed border-slate-700/60 bg-slate-800/20 p-8 text-center">
-              <Video className="h-10 w-10 text-slate-600" />
-              <p className="mt-3 text-sm text-slate-400">Upload an image, audio clip or video to begin</p>
-              <p className="mt-1 text-xs text-slate-600">Same file always produces the same deterministic verdict</p>
+            <div className="flex h-full min-h-64 flex-col items-center justify-center rounded-xl border border-dashed border-zinc-700/60 bg-zinc-800/20 p-8 text-center">
+              <Video className="h-10 w-10 text-zinc-600" />
+              <p className="mt-3 text-sm text-zinc-400">Upload an image, audio clip or video to begin</p>
+              <p className="mt-1 text-xs text-zinc-600">Same file always produces the same deterministic verdict</p>
             </div>
           )}
 
           {!loading && result && (
             <>
-              <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-5 backdrop-blur">
+              <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-5 backdrop-blur">
                 <div className="flex flex-wrap items-center justify-around gap-6">
                   <MiniGauge label="Authenticity" value={result.authenticityScore ?? 0} />
                   <MiniGauge label="Manipulation Probability" value={result.manipulationProbability ?? 0} />
@@ -145,19 +145,19 @@ export default function DeepfakeAnalysis() {
                     <span
                       className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ring-1 ${
                         result.simulated
-                          ? 'bg-amber-500/15 text-amber-500 ring-amber-500/40'
-                          : 'bg-emerald-500/15 text-emerald-400 ring-emerald-500/40'
+                          ? 'bg-red-400/15 text-red-400 ring-red-400/40'
+                          : 'bg-zinc-300/15 text-zinc-200 ring-zinc-300/40'
                       }`}
                       title={result.method}
                     >
                       {result.simulated ? 'Simulated analysis' : 'Real forensic analysis'}
                     </span>
                   )}
-                  <span className="text-xs text-slate-400">
-                    Confidence <span className="font-mono font-semibold text-cyan-400">{result.confidence}%</span>
+                  <span className="text-xs text-zinc-400">
+                    Confidence <span className="font-mono font-semibold text-red-400">{result.confidence}%</span>
                   </span>
-                  <span className="text-xs text-slate-400">
-                    Event <span className="font-mono text-slate-300">{result.eventId}</span>
+                  <span className="text-xs text-zinc-400">
+                    Event <span className="font-mono text-zinc-300">{result.eventId}</span>
                   </span>
                 </div>
               </div>
@@ -165,14 +165,14 @@ export default function DeepfakeAnalysis() {
               <IndicatorList indicators={result.indicators} />
               <ExplanationPanel explanation={result.explanation} confidence={result.confidence} />
               <div>
-                <h3 className="mb-2 text-sm font-semibold text-slate-200">Recommended Response</h3>
+                <h3 className="mb-2 text-sm font-semibold text-zinc-200">Recommended Response</h3>
                 <RecommendedActionsPanel actions={result.recommendedActions} onExecute={handleExecute} />
               </div>
               <button
                 onClick={() => addToast('Media flagged for manual verification by forensic analysts', 'medium')}
                 disabled={readOnly}
                 title={readOnly ? 'Read-only role' : undefined}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-amber-500/50 bg-amber-500/10 py-2.5 text-sm font-bold text-amber-400 hover:bg-amber-500/20"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-red-400/50 bg-red-400/10 py-2.5 text-sm font-bold text-red-400 hover:bg-red-400/20"
               >
                 <Flag className="h-4 w-4" />
                 Flag for Manual Verification

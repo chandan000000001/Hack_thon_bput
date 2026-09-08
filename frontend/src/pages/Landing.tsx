@@ -12,6 +12,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import { SEVERITY_RAMP } from '../theme';
 
 /* ------------------------------------------------------------------ */
 /* Motion helpers                                                      */
@@ -85,7 +86,7 @@ function Reveal({
 }
 
 /* ------------------------------------------------------------------ */
-/* Cursor trail — faint risograph green dots on a fixed canvas         */
+/* Cursor trail — faint risograph red dots on a fixed canvas           */
 /* ------------------------------------------------------------------ */
 
 function CursorTrail() {
@@ -127,7 +128,7 @@ function CursorTrail() {
     let raf = 0;
     const tick = () => {
       ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = '#34d399';
+      ctx.fillStyle = '#dc2626';
       for (let i = dots.length - 1; i >= 0; i--) {
         const dot = dots[i];
         dot.life -= 0.018;
@@ -297,13 +298,21 @@ const MODULES: {
   },
 ];
 
-const SEVERITIES: { label: string; band: string; hex: string }[] = [
-  { label: 'SAFE', band: '0-20', hex: '#10b981' },
-  { label: 'LOW', band: '21-40', hex: '#eab308' },
-  { label: 'MEDIUM', band: '41-60', hex: '#f59e0b' },
-  { label: 'HIGH', band: '61-80', hex: '#f97316' },
-  { label: 'CRITICAL', band: '81-100', hex: '#ef4444' },
-];
+/* Severity film strip — colors come from the central monochrome ramp. */
+const SEVERITIES = (['safe', 'low', 'medium', 'high', 'critical'] as const).map((key) => ({
+  key,
+  label: key.toUpperCase(),
+  hex: SEVERITY_RAMP[key].hex,
+  textOn: SEVERITY_RAMP[key].textOn,
+}));
+
+const BANDS: Record<string, string> = {
+  safe: '0-20',
+  low: '21-40',
+  medium: '41-60',
+  high: '61-80',
+  critical: '81-100',
+};
 
 const ARCHITECTURE_FLOW = [
   'React SOC Dashboard',
@@ -317,30 +326,33 @@ const ARCHITECTURE_FLOW = [
 /* Shared pieces                                                       */
 /* ------------------------------------------------------------------ */
 
+function SecondaryButton({ to, children }: { to: string; children: React.ReactNode }) {
+  return (
+    <Link
+      to={to}
+      className="inline-flex items-center gap-2 border border-white/70 px-8 py-4 font-mono text-sm font-bold tracking-widest text-white hover:bg-white hover:text-black"
+    >
+      {children}
+    </Link>
+  );
+}
+
 function CallToActions({ showDashboard }: { showDashboard: boolean }) {
   return (
     <div className="flex flex-wrap items-center gap-4">
       <Link
         to="/login?mode=signup"
-        className="group inline-flex items-center gap-2 bg-emerald-500 px-8 py-4 font-mono text-sm font-bold tracking-widest text-stone-950 hover:bg-emerald-400"
+        className="group inline-flex items-center gap-2 bg-red-600 px-8 py-4 font-mono text-sm font-bold tracking-widest text-white hover:bg-red-500"
       >
         SIGN UP
         <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
       </Link>
-      <Link
-        to="/login?mode=signin"
-        className="inline-flex items-center gap-2 border border-emerald-500/60 px-8 py-4 font-mono text-sm font-bold tracking-widest text-emerald-300 hover:border-emerald-400 hover:bg-emerald-500/10"
-      >
-        LOGIN
-      </Link>
+      <SecondaryButton to="/login?mode=signin">LOGIN</SecondaryButton>
       {showDashboard && (
-        <Link
-          to="/dashboard"
-          className="inline-flex items-center gap-2 border border-stone-600 px-8 py-4 font-mono text-sm font-bold tracking-widest text-stone-200 hover:border-stone-400 hover:bg-stone-800/50"
-        >
+        <SecondaryButton to="/dashboard">
           OPEN DASHBOARD
           <ArrowUpRight className="h-4 w-4" />
-        </Link>
+        </SecondaryButton>
       )}
     </div>
   );
@@ -348,9 +360,9 @@ function CallToActions({ showDashboard }: { showDashboard: boolean }) {
 
 function SectionHeading({ number, title }: { number: string; title: string }) {
   return (
-    <div className="mb-12 flex items-baseline gap-4 border-b border-stone-800 pb-6">
+    <div className="mb-12 flex items-baseline gap-4 border-b border-zinc-800 pb-6">
       <span className="font-mono text-sm font-bold text-red-500">{number}</span>
-      <h2 className="font-display text-xl font-bold uppercase tracking-[0.25em] text-stone-100">
+      <h2 className="font-display text-xl font-bold uppercase tracking-[0.25em] text-zinc-50">
         {title}
       </h2>
     </div>
@@ -385,7 +397,7 @@ export default function Landing() {
   };
 
   return (
-    <div className={reduced ? 'lg-still relative min-h-screen bg-stone-950 text-stone-100' : 'relative min-h-screen bg-stone-950 text-stone-100'}>
+    <div className={reduced ? 'lg-still relative min-h-screen bg-zinc-950 text-zinc-50' : 'relative min-h-screen bg-zinc-950 text-zinc-50'}>
       <style>{`
         .font-display {
           font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
@@ -409,15 +421,15 @@ export default function Landing() {
       <CursorTrail />
 
       {/* Slim editorial masthead */}
-      <header className="sticky top-0 z-30 border-b border-stone-800/80 bg-stone-950/90 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="font-mono text-xs font-bold tracking-[0.3em] text-stone-100">
-            CYBERGUARD<span className="text-red-500"> /</span>
-            <span className="ml-2 font-normal text-[#a47148]">PROJECT MONOGRAPH</span>
+          <span className="font-mono text-xs font-bold tracking-[0.3em] text-zinc-50">
+            CYBERGUARD<span className="text-red-600"> /</span>
+            <span className="ml-2 font-normal text-zinc-400">PROJECT MONOGRAPH</span>
           </span>
           <Link
             to="/login?mode=signin"
-            className="font-mono text-xs tracking-[0.2em] text-emerald-400 hover:text-emerald-300"
+            className="font-mono text-xs tracking-[0.2em] text-red-500 hover:text-red-400"
           >
             LOGIN →
           </Link>
@@ -429,7 +441,7 @@ export default function Landing() {
       {/* ---------------------------------------------------------- */}
       <section className="relative mx-auto flex min-h-[92vh] max-w-6xl flex-col justify-center px-6 py-24">
         <Reveal>
-          <p className="font-display mb-8 text-lg italic tracking-wide text-[#a47148]">
+          <p className="font-display mb-8 text-lg italic tracking-wide text-zinc-400">
             Public Edition — Project Status Monograph
           </p>
         </Reveal>
@@ -443,7 +455,7 @@ export default function Landing() {
             <span
               key={`cyber-${i}`}
               aria-hidden="true"
-              className="landing-letter inline-block text-stone-50"
+              className="landing-letter inline-block text-white"
               style={{ animationDelay: `${100 + i * 70}ms` }}
             >
               {ch}
@@ -456,7 +468,7 @@ export default function Landing() {
               className="landing-letter inline-block text-transparent"
               style={{
                 animationDelay: `${450 + i * 70}ms`,
-                WebkitTextStroke: '2px #10b981',
+                WebkitTextStroke: '2px #dc2626',
               }}
             >
               {ch}
@@ -465,7 +477,7 @@ export default function Landing() {
         </h1>
 
         <Reveal delay={900}>
-          <p className="font-display mt-10 max-w-3xl text-xl leading-relaxed text-stone-200 md:text-2xl">
+          <p className="font-display mt-10 max-w-3xl text-xl leading-relaxed text-zinc-200 md:text-2xl">
             AI-Powered Cyber Threat, Phishing &amp; Digital Impersonation Detection and Response
             System
           </p>
@@ -476,7 +488,7 @@ export default function Landing() {
         </Reveal>
 
         <Reveal delay={1200}>
-          <p className="mt-10 font-mono text-xs tracking-[0.2em] text-[#a47148]">
+          <p className="mt-10 font-mono text-xs tracking-[0.2em] text-zinc-400">
             Domain: Cybersecurity + Artificial Intelligence
           </p>
         </Reveal>
@@ -485,26 +497,26 @@ export default function Landing() {
       {/* ---------------------------------------------------------- */}
       {/* SECTION 2 — PROJECT STATUS BOARD                            */}
       {/* ---------------------------------------------------------- */}
-      <section className="border-t border-stone-800/80 bg-stone-950 px-6 py-28">
+      <section className="border-t border-zinc-800/80 bg-zinc-950 px-6 py-28">
         <div className="mx-auto max-w-6xl">
           <Reveal>
             <SectionHeading number="01" title="Project Status" />
           </Reveal>
 
-          <div className="divide-y divide-stone-800/70 border-y border-stone-800/70">
+          <div className="divide-y divide-zinc-800/70 border-y border-zinc-800/70">
             {STATUS_ROWS.map((row, i) => (
               <Reveal key={row.name} delay={i * 60} fromX={24}>
                 <div className="grid grid-cols-1 gap-2 py-6 md:grid-cols-[2fr_3fr_auto] md:items-baseline md:gap-8">
-                  <div className="font-display text-base font-bold text-stone-50">{row.name}</div>
-                  <div className="font-mono text-xs leading-relaxed text-stone-400">
+                  <div className="font-display text-base font-bold text-white">{row.name}</div>
+                  <div className="font-mono text-xs leading-relaxed text-zinc-400">
                     {row.detail}
                   </div>
                   <div className="flex items-center gap-3 md:justify-end">
                     <span
                       className={`inline-block px-2.5 py-1 font-mono text-[11px] font-bold tracking-widest ${
                         row.live
-                          ? 'bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/50'
-                          : 'bg-stone-800/80 text-stone-100 ring-1 ring-stone-600/70'
+                          ? 'bg-red-600/15 text-red-500 ring-1 ring-red-600/50'
+                          : 'bg-zinc-800/80 text-zinc-50 ring-1 ring-zinc-600/70'
                       }`}
                     >
                       {row.live ? '● ' : ''}
@@ -523,7 +535,7 @@ export default function Landing() {
       {/* other, content revealed with cross-fade + horizontal slide)  */}
       {/* ---------------------------------------------------------- */}
       <section className="relative">
-        <div className="sticky top-0 z-0 border-b border-stone-800/80 bg-stone-950 px-6 pb-10 pt-24">
+        <div className="sticky top-0 z-0 border-b border-zinc-800/80 bg-zinc-950 px-6 pb-10 pt-24">
           <div className="mx-auto max-w-6xl">
             <SectionHeading number="02" title="Detection Modules — Six Spreads" />
           </div>
@@ -535,7 +547,7 @@ export default function Landing() {
           return (
             <div
               key={mod.index}
-              className="sticky top-16 z-10 flex min-h-[88vh] items-center border-t border-stone-800/60 bg-stone-950 px-6 py-20"
+              className="sticky top-16 z-10 flex min-h-[88vh] items-center border-t border-zinc-800/60 bg-zinc-950 px-6 py-20"
             >
               <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 lg:grid-cols-[auto_1fr]">
                 <Reveal fromX={slideFrom}>
@@ -545,7 +557,7 @@ export default function Landing() {
                       className="font-display select-none text-[10rem] font-bold leading-none text-transparent"
                       style={{
                         fontSize: 'clamp(5rem, 14vw, 12rem)',
-                        WebkitTextStroke: '1.5px #7f5539',
+                        WebkitTextStroke: '1.5px #3f3f46',
                       }}
                     >
                       {mod.index}
@@ -556,31 +568,31 @@ export default function Landing() {
                 <Reveal fromX={-slideFrom} delay={120}>
                   <div>
                     <div className="mb-6 flex items-center gap-3">
-                      <Icon className="h-6 w-6 text-emerald-400" />
-                      <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-[#a47148]">
+                      <Icon className="h-6 w-6 text-red-500" />
+                      <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-zinc-400">
                         Module {mod.index} / 06
                       </span>
                     </div>
                     <h3
-                      className="font-display font-bold leading-tight text-stone-50"
+                      className="font-display font-bold leading-tight text-white"
                       style={{ fontSize: 'clamp(1.75rem, 4.5vw, 3.5rem)' }}
                     >
                       {mod.title}
                     </h3>
-                    <p className="mt-6 max-w-2xl text-base leading-relaxed text-stone-300 md:text-lg">
+                    <p className="mt-6 max-w-2xl text-base leading-relaxed text-zinc-300 md:text-lg">
                       {mod.description}
                     </p>
                     <div className="mt-8 flex flex-wrap gap-2">
                       {mod.indicators.map((indicator) => (
                         <span
                           key={indicator}
-                          className="border border-stone-700/70 bg-stone-900/60 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-stone-300"
+                          className="border border-zinc-700/70 bg-zinc-900/60 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-zinc-300"
                         >
                           {indicator}
                         </span>
                       ))}
                     </div>
-                    <p className="mt-10 border-t border-stone-800 pt-5 font-mono text-[11px] tracking-wide text-emerald-400/90">
+                    <p className="mt-10 border-t border-zinc-800 pt-5 font-mono text-[11px] tracking-wide text-red-500/90">
                       {PIPELINE_LINE}
                     </p>
                   </div>
@@ -594,14 +606,14 @@ export default function Landing() {
       {/* ---------------------------------------------------------- */}
       {/* SECTION 4 — SEVERITY FILM STRIP                             */}
       {/* ---------------------------------------------------------- */}
-      <section className="border-t border-stone-800/80 bg-stone-950 px-6 py-28">
+      <section className="border-t border-zinc-800/80 bg-zinc-950 px-6 py-28">
         <div className="mx-auto max-w-6xl">
           <Reveal>
             <SectionHeading number="03" title="Risk Scoring — Severity Bands" />
           </Reveal>
 
           <Reveal delay={120}>
-            <p className="mb-10 max-w-2xl font-mono text-xs leading-relaxed text-stone-400">
+            <p className="mb-10 max-w-2xl font-mono text-xs leading-relaxed text-zinc-400">
               Every detection is scored 0-100 and mapped to one of five response bands. Drag the
               strip to scrub.
             </p>
@@ -617,18 +629,23 @@ export default function Landing() {
               className="flex cursor-grab select-none gap-6 overflow-x-auto pb-4 active:cursor-grabbing"
             >
               {SEVERITIES.map((sev) => (
-                <div key={sev.label} className="w-60 flex-shrink-0 md:w-72">
+                <div key={sev.key} className="w-60 flex-shrink-0 md:w-72">
                   <div
-                    className="flex h-44 items-end p-5 md:h-52"
-                    style={{ backgroundColor: sev.hex }}
+                    className={`flex h-44 items-end p-5 md:h-52 ${
+                      sev.textOn === 'white' ? '' : ''
+                    } ${sev.key === 'critical' ? 'severity-pulse' : ''}`}
+                    style={{
+                      backgroundColor: sev.hex,
+                      color: sev.textOn === 'white' ? '#fafafa' : '#050505',
+                    }}
                   >
-                    <span className="font-display text-2xl font-bold tracking-widest text-stone-950">
+                    <span className="font-display text-2xl font-bold tracking-widest">
                       {sev.label}
                     </span>
                   </div>
                   <div className="mt-3 flex items-baseline justify-between font-mono text-xs">
-                    <span className="text-[#a47148]">SCORE</span>
-                    <span className="font-bold text-stone-100">{sev.band}</span>
+                    <span className="text-zinc-400">SCORE</span>
+                    <span className="font-bold text-zinc-50">{BANDS[sev.key]}</span>
                   </div>
                 </div>
               ))}
@@ -640,22 +657,22 @@ export default function Landing() {
       {/* ---------------------------------------------------------- */}
       {/* SECTION 5 — ARCHITECTURE STRIP                              */}
       {/* ---------------------------------------------------------- */}
-      <section className="border-t border-stone-800/80 bg-stone-950 px-6 py-28">
+      <section className="border-t border-zinc-800/80 bg-zinc-950 px-6 py-28">
         <div className="mx-auto max-w-6xl">
           <Reveal>
             <SectionHeading number="04" title="Architecture" />
           </Reveal>
 
           <Reveal delay={120}>
-            <div className="overflow-x-auto border border-stone-800 bg-stone-900/40 p-8">
-              <p className="whitespace-nowrap font-mono text-sm tracking-wide text-stone-200">
+            <div className="overflow-x-auto border border-zinc-800 bg-zinc-900/40 p-8">
+              <p className="whitespace-nowrap font-mono text-sm tracking-wide text-zinc-200">
                 {ARCHITECTURE_FLOW.map((node, i) => (
                   <span key={node}>
-                    <span className={i % 2 === 0 ? 'text-emerald-300' : 'text-stone-100'}>
+                    <span className={i % 2 === 0 ? 'text-red-500' : 'text-white'}>
                       {node}
                     </span>
                     {i < ARCHITECTURE_FLOW.length - 1 && (
-                      <span className="mx-4 text-red-500/70">-&gt;</span>
+                      <span className="mx-4 text-zinc-600">-&gt;</span>
                     )}
                   </span>
                 ))}
@@ -668,21 +685,21 @@ export default function Landing() {
       {/* ---------------------------------------------------------- */}
       {/* SECTION 6 — FOOTER                                          */}
       {/* ---------------------------------------------------------- */}
-      <footer className="border-t border-stone-800/80 bg-stone-950 px-6 pb-16 pt-28">
+      <footer className="border-t border-zinc-800/80 bg-zinc-950 px-6 pb-16 pt-28">
         <div className="mx-auto max-w-6xl">
           <Reveal>
             <SectionHeading number="05" title="Colophon" />
           </Reveal>
 
           <Reveal delay={100}>
-            <p className="font-display max-w-3xl text-lg leading-relaxed text-stone-200">
-              Built by <span className="font-script text-[#c08552]">Chandan</span> — Network
+            <p className="font-display max-w-3xl text-lg leading-relaxed text-zinc-200">
+              Built by <span className="font-script text-white">Chandan</span> — Network
               Security Engineer, Red Team, AI Security Research.
             </p>
           </Reveal>
 
           <Reveal delay={180}>
-            <p className="mt-6 max-w-3xl font-mono text-xs leading-relaxed text-stone-400">
+            <p className="mt-6 max-w-3xl font-mono text-xs leading-relaxed text-zinc-400">
               Demonstrates three mandatory scenarios: phishing/social engineering, digital
               impersonation/deepfake, technical cyber threat/abnormal behaviour.
             </p>
@@ -693,11 +710,11 @@ export default function Landing() {
           </Reveal>
 
           <Reveal delay={320}>
-            <div className="mt-20 flex items-end justify-between border-t border-stone-800 pt-8">
-              <span className="font-mono text-xs tracking-[0.3em] text-stone-500">
+            <div className="mt-20 flex items-end justify-between border-t border-zinc-800 pt-8">
+              <span className="font-mono text-xs tracking-[0.3em] text-zinc-500">
                 CYBERGUARD — {new Date().getFullYear()}
               </span>
-              <ShieldCheck className="h-5 w-5 text-emerald-400" />
+              <ShieldCheck className="h-5 w-5 text-red-600" />
             </div>
           </Reveal>
         </div>

@@ -62,34 +62,34 @@ export default function SocAssistant({ open, userName, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-40 flex justify-end">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative flex h-full w-full max-w-md flex-col border-l border-slate-700/60 bg-slate-900 shadow-2xl">
+      <div className="relative flex h-full w-full max-w-md flex-col border-l border-zinc-700/60 bg-zinc-900 shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-700/50 px-4 py-3">
+        <div className="flex items-center justify-between border-b border-zinc-700/50 px-4 py-3">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/10 ring-1 ring-cyan-500/40">
-              <Bot className="h-4.5 w-4.5 text-cyan-400" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/10 ring-1 ring-red-500/40">
+              <Bot className="h-4.5 w-4.5 text-red-400" />
             </div>
             <div>
-              <div className="text-sm font-semibold text-slate-100">SOC Assistant</div>
-              <div className="text-[10px] uppercase tracking-wider text-cyan-400">{MODE_SUBTITLE}</div>
+              <div className="text-sm font-semibold text-zinc-100">SOC Assistant</div>
+              <div className="text-[10px] uppercase tracking-wider text-red-400">{MODE_SUBTITLE}</div>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="rounded-md p-1.5 text-slate-500 hover:bg-slate-800 hover:text-slate-200"
+            className="rounded-md p-1.5 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-200"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
         {/* Quick actions */}
-        <div className="flex flex-wrap gap-1.5 border-b border-slate-700/50 px-4 py-2.5">
+        <div className="flex flex-wrap gap-1.5 border-b border-zinc-700/50 px-4 py-2.5">
           {QUICK_ACTIONS.map((q) => (
             <button
               key={q}
               onClick={() => send(q)}
               disabled={thinking}
-              className="rounded-full bg-slate-800/70 px-3 py-1 text-[11px] text-slate-300 ring-1 ring-slate-700/60 hover:bg-slate-700/70 hover:text-cyan-300 disabled:opacity-50"
+              className="rounded-full bg-zinc-800/70 px-3 py-1 text-[11px] text-zinc-300 ring-1 ring-zinc-700/60 hover:bg-zinc-700/70 hover:text-red-300 disabled:opacity-50"
             >
               {q}
             </button>
@@ -103,8 +103,8 @@ export default function SocAssistant({ open, userName, onClose }: Props) {
               <div
                 className={`max-w-[85%] whitespace-pre-wrap rounded-xl px-3.5 py-2.5 text-sm leading-relaxed ${
                   m.role === 'user'
-                    ? 'rounded-br-sm bg-cyan-500/15 text-cyan-100 ring-1 ring-cyan-500/30'
-                    : 'rounded-bl-sm bg-slate-800 text-slate-200 ring-1 ring-slate-700/50'
+                    ? 'rounded-br-sm bg-red-500/15 text-red-100 ring-1 ring-red-500/30'
+                    : 'rounded-bl-sm bg-zinc-800 text-zinc-200 ring-1 ring-zinc-700/50'
                 }`}
               >
                 {m.content}
@@ -113,8 +113,8 @@ export default function SocAssistant({ open, userName, onClose }: Props) {
           ))}
           {thinking && (
             <div className="flex justify-start">
-              <div className="flex items-center gap-2 rounded-xl rounded-bl-sm bg-slate-800 px-3.5 py-2.5 text-sm text-slate-400 ring-1 ring-slate-700/50">
-                <Shield className="h-3.5 w-3.5 animate-pulse text-cyan-400" />
+              <div className="flex items-center gap-2 rounded-xl rounded-bl-sm bg-zinc-800 px-3.5 py-2.5 text-sm text-zinc-400 ring-1 ring-zinc-700/50">
+                <Shield className="h-3.5 w-3.5 animate-pulse text-red-400" />
                 Analyzing threat data...
               </div>
             </div>
@@ -127,18 +127,18 @@ export default function SocAssistant({ open, userName, onClose }: Props) {
             e.preventDefault();
             send(input);
           }}
-          className="flex items-center gap-2 border-t border-slate-700/50 p-3"
+          className="flex items-center gap-2 border-t border-zinc-700/50 p-3"
         >
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask the SOC Assistant..."
-            className="flex-1 rounded-lg border border-slate-700/60 bg-slate-800/60 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-cyan-500/60"
+            className="flex-1 rounded-lg border border-zinc-700/60 bg-zinc-800/60 px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-red-500/60"
           />
           <button
             type="submit"
             disabled={thinking || !input.trim()}
-            className="rounded-lg bg-cyan-500/15 p-2.5 text-cyan-400 ring-1 ring-cyan-500/40 hover:bg-cyan-500/25 disabled:opacity-40"
+            className="rounded-lg bg-red-500/15 p-2.5 text-red-400 ring-1 ring-red-500/40 hover:bg-red-500/25 disabled:opacity-40"
           >
             <Send className="h-4 w-4" />
           </button>

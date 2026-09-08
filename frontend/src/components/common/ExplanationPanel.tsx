@@ -30,7 +30,7 @@ function highlight(text: string): React.ReactNode[] {
     }
     if (earliest.idx > 0) parts.push(<span key={key++}>{remaining.slice(0, earliest.idx)}</span>);
     parts.push(
-      <mark key={key++} className="rounded bg-cyan-500/20 px-1 font-medium text-cyan-300">
+      <mark key={key++} className="rounded bg-red-500/20 px-1 font-medium text-red-300">
         {remaining.slice(earliest.idx, earliest.idx + earliest.phrase.length)}
       </mark>
     );
@@ -41,21 +41,21 @@ function highlight(text: string): React.ReactNode[] {
 
 export default function ExplanationPanel({ explanation, confidence }: Props) {
   return (
-    <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 p-4">
+    <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/40 p-4">
       <div className="flex items-center gap-2">
-        <BrainCircuit className="h-4.5 w-4.5 text-cyan-400" style={{ width: 18, height: 18 }} />
-        <h3 className="text-sm font-semibold text-slate-100">AI Explanation</h3>
-        <span className="ml-auto text-[10px] uppercase tracking-wider text-slate-500">Simulated XAI output</span>
+        <BrainCircuit className="h-4.5 w-4.5 text-red-400" style={{ width: 18, height: 18 }} />
+        <h3 className="text-sm font-semibold text-zinc-100">AI Explanation</h3>
+        <span className="ml-auto text-[10px] uppercase tracking-wider text-zinc-500">Simulated XAI output</span>
       </div>
-      <p className="mt-3 text-[13px] leading-relaxed text-slate-300">{highlight(explanation)}</p>
+      <p className="mt-3 text-[13px] leading-relaxed text-zinc-300">{highlight(explanation)}</p>
       <div className="mt-4">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-slate-400">Detection Confidence</span>
-          <span className="font-mono font-semibold text-cyan-400">{confidence}%</span>
+          <span className="text-zinc-400">Detection Confidence</span>
+          <span className="font-mono font-semibold text-red-400">{confidence}%</span>
         </div>
-        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-700/60">
+        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-zinc-700/60">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-cyan-600 to-cyan-400"
+            className="h-full rounded-full bg-gradient-to-r from-red-600 to-red-400"
             style={{ width: `${Math.min(100, confidence)}%`, transition: 'width 700ms ease' }}
           />
         </div>

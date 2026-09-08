@@ -61,13 +61,13 @@ export default function FileUpload({ accept, maxSize, onFile }: Props) {
         }}
         className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors ${
           dragOver
-            ? 'border-cyan-500 bg-cyan-500/10'
-            : 'border-slate-700 bg-slate-800/30 hover:border-slate-500 hover:bg-slate-800/50'
+            ? 'border-red-500 bg-red-500/10'
+            : 'border-zinc-700 bg-zinc-800/30 hover:border-zinc-500 hover:bg-zinc-800/50'
         }`}
       >
-        <UploadCloud className="h-8 w-8 text-cyan-400" />
-        <p className="mt-3 text-sm font-medium text-slate-200">Drop media file here or click to browse</p>
-        <p className="mt-1 text-xs text-slate-500">
+        <UploadCloud className="h-8 w-8 text-red-400" />
+        <p className="mt-3 text-sm font-medium text-zinc-200">Drop media file here or click to browse</p>
+        <p className="mt-1 text-xs text-zinc-500">
           Accepted: image/*, audio/*, video/* — Max size: {maxSize / MB} MB
         </p>
         <input
@@ -88,17 +88,17 @@ export default function FileUpload({ accept, maxSize, onFile }: Props) {
       )}
 
       {selected && (
-        <div className="mt-3 flex items-center gap-3 rounded-xl border border-slate-700/50 bg-slate-800/40 p-3">
+        <div className="mt-3 flex items-center gap-3 rounded-xl border border-zinc-700/50 bg-zinc-800/40 p-3">
           {selected.type.startsWith('image/') ? (
             <img src={URL.createObjectURL(selected)} alt="preview" className="h-12 w-12 rounded-lg object-cover" />
           ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-700/50">
-              <SelectedIcon className="h-5 w-5 text-cyan-400" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zinc-700/50">
+              <SelectedIcon className="h-5 w-5 text-red-400" />
             </div>
           )}
           <div className="min-w-0">
-            <div className="truncate text-sm font-medium text-slate-100">{selected.name}</div>
-            <div className="font-mono text-[11px] text-slate-500">
+            <div className="truncate text-sm font-medium text-zinc-100">{selected.name}</div>
+            <div className="font-mono text-[11px] text-zinc-500">
               {(selected.size / 1024).toFixed(1)} KB — {selected.type || 'unknown type'}
             </div>
           </div>

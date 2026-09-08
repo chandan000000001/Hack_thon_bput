@@ -13,8 +13,8 @@ const ROLES: AdminUser['role'][] = ['viewer', 'analyst', 'admin'];
 
 const ROLE_STYLES: Record<string, string> = {
   admin: 'bg-red-500/15 text-red-400 ring-red-500/40',
-  analyst: 'bg-cyan-500/15 text-cyan-400 ring-cyan-500/40',
-  viewer: 'bg-slate-600/30 text-slate-300 ring-slate-500/40',
+  analyst: 'bg-red-500/15 text-red-400 ring-red-500/40',
+  viewer: 'bg-zinc-600/30 text-zinc-300 ring-zinc-500/40',
 };
 
 export default function AdminUsers() {
@@ -41,13 +41,13 @@ export default function AdminUsers() {
     {
       key: 'email',
       header: 'Email',
-      render: (u) => <span className="font-mono text-xs text-slate-200">{u.email ?? '—'}</span>,
+      render: (u) => <span className="font-mono text-xs text-zinc-200">{u.email ?? '—'}</span>,
       sortValue: (u) => u.email ?? '',
     },
     {
       key: 'name',
       header: 'Full Name',
-      render: (u) => <span className="text-sm text-slate-200">{u.full_name ?? '—'}</span>,
+      render: (u) => <span className="text-sm text-zinc-200">{u.full_name ?? '—'}</span>,
       sortValue: (u) => u.full_name ?? '',
     },
     {
@@ -58,12 +58,12 @@ export default function AdminUsers() {
           value={u.role}
           disabled={savingId === u.id}
           onChange={(e) => changeRole(u, e.target.value as AdminUser['role'])}
-          className={`rounded-full bg-slate-900/60 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ring-1 outline-none focus:ring-cyan-500/60 disabled:opacity-60 ${
-            ROLE_STYLES[u.role] ?? 'bg-slate-800 text-slate-200 ring-slate-600'
+          className={`rounded-full bg-zinc-900/60 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ring-1 outline-none focus:ring-red-500/60 disabled:opacity-60 ${
+            ROLE_STYLES[u.role] ?? 'bg-zinc-800 text-zinc-200 ring-zinc-600'
           }`}
         >
           {ROLES.map((role) => (
-            <option key={role} value={role} className="bg-slate-800 normal-case">
+            <option key={role} value={role} className="bg-zinc-800 normal-case">
               {role}
             </option>
           ))}
@@ -75,7 +75,7 @@ export default function AdminUsers() {
       key: 'created',
       header: 'Created',
       render: (u) => (
-        <span className="font-mono text-xs text-slate-500">{formatTime(u.created_at ?? '')}</span>
+        <span className="font-mono text-xs text-zinc-500">{formatTime(u.created_at ?? '')}</span>
       ),
       sortValue: (u) => u.created_at ?? '',
     },
@@ -98,7 +98,7 @@ export default function AdminUsers() {
             emptyMessage="No users found — run db/migrations/0003_roles_and_seed.sql after creating the demo users"
           />
         )}
-        <p className="text-center text-[11px] text-slate-600">
+        <p className="text-center text-[11px] text-zinc-600">
           New sign-ups start with the viewer role. Admins cannot change their own role (lockout prevention).
         </p>
       </div>

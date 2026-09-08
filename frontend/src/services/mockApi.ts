@@ -63,10 +63,10 @@ export async function mockGetDashboardSummary(): Promise<DashboardSummary> {
   const countBy = (fn: (a: Alert) => boolean) => alerts.filter(fn).length;
 
   const bands: { name: string; color: string }[] = [
-    { name: 'Safe', color: '#10b981' },
-    { name: 'Low', color: '#eab308' },
-    { name: 'Medium', color: '#f59e0b' },
-    { name: 'High', color: '#f97316' },
+    { name: 'Safe', color: '#e4e4e7' },
+    { name: 'Low', color: '#71717a' },
+    { name: 'Medium', color: '#f87171' },
+    { name: 'High', color: '#dc2626' },
     { name: 'Critical', color: '#ef4444' },
   ];
   const riskDistribution = bands.map((b) => ({

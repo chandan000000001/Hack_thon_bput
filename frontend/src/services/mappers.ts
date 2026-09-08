@@ -111,7 +111,7 @@ export function mapDashboardSummary(row: unknown): DashboardSummary {
     riskDistribution: asArray(data.risk_distribution).map((band) => ({
       name: String(band.name ?? ''),
       value: Number(band.value ?? 0),
-      color: String(band.color ?? '#64748b'),
+      color: String(band.color ?? '#71717a'),
     })),
     threatCategories: asArray(data.threat_categories).map((category) => ({
       name: String(category.name ?? ''),

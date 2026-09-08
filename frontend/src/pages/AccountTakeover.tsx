@@ -37,11 +37,11 @@ const SAMPLE_AUTH_LOG = JSON.stringify(
 );
 
 const tooltipStyle = {
-  backgroundColor: '#0f172a',
-  border: '1px solid #334155',
+  backgroundColor: '#101010',
+  border: '1px solid #262626',
   borderRadius: '8px',
   fontSize: '12px',
-  color: '#e2e8f0',
+  color: '#fafafa',
 };
 
 export default function AccountTakeover() {
@@ -68,16 +68,16 @@ export default function AccountTakeover() {
   }, [events]);
 
   const columns: Column<LoginEvent>[] = [
-    { key: 'user', header: 'User', render: (e) => <span className="font-mono text-xs text-slate-200">{e.username}</span>, sortValue: (e) => e.username },
-    { key: 'ip', header: 'IP', render: (e) => <span className="font-mono text-xs text-slate-400">{e.sourceIp}</span>, sortValue: (e) => e.sourceIp },
-    { key: 'loc', header: 'Location', render: (e) => <span className="text-xs text-slate-300">{e.location}</span>, sortValue: (e) => e.location },
-    { key: 'dev', header: 'Device', render: (e) => <span className="font-mono text-xs text-slate-400">{e.device}</span>, sortValue: (e) => e.device },
+    { key: 'user', header: 'User', render: (e) => <span className="font-mono text-xs text-zinc-200">{e.username}</span>, sortValue: (e) => e.username },
+    { key: 'ip', header: 'IP', render: (e) => <span className="font-mono text-xs text-zinc-400">{e.sourceIp}</span>, sortValue: (e) => e.sourceIp },
+    { key: 'loc', header: 'Location', render: (e) => <span className="text-xs text-zinc-300">{e.location}</span>, sortValue: (e) => e.location },
+    { key: 'dev', header: 'Device', render: (e) => <span className="font-mono text-xs text-zinc-400">{e.device}</span>, sortValue: (e) => e.device },
     {
       key: 'status',
       header: 'Status',
       render: (e) =>
         e.status === 'success' ? (
-          <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-400 ring-1 ring-emerald-500/40">SUCCESS</span>
+          <span className="rounded-full bg-zinc-300/15 px-2 py-0.5 text-[11px] font-semibold text-zinc-200 ring-1 ring-zinc-300/40">SUCCESS</span>
         ) : (
           <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-[11px] font-semibold text-red-400 ring-1 ring-red-500/40">FAILED</span>
         ),
@@ -89,7 +89,7 @@ export default function AccountTakeover() {
       render: (e) => (
         <span
           className={`font-mono text-xs font-bold ${
-            e.riskScore >= 80 ? 'text-red-500' : e.riskScore >= 60 ? 'text-orange-500' : e.riskScore >= 40 ? 'text-amber-500' : 'text-emerald-400'
+            e.riskScore >= 80 ? 'text-red-500' : e.riskScore >= 60 ? 'text-red-600' : e.riskScore >= 40 ? 'text-red-400' : 'text-zinc-200'
           }`}
         >
           {e.riskScore}
@@ -97,17 +97,17 @@ export default function AccountTakeover() {
       ),
       sortValue: (e) => e.riskScore,
     },
-    { key: 'time', header: 'Time', render: (e) => <span className="font-mono text-xs text-slate-500">{formatTime(e.timestamp)}</span>, sortValue: (e) => e.timestamp },
+    { key: 'time', header: 'Time', render: (e) => <span className="font-mono text-xs text-zinc-500">{formatTime(e.timestamp)}</span>, sortValue: (e) => e.timestamp },
     {
       key: 'anom',
       header: 'Anomalies',
       render: (e) =>
         e.anomalies.length === 0 ? (
-          <span className="text-xs text-slate-600">—</span>
+          <span className="text-xs text-zinc-600">—</span>
         ) : (
           <div className="flex max-w-xs flex-wrap gap-1">
             {e.anomalies.map((a) => (
-              <span key={a} className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-500 ring-1 ring-amber-500/30">
+              <span key={a} className="rounded bg-red-400/10 px-1.5 py-0.5 text-[10px] text-red-400 ring-1 ring-red-400/30">
                 {a}
               </span>
             ))}
@@ -156,7 +156,7 @@ export default function AccountTakeover() {
         description="Login anomaly detection: brute force, password spraying, impossible travel and MFA abuse."
       />
       {readOnly && (
-        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2 text-xs text-amber-400">
+        <div className="rounded-lg border border-red-400/40 bg-red-400/10 px-3.5 py-2 text-xs text-red-400">
           Read-only role — mutation actions are disabled. Contact an administrator for elevated access.
         </div>
       )}
@@ -165,8 +165,8 @@ export default function AccountTakeover() {
       {/* Recent login events */}
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-slate-200">Recent Login Events</h3>
-          <button onClick={refetch} className="text-xs text-cyan-400 hover:text-cyan-300">
+          <h3 className="text-sm font-semibold text-zinc-200">Recent Login Events</h3>
+          <button onClick={refetch} className="text-xs text-red-400 hover:text-red-300">
             Refresh
           </button>
         </div>
@@ -181,10 +181,10 @@ export default function AccountTakeover() {
       <ChartCard title="Failed Logins per Hour — Last 24 Hours">
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={failedPerHour} margin={{ top: 4, right: 8, left: -22, bottom: 0 }}>
-            <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="hour" tick={{ fill: '#94a3b8', fontSize: 10 }} interval={2} />
-            <YAxis tick={{ fill: '#94a3b8', fontSize: 10 }} allowDecimals={false} />
-            <Tooltip contentStyle={tooltipStyle} cursor={{ fill: '#1e293b55' }} />
+            <CartesianGrid stroke="#262626" strokeDasharray="3 3" vertical={false} />
+            <XAxis dataKey="hour" tick={{ fill: '#a3a3a3', fontSize: 10 }} interval={2} />
+            <YAxis tick={{ fill: '#a3a3a3', fontSize: 10 }} allowDecimals={false} />
+            <Tooltip contentStyle={tooltipStyle} cursor={{ fill: '#26262655' }} />
             <Bar dataKey="failed" fill="#ef4444" radius={[3, 3, 0, 0]} name="Failed logins" />
           </BarChart>
         </ResponsiveContainer>
@@ -192,12 +192,12 @@ export default function AccountTakeover() {
 
       {/* Auth log analysis */}
       <div className="grid gap-5 lg:grid-cols-2">
-        <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-5 backdrop-blur">
+        <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-5 backdrop-blur">
           <div className="mb-3 flex items-center gap-2">
-            <KeyRound className="h-4 w-4 text-cyan-400" />
-            <h3 className="text-sm font-semibold text-slate-100">Analyze Authentication Log</h3>
+            <KeyRound className="h-4 w-4 text-red-400" />
+            <h3 className="text-sm font-semibold text-zinc-100">Analyze Authentication Log</h3>
           </div>
-          <p className="mb-3 text-xs text-slate-500">
+          <p className="mb-3 text-xs text-zinc-500">
             Paste an array of auth events (user, ip, location, device, status, timestamp). The pre-filled sample contains a brute-force scenario.
           </p>
           <textarea
@@ -205,13 +205,13 @@ export default function AccountTakeover() {
             onChange={(e) => setJsonInput(e.target.value)}
             rows={12}
             spellCheck={false}
-            className="w-full resize-y rounded-lg border border-slate-700/60 bg-slate-900/80 p-3 font-mono text-[11px] leading-relaxed text-slate-200 outline-none focus:border-cyan-500/60"
+            className="w-full resize-y rounded-lg border border-zinc-700/60 bg-zinc-900/80 p-3 font-mono text-[11px] leading-relaxed text-zinc-200 outline-none focus:border-red-500/60"
           />
           <button
             onClick={analyze}
             disabled={analyzing || readOnly}
             title={readOnly ? 'Read-only role' : undefined}
-            className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-cyan-500 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-400 disabled:opacity-60"
+            className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-red-500 disabled:opacity-60"
           >
             {analyzing ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}
             {analyzing ? 'Analyzing...' : 'Analyze'}
@@ -220,29 +220,29 @@ export default function AccountTakeover() {
 
         <div className="space-y-4">
           {analyzing && (
-            <div className="rounded-xl border border-slate-700/50 bg-slate-800/60 p-5 backdrop-blur">
-              <div className="mb-4 flex items-center gap-2 text-sm text-slate-400">
-                <Loader2 className="h-4 w-4 animate-spin text-cyan-400" />
+            <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-5 backdrop-blur">
+              <div className="mb-4 flex items-center gap-2 text-sm text-zinc-400">
+                <Loader2 className="h-4 w-4 animate-spin text-red-400" />
                 Correlating login events...
               </div>
               <PanelSkeleton rows={5} />
             </div>
           )}
           {!analyzing && !result && (
-            <div className="flex h-full min-h-56 items-center justify-center rounded-xl border border-dashed border-slate-700/60 bg-slate-800/20 p-8 text-center text-sm text-slate-500">
+            <div className="flex h-full min-h-56 items-center justify-center rounded-xl border border-dashed border-zinc-700/60 bg-zinc-800/20 p-8 text-center text-sm text-zinc-500">
               Analysis results appear here — try the pre-filled brute-force sample
             </div>
           )}
           {!analyzing && result && (
             <>
-              <div className="flex items-center gap-4 rounded-xl border border-slate-700/50 bg-slate-800/60 p-4 backdrop-blur">
-                <span className="text-3xl font-bold" style={{ color: result.severity === 'critical' ? '#ef4444' : result.severity === 'high' ? '#f97316' : result.severity === 'medium' ? '#f59e0b' : '#10b981' }}>
+              <div className="flex items-center gap-4 rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-4 backdrop-blur">
+                <span className="text-3xl font-bold" style={{ color: result.severity === 'critical' ? '#ef4444' : result.severity === 'high' ? '#ef4444' : result.severity === 'medium' ? '#a3a3a3' : '#e4e4e7' }}>
                   {result.riskScore}
                 </span>
                 <div className="space-y-1">
                   <SeverityBadge severity={result.severity} />
-                  <div className="text-xs text-slate-400">
-                    {result.indicators.length} indicators — event <span className="font-mono text-slate-300">{result.eventId}</span>
+                  <div className="text-xs text-zinc-400">
+                    {result.indicators.length} indicators — event <span className="font-mono text-zinc-300">{result.eventId}</span>
                   </div>
                 </div>
               </div>
