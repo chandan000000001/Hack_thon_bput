@@ -14,10 +14,10 @@ Preparation (one-time): backend running on `http://localhost:8000` (`uvicorn app
 4. Click **Analyze Email**.
 
 **Expected UI behavior**
-- Loading indicator while the pipeline runs (heuristics → scoring → OpenRouter explanation → alert persisted).
+- Loading indicator while the pipeline runs (heuristics → scoring → LLM explanation via the provider chain → alert persisted).
 - Result panel shows: **RiskGauge** with a high/critical score (sample evaluates to risk 100 / critical), severity badge, confidence, event ID.
 - **Indicators** tab: lookalike domain `micr0soft-verify.xyz`, urgency keywords, credential request phrase, insecure/IP link, SMS-layer checks.
-- **Explanation** tab: LLM paragraph starting with the risk level (falls back to a generic explanation if OpenRouter is unreachable — heuristics still score).
+- **Explanation** tab: LLM paragraph starting with the risk level (when all providers in the OpenRouter → Groq chain fail, a rule-based explanation is generated locally from the indicators — heuristics still score).
 - **MITRE ATT&CK** tab: e.g. T1566.001 Spearphishing Attachment / T1656 Impersonation.
 - **Recommended Response** tab: actions mapped from the response catalog (e.g. "Warn the user", "Notify administrator/SOC"), with approval requirements.
 - The new alert now appears on **Security Alerts** (filterable by severity/module/status and full-text search) and on the Dashboard counters.

@@ -8,10 +8,10 @@ FastAPI backend for CYBERGUARD: a multi-source threat detection platform with ex
 
 ## Overview
 
-The backend exposes a versioned REST API (`/api/v1`) that ingests security events, runs them through transparent heuristic detectors, scores risk, generates LLM-written explanations via OpenRouter, and persists alerts, incidents, response actions and a full audit trail in Supabase. The React frontend (`../frontend`) consumes the same API and streams new alerts over Supabase Realtime.
+The backend exposes a versioned REST API (`/api/v1`) that ingests security events, runs them through transparent heuristic detectors, scores risk, generates LLM explanations through a timed provider chain (OpenRouter → Groq → local rule-based fallback), and persists alerts, incidents, response actions and a full audit trail in Supabase. The React frontend (`../frontend`) consumes the same API and streams new alerts over Supabase Realtime.
 
 ```
-Ingestion → Heuristic Engine → Risk Scoring → OpenRouter XAI → Alert Generation → Dashboard
+Ingestion → Heuristic Engine → Risk Scoring → XAI Gateway (OpenRouter → Groq → rule-based) → Alert Generation → Dashboard
 ```
 
 - API reference: `docs/architecture.md` · Detection details: `docs/models.md`
@@ -38,7 +38,7 @@ React SPA ──JWT──> FastAPI (11 routers, /api/v1)
                       │ service role key          anon key + JWT
                       ├──> Supabase Postgres+RLS  ├──> Supabase Auth (token verification)
                       ├──> Supabase Storage       └──> frontend session (signInWithPassword)
-                      └──> OpenRouter (XAI, 15s timeout, JSON mode, fallback)
+                      └──> LLM gateway (XAI: OpenRouter 100s -> Groq 60s -> rule-based fallback)
 Supabase Realtime ──new alert INSERTs──> Dashboard / Alerts pages
 ```
 
@@ -46,7 +46,7 @@ Full diagram, data flow and the security model (RLS, service role vs anon key, J
 
 ## Tech Stack
 
-- **Backend:** Python 3.11+, FastAPI, pydantic / pydantic-settings, supabase-py, httpx (OpenRouter), uvicorn
+- **Backend:** Python 3.11+, FastAPI, pydantic / pydantic-settings, supabase-py, httpx (OpenRouter + Groq), uvicorn
 - **Database / Auth / Storage / Realtime:** Supabase (cloud) — schema in `db/schema.sql` with RLS on every table
 - **Media forensics:** Pillow (ELA), OpenCV (frame sampling), numpy (WAV signal statistics)
 - **Frontend:** React 18, Vite 5, TypeScript (strict), Tailwind CSS, Zustand, Recharts, `@supabase/supabase-js`
@@ -68,7 +68,7 @@ docker compose up --build
 cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env            # Supabase URL/keys + OpenRouter key
+cp .env.example .env            # Supabase URL/keys; OpenRouter/Groq keys optional (explanations)
 uvicorn app.main:app --reload --port 8000
 
 cd ../frontend

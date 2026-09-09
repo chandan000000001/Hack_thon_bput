@@ -67,8 +67,12 @@ Backend (`backend/.env`, loaded by `app/core/config.py`):
 | `SUPABASE_SERVICE_ROLE_KEY` | Privileged key — all DB/storage writes; **backend-only, never commit** |
 | `API_V1_PREFIX` | Route prefix (default `/api/v1`) |
 | `CORS_ORIGINS` | Comma-separated allowed browser origins |
-| `OPENROUTER_API_KEY` | OpenRouter key; empty disables LLM and activates the fallback explanation |
+| `OPENROUTER_API_KEY` | OpenRouter key; empty makes the gateway skip OpenRouter |
 | `OPENROUTER_MODEL` | Model id (default `meta-llama/llama-3.1-8b-instruct:free`) |
+| `OPENROUTER_TIMEOUT_SECONDS` | OpenRouter call timeout in seconds (default `100`) |
+| `GROQ_API_KEY` | Groq key; empty skips Groq and falls through to the rule-based explanation |
+| `GROQ_MODEL` | Groq model id (default `llama-3.1-8b-instant`) |
+| `GROQ_TIMEOUT_SECONDS` | Groq call timeout in seconds (default `60`) |
 
 Frontend (`frontend/.env`, Vite build-time):
 
@@ -82,8 +86,8 @@ Frontend (`frontend/.env`, Vite build-time):
 ## 5. Scalability Notes
 
 **Backend (stateless by design)**
-- The FastAPI app holds no in-process state beyond cached singletons (settings, Supabase/OpenRouter clients), so it scales horizontally: run multiple uvicorn workers (`--workers 4`) or replicas behind any load balancer. All shared state lives in Supabase.
-- Heuristic detectors are pure CPU functions measured at **< 10 ms p95** on the evaluation set (`evidence/reports/evaluation.json`); the dominant latency is the OpenRouter call (15 s timeout, capped by `httpx.Timeout`). Scale-out plus the built-in LLM fallback keeps alert pipelines responsive even under LLM degradation.
+- The FastAPI app holds no in-process state beyond cached singletons (settings, Supabase clients) and the in-memory explanation cache (bounded to 256 entries), so it scales horizontally: run multiple uvicorn workers (`--workers 4`) or replicas behind any load balancer. All shared state lives in Supabase.
+- Heuristic detectors are pure CPU functions measured at **< 10 ms p95** on the evaluation set (`evidence/reports/evaluation.json`); the dominant latency is the LLM explanation, now bounded by the provider chain (OpenRouter 100 s → Groq 60 s → instant rule-based fallback, `httpx.Timeout` per provider). Scale-out plus the chain keeps alert pipelines responsive even under LLM degradation.
 - Long-running media forensics (video frame sampling) and future ML inference are natural candidates to move behind a task queue; today `FastAPI BackgroundTasks` is the designated extension point (no Celery/Redis in the stack).
 
 **Supabase (managed, auto-scaled control plane)**

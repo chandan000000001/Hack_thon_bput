@@ -28,24 +28,27 @@ npm run preview
 
 - `VITE_USE_MOCK=true` (default, see `.env`) routes every API call through `src/services/mockApi.ts`, which wraps the in-browser mock database (`mockData.ts`) and the heuristic analysis engine (`mockEngine.ts`) with a simulated 400–900 ms network delay.
 - The detection engine is **rule-based and deterministic**: the same input always produces the same risk score. Benign samples score low; malicious samples score high.
-- A cyan **MOCK MODE** badge is always visible in the topbar.
+- A red-outlined **MOCK MODE** badge is always visible in the topbar.
 - **Live Simulation** (topbar toggle) generates a new randomized alert every 20 seconds with a toast notification.
 
 ### Score Bands
 
 | Score | Severity | Color |
 |---|---|---|
-| 0–20 | Safe | emerald-500 |
-| 21–40 | Low | yellow-500 |
-| 41–60 | Medium | amber-500 |
-| 61–80 | High | orange-500 |
-| 81–100 | Critical | red-500 |
+| 0–20 | Safe | #e4e4e7 (black text) |
+| 21–40 | Low | #71717a (white text) |
+| 41–60 | Medium | #f87171 (black text) |
+| 61–80 | High | #dc2626 (white text) |
+| 81–100 | Critical | #ef4444 (white text + pulse ring) |
+
+Monochrome-red ramp, centralised in `src/theme.ts` — see the "Frontend Theme" section of the root README.
 
 ## Page Map
 
 | Route | Page | Description |
 |---|---|---|
-| `/login` | Login | Demo-credential auth against the mock API |
+| `/` | Landing | Public editorial project-status monograph (no auth); Sign Up / Login buttons route to `/login?mode=signup` / `/login?mode=signin` |
+| `/login` | Login | Three-mode auth (Sign In / Create Account / Forgot Password); the active mode can be set via the `?mode=` query param |
 | `/dashboard` | SOC Dashboard | 6 stat cards, risk donut, category bars, 24h attack timeline, incident summary, top targeted users/services, recent alerts (auto-refresh 30s) |
 | `/phishing` | Phishing Analysis | Email heuristic analysis: lookalike domains, urgency, credential/payment requests, embedded URL checks, brand mismatch |
 | `/url-analysis` | URL Analysis | Lexical URL analysis with breakdown, risk-contributing feature table and simulated redirect chain |
@@ -61,6 +64,7 @@ npm run preview
 | `/audit-logs` | Audit Logs | Searchable full audit trail (response executions are audit-logged) |
 | `/reports` | Reports | Summary cards + client-side JSON and CSV export downloads |
 | `/settings` | Settings | Profile, mock-mode/backend URL, risk threshold reference, about |
+| `/reset-password` | Reset Password | Sets a new password after following the Supabase reset email link |
 
 The **SOC Assistant** slide-over (bottom of the sidebar) answers context-aware questions from the mock database — try "Summarize today's threats", "Show critical alerts", "List MITRE techniques detected", or "What should I investigate first?".
 
@@ -104,10 +108,11 @@ Three roles are enforced by the backend (`profiles.role`) and mirrored in the UI
 ## Tech Stack
 
 - Vite 5 + React 18 + TypeScript (strict: `noUnusedLocals`, `noUnusedParameters`)
-- Tailwind CSS (dark SOC theme, slate-950 / cyan-500 accent)
+- Tailwind CSS (strict black/white/red theme — page background #050505, panels #0a0a0a, cards #101010, red-600 accent)
 - react-router-dom v6
 - Recharts (donut, bar, area charts)
 - lucide-react (all icons)
+- @playwright/test (browser E2E suite in `e2e/`)
 - Zustand (auth store with localStorage persistence + UI store with toasts/live simulation)
 
 ## Folder Structure
@@ -117,7 +122,7 @@ frontend/
 ├── package.json / tsconfig*.json / vite.config.ts / tailwind.config.js / postcss.config.js
 ├── index.html / .env / README.md
 └── src/
-    ├── main.tsx / App.tsx / index.css / constants.ts / vite-env.d.ts
+    ├── main.tsx / App.tsx / index.css / constants.ts / theme.ts / vite-env.d.ts
     ├── types/index.ts            # shared interfaces
     ├── services/
     │   ├── mockData.ts           # 27 alerts, 8 incidents, 32 logins, 22 flows, 18 API logs, 32 audit entries
@@ -131,7 +136,8 @@ frontend/
     │   └── common/               # StatCard, SeverityBadge, RiskGauge, DataTable, IndicatorList,
     │                             # ExplanationPanel, RecommendedActionsPanel, MitreTags, ChartCard,
     │                             # StatusPill, EmptyState, LoadingSkeleton, PageHeader, Toast, FileUpload
-    └── pages/                    # 16 pages listed in the page map
+    ├── e2e/                      # Playwright browser E2E (ui.spec.ts)
+    └── pages/                    # 19 pages listed in the page map
 ```
 
 ## Notes & Limitations

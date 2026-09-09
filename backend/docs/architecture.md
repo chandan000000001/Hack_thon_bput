@@ -26,7 +26,7 @@ flowchart LR
         RT["Realtime\npostgres_changes on alerts"]
     end
 
-    LLM["OpenRouter\n(LLM explanations)"]
+    LLM["LLM Gateway\n(OpenRouter -> Groq -> rule_based)"]
 
     FE -- "HTTPS + Bearer JWT\n(src/services/http.ts)" --> API
     FE -- "signInWithPassword / getSession" --> AUTH
@@ -34,7 +34,7 @@ flowchart LR
     API -- "service role key\n(app/core/supabase_client.py)" --> DB
     API -- "service role key\n(app/core/storage.py)" --> STO
     API -- "anon key + user JWT\n(app/core/security.py)" --> AUTH
-    API -- "15 s timeout, JSON mode\n(app/ai/openrouter_client.py)" --> LLM
+    API -- "provider chain, JSON mode\n(app/ai/llm_gateway.py)" --> LLM
     DET --> SCORE --> XAI --> SVC
     RT -- "new alert INSERTs" --> FE
 ```
@@ -55,11 +55,14 @@ The backend is the only holder of the **service role key**; the browser only eve
 | API | `app/api/routes_dashboard.py` | Aggregated dashboard summary (Python-side grouping) |
 | API | `app/api/routes_audit.py` | Audit trail reads |
 | API | `app/api/routes_assistant.py` | SOC assistant chat |
-| Core | `app/core/config.py` | pydantic-settings (`SUPABASE_*`, `OPENROUTER_*`, `API_V1_PREFIX`, `CORS_ORIGINS`) |
+| Core | `app/core/config.py` | pydantic-settings (`SUPABASE_*`, `OPENROUTER_*`, `GROQ_*`, `*_TIMEOUT_SECONDS`, `API_V1_PREFIX`, `CORS_ORIGINS`) |
 | Core | `app/core/supabase_client.py` | Service-role client singleton + `check_connection()` |
 | Core | `app/core/security.py` | `get_current_user` (HTTPBearer → `supabase.auth.get_user`), `require_role` |
 | Core | `app/core/storage.py` | Media upload (25 MB cap), 1-hour signed URLs, download |
-| AI | `app/ai/openrouter_client.py` | Async OpenRouter chat call, JSON mode, 15 s timeout, deterministic fallback |
+| AI | `app/ai/llm_gateway.py` | Timed provider chain: OpenRouter (100 s) -> Groq (60 s) -> rule-based; explanation cache (TTL 3600 s, 256 entries) |
+| AI | `app/ai/openrouter_client.py` | OpenRouter provider (JSON mode) + backward-compatible never-raise wrapper |
+| AI | `app/ai/groq_client.py` | Groq provider (OpenAI-compatible endpoint) |
+| AI | `app/ai/explanation_cache.py` | Thread-safe LRU explanation cache (sha256 keys, TTL 3600 s, max 256) |
 | AI | `app/ai/prompt_templates.py` | System prompts for all 6 modules + SOC assistant |
 | Detection | `app/services/phishing_detector.py` | Email + SMS heuristics (lookalike domains, urgency, credential requests, URLs, SMS shortcodes/keywords) |
 | Detection | `app/services/url_detector.py` | URL forensics (IP hosts, entropy, extensions, random paths, digit ratio, URLhaus patterns) |
@@ -85,9 +88,9 @@ Heuristic Engine         app/services/*_detector.py       (indicator list, typed
 Risk Scoring             app/services/scoring_service.py  (risk_score = sum of weights, cap 100;
     |                                                      severity band safe..critical)
     v
-Explainable AI           app/ai/openrouter_client.py      (LLM explanation, MITRE mapping,
-    |                                                      recommended actions; 15 s timeout,
-    |                                                      falls back to generic explanation)
+Explainable AI           app/ai/llm_gateway.py            (LLM explanation, MITRE mapping,
+    |                                                      recommended actions; provider chain
+    |                                                      OpenRouter -> Groq -> rule-based template)
     v
 Alert Generation         app/services/alert_service.py    (alerts row, recommended_actions rows
     |                                                      matched against response_catalog,
@@ -109,5 +112,5 @@ Every state-changing action (alert status change, incident create/assign/escalat
 2. **JWT authentication** — every protected route depends on `get_current_user` (`app/core/security.py`), which validates the bearer token with `supabase.auth.get_user(token)` on the anon client and returns the caller's `id`/`email`. Invalid or expired tokens receive `401` with `WWW-Authenticate: Bearer`. The frontend refreshes the session once on a 401 (`src/services/http.ts`) and falls back to sign-out.
 3. **Row Level Security** — `db/schema.sql` enables RLS on all 11 tables. Direct client access (anon key) is restricted: users read their own profile (`auth.uid() = id`), authenticated users can read/write the operational tables, and the service role bypasses RLS for the pipeline. This means a leaked anon key alone cannot tamper with data outside the policies.
 4. **Human-in-the-loop response actions** — catalog actions flagged `requires_approval` return HTTP 403 from `POST /responses/execute` unless `approved: true`; every execution (and rejection path) is audit-logged.
-5. **Input hardening** — Pydantic validation returns structured 400s; media uploads are limited to 25 MB (413) and image/video/audio content types; file names are sanitized before storage; LLM output is parsed defensively with a deterministic fallback when OpenRouter fails or returns non-JSON.
+5. **Input hardening** — Pydantic validation returns structured 400s; media uploads are limited to 25 MB (413) and image/video/audio content types; file names are sanitized before storage; LLM output is parsed defensively and every analysis response carries `explanation_provider` / `explanation_latency_ms`; when every provider in the chain (OpenRouter, Groq) fails or returns non-JSON, a rule-based template explanation is generated locally.
 6. **Secrets** — all secrets come from environment variables (backend `.env`, frontend `VITE_*`); `.env.example` files document them without real values.

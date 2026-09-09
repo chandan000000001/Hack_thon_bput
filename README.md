@@ -2,7 +2,7 @@
 
 **AI-Powered Cyber Threat, Phishing & Digital Impersonation Detection and Response System**
 
-A hackathon project by **Chandan** — a full-stack SOC (Security Operations Center) platform that ingests emails, URLs, messages, authentication logs, network flows, API logs and media files, runs them through a **hybrid detection engine** (transparent heuristics + trained ML models), scores risk, generates LLM-written explanations via OpenRouter, and surfaces everything in a live cybersecurity command dashboard.
+A hackathon project by **Chandan** — a full-stack SOC (Security Operations Center) platform that ingests emails, URLs, messages, authentication logs, network flows, API logs and media files, runs them through a **hybrid detection engine** (transparent heuristics + trained ML models), scores risk, generates LLM explanations through a timed provider chain (OpenRouter → Groq → local rule-based fallback), and surfaces everything in a live cybersecurity command dashboard.
 
 > ⚠️ Educational prototype. All response actions are simulated; no real infrastructure is modified.
 
@@ -19,12 +19,12 @@ A hackathon project by **Chandan** — a full-stack SOC (Security Operations Cen
 | 🌐 **Network / API abuse** | Data exfiltration (>10 MB flows), C2 ports (4444/8888/…), API rate abuse, 401 bursts |
 | 🖼️ **Deepfake / media forensics** | Error Level Analysis (images), frame-sampled ELA (videos), WAV signal statistics — blended with a trained CNN |
 
-Plus: multi-source ingestion API, alert management & search, incident lifecycle (create → assign → escalate), approval-gated response execution, dashboard summary, audit logging, SOC assistant chat, and **Supabase Realtime** live alert streaming.
+Plus: a public editorial landing page at `/` (no auth), multi-source ingestion API, alert management & search, incident lifecycle (create → assign → escalate), approval-gated response execution, dashboard summary, audit logging, SOC assistant chat, and **Supabase Realtime** live alert streaming.
 
 ## 🧠 Hybrid Detection Engine
 
 ```
-Ingestion → Heuristic Engine → Risk Scoring → OpenRouter XAI → Alert Generation → Dashboard
+Ingestion → Heuristic Engine → Risk Scoring → XAI Gateway (OpenRouter → Groq → rule-based) → Alert Generation → Dashboard
                                    ↑
                   trained ML models (XGBoost + CNN, blended 45/55)
 ```
@@ -36,7 +36,7 @@ Ingestion → Heuristic Engine → Risk Scoring → OpenRouter XAI → Alert Gen
 ## 🏗️ Architecture
 
 - **Frontend** (`frontend/`): React 18 + Vite 5 + TypeScript + Tailwind + Zustand + Recharts, Supabase Auth login, Realtime alert stream
-- **Backend** (`backend/`): FastAPI (11 routers under `/api/v1`), pydantic-settings, supabase-py, httpx (OpenRouter), joblib/XGBoost/PyTorch inference
+- **Backend** (`backend/`): FastAPI (11 routers under `/api/v1`), pydantic-settings, supabase-py, httpx (OpenRouter + Groq), joblib/XGBoost/PyTorch inference
 - **Supabase (cloud)**: PostgreSQL with RLS on every table, Auth (JWT), Storage (private media bucket), Realtime
 - Full diagram & security model: [`backend/docs/architecture.md`](backend/docs/architecture.md)
 
@@ -51,7 +51,7 @@ Ingestion → Heuristic Engine → Risk Scoring → OpenRouter XAI → Alert Gen
 cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env                      # fill in Supabase + OpenRouter keys
+cp .env.example .env                      # fill in Supabase keys; OpenRouter/Groq keys optional (explanations)
 uvicorn app.main:app --reload --port 8000
 
 # 3. Frontend (second terminal)
