@@ -26,7 +26,7 @@ flowchart LR
         RT["Realtime\npostgres_changes on alerts"]
     end
 
-    LLM["LLM Gateway\n(OpenRouter -> Groq -> rule_based)"]
+    LLM["LLM Gateway\n(OpenRouter -> Groq -> rule_based,\nper-provider circuit breakers)"]
 
     FE -- "HTTPS + Bearer JWT\n(src/services/http.ts)" --> API
     FE -- "signInWithPassword / getSession" --> AUTH
@@ -50,16 +50,20 @@ The backend is the only holder of the **service role key**; the browser only eve
 | API | `app/api/routes_events.py` | Multi-source ingestion (`/events/email`, `/url`, `/message`, `/auth-log`, `/network`, `/api-log`, `/media`) |
 | API | `app/api/routes_analysis.py` | Detection pipelines (`/analysis/email|url|impersonation|account-takeover|network|media`) and alert reads |
 | API | `app/api/routes_alerts.py` | Alert list/search/filter, detail, status transitions |
-| API | `app/api/routes_incidents.py` | Incident CRUD-lite: create, list, detail, status, assign, escalate |
+| API | `app/api/routes_incidents.py` | Incident CRUD-lite: create, list, detail, status (NIST/SANS state-machine-gated), assign, escalate |
 | API | `app/api/routes_response.py` | Response catalog, approval-gated execution, history |
 | API | `app/api/routes_dashboard.py` | Aggregated dashboard summary (Python-side grouping) |
 | API | `app/api/routes_audit.py` | Audit trail reads |
 | API | `app/api/routes_assistant.py` | SOC assistant chat |
-| Core | `app/core/config.py` | pydantic-settings (`SUPABASE_*`, `OPENROUTER_*`, `GROQ_*`, `*_TIMEOUT_SECONDS`, `API_V1_PREFIX`, `CORS_ORIGINS`) |
-| Core | `app/core/supabase_client.py` | Service-role client singleton + `check_connection()` |
+| Core | `app/core/config.py` | pydantic-settings (`SUPABASE_*`, `DATABASE_URL`, `OPENROUTER_*`, `GROQ_*`, `*_TIMEOUT_SECONDS`, `API_V1_PREFIX`, `CORS_ORIGINS`) |
+| Core | `app/core/supabase_client.py` | Service-role client singleton + `check_connection()` (Auth / Storage / Realtime) |
 | Core | `app/core/security.py` | `get_current_user` (HTTPBearer → `supabase.auth.get_user`), `require_role` |
 | Core | `app/core/storage.py` | Media upload (25 MB cap), 1-hour signed URLs, download |
-| AI | `app/ai/llm_gateway.py` | Timed provider chain: OpenRouter (100 s) -> Groq (60 s) -> rule-based; explanation cache (TTL 3600 s, 256 entries) |
+| Core | `app/core/database.py` | Async SQLAlchemy engine (asyncpg, `pool_pre_ping`, `pool_size=10`, `max_overflow=20`), `async_sessionmaker`, `get_db_session` FastAPI dependency |
+| Domain | `app/domain/models.py` | ORM models over the existing Supabase tables: `IncidentModel`, `IncidentEventModel`, `AlertModel`, `IncidentAlertLinkModel` |
+| Domain | `app/domain/incident_lifecycle.py` | Strict NIST/SANS state machine (`VALID_TRANSITIONS` matrix, `validate_transition`, legacy status normalization, `InvalidStateTransitionError` → 400) |
+| AI | `app/ai/async_circuit_breaker.py` | Coroutine-safe circuit breaker (CLOSED/OPEN/HALF_OPEN, failure_threshold=3, recovery_timeout=60 s) — pybreaker is synchronous and would block the event loop |
+| AI | `app/ai/llm_gateway.py` | Provider chain: OpenRouter -> Groq (each behind its own AsyncCircuitBreaker) -> rule-based; explanation cache (TTL 3600 s, 256 entries) |
 | AI | `app/ai/openrouter_client.py` | OpenRouter provider (JSON mode) + backward-compatible never-raise wrapper |
 | AI | `app/ai/groq_client.py` | Groq provider (OpenAI-compatible endpoint) |
 | AI | `app/ai/explanation_cache.py` | Thread-safe LRU explanation cache (sha256 keys, TTL 3600 s, max 256) |
@@ -103,6 +107,30 @@ Dashboard                GET /api/v1/dashboard/summary    (React SOC console)
 ```
 
 Every state-changing action (alert status change, incident create/assign/escalate, response execution, assistant query) writes an `audit_logs` row via `app/services/audit_service.py`.
+
+## Incident Lifecycle State Machine (Phase A)
+
+`PATCH /api/v1/incidents/{id}/status` is governed by a strict NIST/SANS lifecycle instead of free-form status changes:
+
+```
+TRIAGE ──> CONTAINMENT ──> ERADICATION ──> RECOVERY ──> CLOSED
+   │             │
+   │ (false      │ (containment failed,
+   │  positive)  │  escalate back)
+   └──> CLOSED   └──> TRIAGE
+```
+
+The request path is: load the incident through SQLAlchemy (`app/core/database.py` → `app/domain/models.py`), normalize the requested status (legacy `open`/`investigating`/`contained`/`closed` map onto the new lifecycle), run `validate_transition(current, new)` against the `VALID_TRANSITIONS` matrix, and only then commit the status change plus the timeline event in one transaction. An illegal move — e.g. CONTAINMENT → CLOSED — is rejected with **400** (`Cannot transition from CONTAINMENT to CLOSED. Must go through ERADICATION and RECOVERY first.`) before anything is written.
+
+## LLM Gateway Circuit Breakers (Phase A)
+
+Each remote provider in the gateway chain is wrapped in its own `AsyncCircuitBreaker` (`app/ai/async_circuit_breaker.py`):
+
+- **CLOSED** — normal operation; consecutive failures are counted.
+- **OPEN** — after 3 consecutive failures; every call is rejected instantly with `CircuitBreakerOpenError` for 60 s.
+- **HALF_OPEN** — after the 60 s recovery window; exactly one probe call is allowed. Success closes the breaker, failure re-opens it for another window.
+
+When a breaker is OPEN the gateway logs `Circuit breaker OPEN for [provider], skipping to fallback` and moves to the next provider immediately, so a full OpenRouter+Groq outage costs zero added latency (instant rule-based fallback) instead of the previous 100 s + 60 s timeout chain.
 
 ## Security Model
 

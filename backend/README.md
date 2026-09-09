@@ -29,7 +29,7 @@ Ingestion → Heuristic Engine → Risk Scoring → XAI Gateway (OpenRouter → 
 | **Network / API abuse** | `POST /api/v1/analysis/network` | Data exfiltration (>10 MB flows), C2 ports (4444/8888/…), API rate abuse, 401 bursts |
 | **Deepfake / media forensics** | `POST /api/v1/analysis/media` | ELA image forensics, frame-sampled video ELA, WAV signal statistics; non-WAV audio is clearly labelled simulated |
 
-Plus the operational surface: multi-source raw ingestion (`/events/*`), alert management with search and status transitions, incident lifecycle (create/assign/escalate), approval-gated response execution, dashboard summary, audit logging, and the SOC assistant chat — with Supabase Realtime streaming new alerts to the UI.
+Plus the operational surface: multi-source raw ingestion (`/events/*`), alert management with search and status transitions, incident lifecycle governed by a **strict NIST/SANS state machine** (TRIAGE → CONTAINMENT → ERADICATION → RECOVERY → CLOSED — illegal transitions are rejected with 400 before anything is written), approval-gated response execution, dashboard summary, audit logging, and the SOC assistant chat — with Supabase Realtime streaming new alerts to the UI.
 
 ## Architecture
 
@@ -38,7 +38,7 @@ React SPA ──JWT──> FastAPI (11 routers, /api/v1)
                       │ service role key          anon key + JWT
                       ├──> Supabase Postgres+RLS  ├──> Supabase Auth (token verification)
                       ├──> Supabase Storage       └──> frontend session (signInWithPassword)
-                      └──> LLM gateway (XAI: OpenRouter 100s -> Groq 60s -> rule-based fallback)
+                      └──> LLM gateway (XAI: OpenRouter -> Groq -> rule-based, each remote provider behind an async circuit breaker)
 Supabase Realtime ──new alert INSERTs──> Dashboard / Alerts pages
 ```
 
@@ -46,8 +46,8 @@ Full diagram, data flow and the security model (RLS, service role vs anon key, J
 
 ## Tech Stack
 
-- **Backend:** Python 3.11+, FastAPI, pydantic / pydantic-settings, supabase-py, httpx (OpenRouter + Groq), uvicorn
-- **Database / Auth / Storage / Realtime:** Supabase (cloud) — schema in `db/schema.sql` with RLS on every table
+- **Backend:** Python 3.11+, FastAPI, pydantic / pydantic-settings, supabase-py (Auth / Storage / Realtime), SQLAlchemy 2.0 async + asyncpg (domain layer over the same Postgres), httpx (OpenRouter + Groq), uvicorn
+- **Database / Auth / Storage / Realtime:** Supabase (cloud) — schema in `db/schema.sql` with RLS on every table; domain reads/writes go through SQLAlchemy ORM sessions (`app/core/database.py`, `app/domain/`)
 - **Media forensics:** Pillow (ELA), OpenCV (frame sampling), numpy (WAV signal statistics)
 - **Frontend:** React 18, Vite 5, TypeScript (strict), Tailwind CSS, Zustand, Recharts, `@supabase/supabase-js`
 - **Tooling:** docker compose, seeded dataset generators, offline evaluation harness
@@ -106,3 +106,11 @@ Full methodology, per-module breakdowns and limitations: **[evidence/reports/eva
 - The **service role key** bypasses RLS and lives only in `backend/.env` — it is never exposed to the frontend and never committed.
 - All protected routes verify the caller's Supabase JWT (`app/core/security.py`); every state-changing action is audit-logged.
 - RLS is enabled on all 11 tables (`db/schema.sql`); approval-gated response actions return 403 without explicit human approval.
+
+## Phase A — Enterprise Upgrade (domain layer, state machine, circuit breaker)
+
+- **SQLAlchemy domain layer** (`app/domain/`): ORM models for `incidents`, `incident_events`, `alerts` and the `incident_alerts` junction, mapped to the existing Supabase tables. Engine: async asyncpg, `pool_pre_ping`, `pool_size=10`, `max_overflow=20`. The supabase-py client is unchanged and still owns Auth, Storage and Realtime.
+- **Strict incident state machine** (`app/domain/incident_lifecycle.py`): `TRIAGE → CONTAINMENT → ERADICATION → RECOVERY → CLOSED`, plus TRIAGE→CLOSED (false positive) and CONTAINMENT→TRIAGE (escalate back). `PATCH /incidents/{id}/status` validates the transition via SQLAlchemy *before* committing, so an analyst cannot close an incident that is still in containment (400 with an explanatory message). Legacy statuses (`open`/`investigating`/`contained`/`closed`) are accepted and normalized.
+- **Async circuit breaker** (`app/ai/async_circuit_breaker.py`): a custom coroutine-safe breaker (CLOSED/OPEN/HALF_OPEN, threshold 3, 60 s recovery) wraps each remote LLM provider. When a provider is failing, its breaker opens and the gateway skips it instantly — an LLM outage can never hang the API; worst case is an immediate fall-through to the rule-based explanation.
+
+> **One-time DB step:** widen the `incident_status` enum in Supabase before writing the new statuses (`ALTER TYPE incident_status ADD VALUE IF NOT EXISTS 'TRIAGE';` etc. — see `docs/deployment.md`). Until then the API reads legacy rows fine and accepts legacy status values.

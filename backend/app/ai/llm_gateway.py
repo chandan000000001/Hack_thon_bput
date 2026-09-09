@@ -1,4 +1,4 @@
-"""LLM provider gateway with a timed fallback chain.
+"""LLM provider gateway with a circuit-breaker-guarded fallback chain.
 
 Chain order (strict):
     1. OpenRouter  — settings.openrouter_timeout_seconds (default 100 s)
@@ -6,11 +6,16 @@ Chain order (strict):
     3. rule_based  — local template built from the indicator context,
                      instant and never fails
 
-Every provider call is timed; on timeout or any exception the gateway logs
-one warning line and continues to the next provider. Results are cached in
-explanation_cache (TTL 3600 s, max 256 entries) keyed by a sha256 of the
-module name plus normalized input, so identical inputs skip the remote chain
-entirely. Worst-case added latency is bounded: 100 s + 60 s + <1 s.
+Each remote provider is wrapped in its own AsyncCircuitBreaker (threshold 3
+consecutive failures, 60 s recovery window). When a breaker is OPEN the
+gateway logs one line and immediately falls through to the next provider
+without waiting — an LLM outage can never hang the API. Non-open failures
+(timeout, bad response, unparseable output) are counted against the breaker
+and also fall through.
+
+Results are cached in explanation_cache (TTL 3600 s, max 256 entries) keyed by
+a sha256 of the module name plus normalized input, so identical inputs skip
+the remote chain entirely.
 """
 
 import hashlib
@@ -21,6 +26,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 
 from app.ai import explanation_cache as cache
+from app.ai.async_circuit_breaker import AsyncCircuitBreaker, CircuitBreakerOpenError
 from app.ai.groq_client import explain_groq
 from app.ai.openrouter_client import explain_openrouter, rule_based_explanation
 
@@ -30,6 +36,20 @@ PROVIDERS: list[tuple[str, Callable[[str, str], Awaitable[dict[str, Any]]]]] = [
     ("openrouter", explain_openrouter),
     ("groq", explain_groq),
 ]
+
+BREAKER_FAILURE_THRESHOLD = 3
+BREAKER_RECOVERY_TIMEOUT_SECONDS = 60.0
+
+# One breaker per remote provider, shared across requests so outage state
+# survives between calls.
+_BREAKERS: dict[str, AsyncCircuitBreaker] = {
+    name: AsyncCircuitBreaker(
+        failure_threshold=BREAKER_FAILURE_THRESHOLD,
+        recovery_timeout=BREAKER_RECOVERY_TIMEOUT_SECONDS,
+        name=f"llm:{name}",
+    )
+    for name, _ in PROVIDERS
+}
 
 
 def _normalize(value: Any) -> Any:
@@ -73,9 +93,15 @@ async def explain(
         }
 
     for provider_name, provider in PROVIDERS:
+        breaker = _BREAKERS[provider_name]
         started = time.perf_counter()
         try:
-            output = await provider(system_prompt, user_prompt)
+            output = await breaker.call(provider, system_prompt, user_prompt)
+        except CircuitBreakerOpenError:
+            logger.warning(
+                "Circuit breaker OPEN for %s, skipping to fallback", provider_name
+            )
+            continue
         except Exception as exc:  # noqa: BLE001 — any provider failure falls through
             latency_ms = int((time.perf_counter() - started) * 1000)
             logger.warning(

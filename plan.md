@@ -1985,4 +1985,41 @@ The final system must demonstrate:
 
 This plan must be followed step by step. Do not skip phases. Do not claim completion without evidence.
 
+---
+
+# 41. Phase A: Enterprise Upgrade (DELIVERED)
+
+Date: 2026-09-09. Scope: backend only (frontend and ML models untouched).
+
+Delivered:
+
+1. **SQLAlchemy domain layer (domain-driven design)** — `backend/app/core/database.py`
+   (async engine on asyncpg, `pool_pre_ping`, `pool_size=10`, `max_overflow=20`,
+   `async_sessionmaker`, `get_db_session` dependency) and `backend/app/domain/models.py`
+   (`IncidentModel`, `IncidentEventModel`, `AlertModel`, `IncidentAlertLinkModel`) mapping
+   the existing Supabase tables. `supabase-py` remains the client for Auth, Storage, Realtime.
+2. **Strict NIST/SANS incident state machine** — `backend/app/domain/incident_lifecycle.py`
+   (TRIAGE -> CONTAINMENT -> ERADICATION -> RECOVERY -> CLOSED; TRIAGE->CLOSED false positive;
+   CONTAINMENT->TRIAGE escalate-back). `PATCH /incidents/{id}/status`
+   (`backend/app/api/routes_incidents.py`) validates the transition via SQLAlchemy before
+   committing status + timeline event; illegal transitions return 400 with the required path
+   (e.g. "Cannot transition from CONTAINMENT to CLOSED. Must go through ERADICATION and
+   RECOVERY first."). Legacy statuses are normalized for backward compatibility.
+3. **Async circuit breaker around the LLM gateway** — `backend/app/ai/async_circuit_breaker.py`
+   (custom implementation because pybreaker is synchronous and blocks the event loop;
+   CLOSED/OPEN/HALF_OPEN, failure_threshold=3, recovery_timeout=60 s). Each remote provider in
+   `backend/app/ai/llm_gateway.py` sits behind its own breaker; an OPEN breaker is skipped
+   instantly ("Circuit breaker OPEN for [provider], skipping to fallback") so an LLM outage
+   can never hang the API.
+4. **Config** — `DATABASE_URL` added to `app/core/config.py` and `.env.example`;
+   `sqlalchemy[asyncio]`, `asyncpg`, `pybreaker` added to `backend/requirements.txt`.
+
+Verification: `python -m compileall app` passes; full `app.main` import succeeds; state
+machine paths, all breaker transitions (open, half-open probe success/failure) and the
+gateway's breaker-skipping fallback were exercised with functional smoke tests.
+
+Outstanding one-time DB step: widen the Postgres `incident_status` enum with the new values
+(`ALTER TYPE incident_status ADD VALUE IF NOT EXISTS 'TRIAGE';` etc. — see
+`backend/docs/deployment.md`). Until then legacy status values keep working.
+
 End of plan.

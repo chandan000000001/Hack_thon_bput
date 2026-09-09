@@ -19,7 +19,7 @@ A hackathon project by **Chandan** — a full-stack SOC (Security Operations Cen
 | 🌐 **Network / API abuse** | Data exfiltration (>10 MB flows), C2 ports (4444/8888/…), API rate abuse, 401 bursts |
 | 🖼️ **Deepfake / media forensics** | Error Level Analysis (images), frame-sampled ELA (videos), WAV signal statistics — blended with a trained CNN |
 
-Plus: a public editorial landing page at `/` (no auth), multi-source ingestion API, alert management & search, incident lifecycle (create → assign → escalate), approval-gated response execution, dashboard summary, audit logging, SOC assistant chat, and **Supabase Realtime** live alert streaming.
+Plus: a public editorial landing page at `/` (no auth), multi-source ingestion API, alert management & search, an incident lifecycle governed by a **strict NIST/SANS state machine** (TRIAGE → CONTAINMENT → ERADICATION → RECOVERY → CLOSED; illegal transitions are rejected with a 400 before anything is written), approval-gated response execution, dashboard summary, audit logging, SOC assistant chat, and **Supabase Realtime** live alert streaming.
 
 ## 🧠 Hybrid Detection Engine
 
@@ -36,7 +36,7 @@ Ingestion → Heuristic Engine → Risk Scoring → XAI Gateway (OpenRouter → 
 ## 🏗️ Architecture
 
 - **Frontend** (`frontend/`): React 18 + Vite 5 + TypeScript + Tailwind + Zustand + Recharts, Supabase Auth login, Realtime alert stream
-- **Backend** (`backend/`): FastAPI (11 routers under `/api/v1`), pydantic-settings, supabase-py, httpx (OpenRouter + Groq), joblib/XGBoost/PyTorch inference
+- **Backend** (`backend/`): FastAPI (11 routers under `/api/v1`), pydantic-settings, supabase-py (Auth/Storage/Realtime) + SQLAlchemy 2.0 async domain layer (asyncpg), httpx (OpenRouter + Groq, each provider behind an async circuit breaker), joblib/XGBoost/PyTorch inference
 - **Supabase (cloud)**: PostgreSQL with RLS on every table, Auth (JWT), Storage (private media bucket), Realtime
 - Full diagram & security model: [`backend/docs/architecture.md`](backend/docs/architecture.md)
 
@@ -87,7 +87,7 @@ Offline evaluation of all six modules (heuristics-only vs hybrid) on held-out da
 
 ```
 ├── backend/          FastAPI app, detection services, ML pipeline, docs
-│   ├── app/          api/ core/ ai/ services/ schemas/
+│   ├── app/          api/ core/ ai/ domain/ services/ schemas/
 │   ├── ml/           fetch_data.py preprocess.py train_models.py + data/ models/
 │   ├── db/           schema.sql (Supabase schema, RLS, seeds)
 │   ├── docs/         architecture, models, deployment, datasets, demo_script

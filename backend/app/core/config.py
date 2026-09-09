@@ -18,6 +18,12 @@ class Settings(BaseSettings):
     SUPABASE_URL: str
     SUPABASE_ANON_KEY: str
     SUPABASE_SERVICE_ROLE_KEY: str
+
+    # Async SQLAlchemy connection (Phase A domain layer). Defaults to the
+    # local Supabase Postgres instance; the supabase-py client above remains
+    # the transport for Auth, Storage, and Realtime.
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:54322/postgres"
+
     API_V1_PREFIX: str = "/api/v1"
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
 
