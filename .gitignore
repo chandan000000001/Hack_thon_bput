@@ -81,3 +81,19 @@ desktop.ini
 *.log
 logs/
 backend/scripts/test_api.py
+
+# Secrets and local test files
+.env
+.env.test
+backend/.env
+backend/.venv/
+backend/scripts/test_api.py
+frontend/node_modules/
+
+# Secrets and local test files
+.env
+.env.test
+backend/.env
+backend/.venv/
+backend/scripts/test_api.py
+frontend/node_modules/

@@ -1,6 +1,6 @@
 # CYBERGUARD API Regression Matrix
 
-Run: 2026-09-09 01:05:01 against `http://localhost:8000/api/v1`
+Run: 2026-09-09 03:34:49 against `http://localhost:8000/api/v1`
 
 **Result: 24 passed, 0 failed**
 
@@ -18,7 +18,7 @@ Run: 2026-09-09 01:05:01 against `http://localhost:8000/api/v1`
 | 10 | POST /analysis/network C2 port 4444 -> risk_score >= 40 | PASS | status 200 score=40 |
 | 11 | POST /analysis/media upload -> 200 with manipulation_probability | PASS | status 200 |
 | 12 | GET /alerts non-empty | PASS | status 200 count=50 |
-| 13 | GET /alerts/{id} 200 (id=db4c298c-a5bb-4fb1-a6c6-bf0a74962729) | PASS | status 200 |
+| 13 | GET /alerts/{id} 200 (id=4b4716ee-4b77-4130-bf68-c03dedc5f6c9) | PASS | status 200 |
 | 14 | PATCH /alerts/{id}/status acknowledged 200 | PASS | status 200 |
 | 15 | POST /incidents 201 (linked to alert) | PASS | status 201 |
 | 16 | PATCH /incidents/{id}/status investigating 200 | PASS | status 200 |
@@ -27,6 +27,6 @@ Run: 2026-09-09 01:05:01 against `http://localhost:8000/api/v1`
 | 19 | GET /responses/catalog non-empty | PASS | status 200 count=10 |
 | 20 | POST /responses/execute without approval -> 403 | PASS | status 403 |
 | 21 | POST /responses/execute with approval -> 200 | PASS | status 200 |
-| 22 | GET /audit/logs non-empty and includes mutations | PASS | status 200 count=3 contains_alert=True |
+| 22 | GET /audit/logs non-empty and includes mutations | PASS | status 200 count=9 contains_alert=True |
 | 23 | POST /assistant/chat returns non-empty reply | PASS | status 200 |
 | 24 | GET /admin/users lists the admin email | PASS | status 200 |

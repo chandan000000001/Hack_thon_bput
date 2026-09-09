@@ -99,6 +99,34 @@ Offline evaluation of all six modules (heuristics-only vs hybrid) on held-out da
 └── plan.md           master implementation plan
 ```
 
+## 🎨 Frontend Theme — Black / White / Red
+
+The entire frontend uses a strict monochrome red palette (centralised in `frontend/src/theme.ts`):
+
+| Surface | Value |
+|---|---|
+| Page background | `#050505` |
+| Sidebar / topbar / panels | `#0a0a0a` |
+| Cards | `#101010` (border `#262626`) |
+| Primary text / secondary text | `#fafafa` / `#a3a3a3` |
+| Accent (nav, links, buttons, gauge arcs, chart series) | `#dc2626` (hover `#ef4444`) |
+| Secondary buttons | transparent, white border/text; hover inverts to white bg / black text |
+
+**Severity ramp (0-100 risk bands):**
+
+| Band | Score | Color | Text on swatch |
+|---|---|---|---|
+| Safe | 0-20 | `#e4e4e7` | black |
+| Low | 21-40 | `#71717a` | white |
+| Medium | 41-60 | `#f87171` | black |
+| High | 61-80 | `#dc2626` | white |
+| Critical | 81-100 | `#ef4444` | white + subtle pulse ring |
+
+The ramp is consumed everywhere via `SEVERITY_RAMP` / `SEVERITY_COLORS` from `src/theme.ts` —
+SeverityBadge, RiskGauge, StatusPill, Toast, all recharts series, the Settings risk-threshold
+table swatches, and the public landing page severity film strip. Selection color and scrollbars
+are red on black. No cyan, teal or blue accents remain anywhere in `src/`.
+
 ## 🔒 Security
 
 The Supabase **service role key** lives only in `backend/.env` (git-ignored) — it is never exposed to the browser. All protected routes verify Supabase JWTs; RLS is enabled on every table; destructive response actions require explicit human approval and are audit-logged.
