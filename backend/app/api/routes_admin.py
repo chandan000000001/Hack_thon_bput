@@ -10,7 +10,7 @@ from typing import Any, Literal
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
-from app.core.security import CurrentUser, require_role
+from app.core.security import CurrentUser, require_permission
 from app.core.supabase_client import get_supabase
 from app.services import audit_service
 
@@ -22,7 +22,7 @@ class RoleUpdate(BaseModel):
 
 
 @router.get("/users")
-def list_users(_admin: CurrentUser = Depends(require_role("admin"))) -> list[dict[str, Any]]:
+def list_users(_admin: CurrentUser = Depends(require_permission("users.manage"))) -> list[dict[str, Any]]:
     """List all user profiles, oldest first."""
     try:
         response = (
@@ -44,7 +44,7 @@ def list_users(_admin: CurrentUser = Depends(require_role("admin"))) -> list[dic
 async def update_user_role(
     user_id: str,
     payload: RoleUpdate,
-    admin: CurrentUser = Depends(require_role("admin")),
+    admin: CurrentUser = Depends(require_permission("users.manage")),
 ) -> dict[str, Any]:
     """Change a user's role; audit-logged.
 

@@ -20,9 +20,11 @@ import {
   Zap,
 } from 'lucide-react';
 import { useUiStore } from '../../store/uiStore';
-import { useAuthStore, type Role } from '../../store/authStore';
+import { useAuthStore } from '../../store/authStore';
 
-const NAV_ITEMS: { to: string; label: string; icon: typeof Bell; minRole?: Role }[] = [
+// Navigation entries with requiredPermission are hidden unless the caller's
+// permission matrix (GET /auth/me) grants the key (Phase C-2).
+const NAV_ITEMS: { to: string; label: string; icon: typeof Bell; requiredPermission?: string }[] = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/phishing', label: 'Phishing Analysis', icon: Mail },
   { to: '/url-analysis', label: 'URL Analysis', icon: Link },
@@ -36,7 +38,7 @@ const NAV_ITEMS: { to: string; label: string; icon: typeof Bell; minRole?: Role 
   { to: '/audit-logs', label: 'Audit Logs', icon: ScrollText },
   { to: '/reports', label: 'Reports', icon: FileBarChart },
   { to: '/settings', label: 'Settings', icon: Settings },
-  { to: '/admin/users', label: 'User Management', icon: Users, minRole: 'admin' },
+  { to: '/admin/users', label: 'User Management', icon: Users, requiredPermission: 'users.manage' },
 ];
 
 export default function Sidebar() {
@@ -44,8 +46,11 @@ export default function Sidebar() {
   const setAssistantOpen = useUiStore((s) => s.setAssistantOpen);
   const can = useAuthStore((s) => s.can);
 
-  // Role-aware navigation: admin-only entries are hidden for other roles.
-  const visibleItems = NAV_ITEMS.filter((item) => !item.minRole || can('admin'));
+  // Permission-aware navigation: entries without the required permission
+  // key are hidden entirely.
+  const visibleItems = NAV_ITEMS.filter(
+    (item) => !item.requiredPermission || can(item.requiredPermission)
+  );
 
   return (
     <aside

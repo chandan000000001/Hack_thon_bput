@@ -99,3 +99,41 @@ Preparation (one-time): backend running on `http://localhost:8000` (`uvicorn app
 3. Toggle **Live Alerts** in the topbar: new alerts inserted into Supabase stream to the open Dashboard/Alerts page as toasts with automatic refresh (Supabase Realtime).
 4. Ask the **SOC Assistant** (sidebar): "Show critical alerts" or "What should I investigate first?" — answers cite alert IDs from the live database.
 5. Open **Reports** to export the current state as JSON/CSV evidence.
+
+---
+
+## Enterprise Upgrade addenda (Phases A–C)
+
+Behaviors introduced after this script was written — the demo scenarios above
+all still work, with these differences:
+
+- **Multi-tenancy (Phase B):** every event, alert, incident and audit row is
+  scoped to the caller's organization. All pre-existing demo data belongs to
+  the "Default Organization", so nothing disappears after migration
+  `0004_multi_tenancy.sql` runs. Cross-tenant ids simply resolve to 404.
+- **Background analysis (Phase C-1):** with Redis up and the Arq worker
+  running (`docker compose up -d redis`, `arq app.workers.settings.WorkerSettings`),
+  `POST /analysis/media` and the new bulk endpoint
+  `POST /api/v1/events/bulk` (`{"kind": "auth-log" | "network", "rows": [...], ...}`)
+  answer **202 "Queued for background analysis"**; the alert still lands in
+  Supabase moments later and reaches the dashboard via the Live Alerts
+  Realtime toast. Without Redis the same requests answer **200** after
+  running synchronously, exactly as before.
+- **Permission matrix (Phase C-2, migration `0005_permissions.sql`):** roles
+  decide access through granular permission keys. Demo expectations per
+  account:
+  - `admin@cyberguard.local` — everything works, including approval-required
+    (destructive) response execution and **Admin → User Management**.
+  - `analyst@cyberguard.local` — analyses, incidents and safe response
+    execution work; executing an approval-required catalog action and the
+    admin area are refused (`403 Missing permission: ...`; the execute button
+    shows "Requires destructive-response permission" and User Management is
+    hidden in the sidebar).
+  - `viewer@cyberguard.local` — read-only: every analysis/ingestion endpoint
+    returns `403 Missing permission: analysis.run` and mutation controls are
+    disabled in the UI.
+- **Incident lifecycle (Phase A):** the status transition buttons now map onto
+  the strict NIST/SANS machine — an incident cannot jump straight to closed
+  from containment (the API returns 400 naming the required intermediate
+  phases), and transitioning to CLOSED requires the `incident.close`
+  permission.

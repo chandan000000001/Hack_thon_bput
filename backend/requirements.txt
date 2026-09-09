@@ -18,3 +18,4 @@ joblib
 sqlalchemy[asyncio]
 asyncpg
 pybreaker
+arq

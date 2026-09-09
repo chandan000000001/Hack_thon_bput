@@ -39,7 +39,7 @@ This contract exists so a Hugging Face vision/audio model can be dropped in late
 
 `app/ai/openrouter_client.py` + `app/ai/prompt_templates.py`
 
-- One shared async `call_openrouter(system_prompt, user_prompt)` — JSON response mode, **15-second timeout**, headers identify the app (`HTTP-Referer`, `X-Title: CYBERGUARD`).
+- One shared async `call_openrouter(system_prompt, user_prompt)` — JSON response mode, per-call timeout from `OPENROUTER_TIMEOUT_SECONDS` (default 100 s, enforced across the gateway chain), headers identify the app (`HTTP-Referer`, `X-Title: CYBERGUARD`).
 - Every failure path (missing key, timeout, HTTP error, unparseable output — with a regex JSON-block extractor for markdown-fenced replies) returns a fixed fallback explanation, so detection and alerting never depend on the LLM.
 - Per-module system prompts constrain the model to a strict JSON contract (`explanation`, `mitre_techniques`, `recommended_actions`); the SOC assistant prompt grounds answers in the last 20 alerts and cites alert IDs.
 - Model: `OPENROUTER_MODEL` (default `meta-llama/llama-3.1-8b-instruct:free`).
@@ -107,6 +107,13 @@ providers strictly in order and returns as soon as one succeeds:
 | 2 | Groq | `GROQ_TIMEOUT_SECONDS` (default 60 s) | OpenAI-compatible `api.groq.com` endpoint, model `GROQ_MODEL` (default `llama-3.1-8b-instant`); skipped instantly when `GROQ_API_KEY` is empty |
 | 3 | rule_based | instant (< 5 ms) | template-generated locally from the indicator list already present in the prompt context when both remote providers fail; never fails |
 
+- **Circuit breakers (Phase C-1):** each remote provider sits behind its own
+  `AsyncCircuitBreaker` (`app/ai/async_circuit_breaker.py`; threshold 3
+  consecutive failures, 60 s recovery window, CLOSED/OPEN/HALF_OPEN states).
+  While a breaker is OPEN the gateway logs
+  `Circuit breaker OPEN for <provider>, skipping to fallback` and moves to the
+  next provider **instantly** — a sustained LLM outage costs near-zero added
+  latency instead of the full timeout chain.
 - **Provenance:** every analysis response carries `explanation_provider`
   (`openrouter` | `groq` | `rule_based` | `cache:<original_provider>`) and
   `explanation_latency_ms`. Each provider failure logs one warning line:
@@ -116,6 +123,7 @@ providers strictly in order and returns as soon as one succeeds:
   (for media: sha256 of the file bytes). Cache hits return with
   `explanation_provider = "cache:<original_provider>"` and zero latency.
 - **Worst-case latency bound:** 100 s (OpenRouter) + 60 s (Groq) + < 1 s
-  (rule_based) per analysis; typically far less, and zero on cache hits.
+  (rule_based) per analysis while providers are healthy; typically far less,
+  zero on cache hits, and near-zero once a breaker has tripped.
 - Detection heuristics, ML models, scoring bands and route signatures are
   unchanged by this chain — only the explanation source is affected.

@@ -5,12 +5,28 @@
 #
 #   backend  -> http://localhost:8000  (FastAPI + uvicorn)
 #   frontend -> http://localhost:3000  (Nginx serving the built React SPA)
+#   redis    -> localhost:6379         (Arq job queue for Phase C-1 background
+#                                       workers; the worker itself runs on the
+#                                       host: arq app.workers.settings.WorkerSettings)
 #
 # Prerequisite: backend/.env contains the Supabase URL/keys and OpenRouter key,
 # and db/schema.sql has been executed in the Supabase SQL editor (see
 # backend/docs/deployment.md).
 
 services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cyberguard-net
+
   backend:
     build: ./backend
     ports:
@@ -20,6 +36,9 @@ services:
     networks:
       - cyberguard-net
     restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=5)"]
       interval: 30s

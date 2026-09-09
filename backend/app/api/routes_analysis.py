@@ -1,15 +1,17 @@
-"""Analysis pipeline endpoints (Parts 3, 4 & 5).
+"""Analysis pipeline endpoints (Parts 3, 4 & 5 + Phase B multi-tenancy).
 
 POST /analysis/email, /analysis/url, /analysis/impersonation,
 /analysis/account-takeover, /analysis/network and /analysis/media run the
-heuristic detectors, risk scoring, OpenRouter explanation, and alert
-persistence. GET endpoints expose stored alerts.
+heuristic detectors, risk scoring, LLM explanation, and org-scoped alert
+persistence — every event and alert is tagged with the caller's org_id.
+GET endpoints expose org-scoped stored alerts.
 """
 
 import uuid
 from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from app.ai.llm_gateway import explain, make_cache_key, make_cache_key_from_bytes
@@ -27,7 +29,8 @@ from app.ai.prompt_templates import (
     format_phishing_user_prompt,
     format_url_user_prompt,
 )
-from app.core.security import CurrentUser, get_current_user, require_role
+from app.core.config import get_settings
+from app.core.security import CurrentUser, get_current_user, require_permission
 from app.core.storage import (
     MAX_MEDIA_SIZE_BYTES,
     download_media,
@@ -38,6 +41,7 @@ from app.services.account_takeover_detector import analyze_auth_log_heuristics
 from app.services.alert_service import create_alert_in_db
 from app.services.deepfake_detector import analyze_media
 from app.services.impersonation_detector import analyze_impersonation_heuristics
+from app.services.job_queue import enqueue_job
 from app.services.ml_inference import score_with_ml
 from app.services.network_threat_detector import analyze_network_heuristics
 from app.services.phishing_detector import analyze_email_heuristics
@@ -81,14 +85,17 @@ class NetworkAnalysisRequest(BaseModel):
     api_logs: list[dict[str, Any]] = []
 
 
-def _create_analysis_event(event_type: str, source: str, raw_data: dict[str, Any]) -> str:
-    """Insert a new event with status 'analyzing' and return its id."""
+def _create_analysis_event(
+    event_type: str, source: str, raw_data: dict[str, Any], org_id: str
+) -> str:
+    """Insert a new org-scoped event with status 'analyzing' and return its id."""
     try:
         response = (
             get_supabase()
             .table("events")
             .insert(
                 {
+                    "org_id": org_id,
                     "event_type": event_type,
                     "source": source,
                     "raw_data": raw_data,
@@ -112,12 +119,17 @@ def _create_analysis_event(event_type: str, source: str, raw_data: dict[str, Any
     return rows[0]["id"]
 
 
-def _fetch_alert_with_actions(alert_id: str) -> dict[str, Any]:
-    """Return the alert row with its recommended_actions attached."""
+def _fetch_alert_with_actions(alert_id: str, org_id: str) -> dict[str, Any]:
+    """Return the org-scoped alert row with its recommended_actions attached."""
     client = get_supabase()
     try:
         alert_response = (
-            client.table("alerts").select("*").eq("id", alert_id).limit(1).execute()
+            client.table("alerts")
+            .select("*")
+            .eq("id", alert_id)
+            .eq("org_id", org_id)
+            .limit(1)
+            .execute()
         )
     except Exception as exc:
         raise HTTPException(
@@ -159,12 +171,14 @@ async def _run_analysis_pipeline(
     indicators: list[dict],
     system_prompt: str,
     user_prompt: str,
+    org_id: str,
 ) -> dict[str, Any]:
-    """Shared detection pipeline: persist event, score, explain, alert."""
+    """Shared detection pipeline: persist org-scoped event, score, explain, alert."""
     event_id = _create_analysis_event(
         event_type=event_type,
         source=source,
         raw_data=raw_data,
+        org_id=org_id,
     )
     # Hybrid engine (ML Step 3): heuristic indicators + trained-model
     # probability are blended; the ml_model indicator is persisted but does
@@ -185,8 +199,9 @@ async def _run_analysis_pipeline(
         score=hybrid_score,
         severity=severity,
         llm_output=llm_output,
+        org_id=org_id,
     )
-    alert = _fetch_alert_with_actions(alert_id)
+    alert = _fetch_alert_with_actions(alert_id, org_id)
     alert["explanation_provider"] = explained["provider"]
     alert["explanation_latency_ms"] = explained["latency_ms"]
     return alert
@@ -194,7 +209,7 @@ async def _run_analysis_pipeline(
 
 @router.post("/email")
 async def analyze_email(
-    payload: EmailAnalysisRequest, _analyst: CurrentUser = Depends(require_role("analyst"))
+    payload: EmailAnalysisRequest, analyst: CurrentUser = Depends(require_permission("analysis.run"))
 ) -> dict:
     """Full phishing analysis pipeline for an email."""
     raw_data = payload.model_dump(mode="json")
@@ -209,12 +224,13 @@ async def analyze_email(
         indicators=indicators,
         system_prompt=PHISHING_SYSTEM_PROMPT,
         user_prompt=format_phishing_user_prompt(raw_data, indicators),
+        org_id=analyst.org_id,
     )
 
 
 @router.post("/url")
 async def analyze_url(
-    payload: UrlAnalysisRequest, _analyst: CurrentUser = Depends(require_role("analyst"))
+    payload: UrlAnalysisRequest, analyst: CurrentUser = Depends(require_permission("analysis.run"))
 ) -> dict:
     """Full malicious URL analysis pipeline for a single URL."""
     raw_data = payload.model_dump(mode="json")
@@ -227,12 +243,13 @@ async def analyze_url(
         indicators=indicators,
         system_prompt=URL_SYSTEM_PROMPT,
         user_prompt=format_url_user_prompt(payload.url, indicators),
+        org_id=analyst.org_id,
     )
 
 
 @router.post("/impersonation")
 async def analyze_impersonation(
-    payload: ImpersonationAnalysisRequest, _analyst: CurrentUser = Depends(require_role("analyst"))
+    payload: ImpersonationAnalysisRequest, analyst: CurrentUser = Depends(require_permission("analysis.run"))
 ) -> dict:
     """Full digital impersonation analysis pipeline for a message."""
     raw_data = payload.model_dump(mode="json")
@@ -247,12 +264,13 @@ async def analyze_impersonation(
         indicators=indicators,
         system_prompt=IMPERSONATION_SYSTEM_PROMPT,
         user_prompt=format_impersonation_user_prompt(raw_data, indicators),
+        org_id=analyst.org_id,
     )
 
 
 @router.post("/account-takeover")
 async def analyze_account_takeover(
-    payload: AccountTakeoverAnalysisRequest, _analyst: CurrentUser = Depends(require_role("analyst"))
+    payload: AccountTakeoverAnalysisRequest, analyst: CurrentUser = Depends(require_permission("analysis.run"))
 ) -> dict:
     """Full account takeover analysis pipeline for authentication logs."""
     raw_data = payload.model_dump(mode="json")
@@ -265,12 +283,13 @@ async def analyze_account_takeover(
         indicators=indicators,
         system_prompt=ACCOUNT_TAKEOVER_SYSTEM_PROMPT,
         user_prompt=format_account_takeover_user_prompt(payload.events, indicators),
+        org_id=analyst.org_id,
     )
 
 
 @router.post("/network")
 async def analyze_network(
-    payload: NetworkAnalysisRequest, _analyst: CurrentUser = Depends(require_role("analyst"))
+    payload: NetworkAnalysisRequest, analyst: CurrentUser = Depends(require_permission("analysis.run"))
 ) -> dict:
     """Full network/API abuse analysis pipeline for flows and API logs."""
     raw_data = payload.model_dump(mode="json")
@@ -288,6 +307,7 @@ async def analyze_network(
         user_prompt=format_network_user_prompt(
             payload.flows, payload.api_logs, indicators
         ),
+        org_id=analyst.org_id,
     )
 
 
@@ -301,6 +321,7 @@ def _finalize_deepfake_response(
     llm_output: dict[str, Any],
     explanation_provider: str,
     explanation_latency_ms: int,
+    org_id: str,
 ) -> dict[str, Any]:
     """Persist the deepfake alert and build the unified API response."""
     raw_data = {
@@ -319,8 +340,9 @@ def _finalize_deepfake_response(
         score=result["risk_score"],
         severity=result["severity"],
         llm_output=llm_output,
+        org_id=org_id,
     )
-    alert = _fetch_alert_with_actions(alert_id)
+    alert = _fetch_alert_with_actions(alert_id, org_id)
     return {
         **result,
         "event_id": event_id,
@@ -348,6 +370,7 @@ async def _run_deepfake_pipeline(
     file_name: str,
     content_type: str,
     storage_path: str,
+    org_id: str,
 ) -> dict[str, Any]:
     """Shared deepfake pipeline: forensics, LLM explanation, alert, response."""
     try:
@@ -373,12 +396,15 @@ async def _run_deepfake_pipeline(
         llm_output=explained["explanation"],
         explanation_provider=explained["provider"],
         explanation_latency_ms=explained["latency_ms"],
+        org_id=org_id,
     )
 
 
 @router.post("/media")
 async def analyze_media_upload(
-    file: UploadFile, _analyst: CurrentUser = Depends(require_role("analyst"))
+    file: UploadFile,
+    analyst: CurrentUser = Depends(require_permission("analysis.run")),
+    _media: CurrentUser = Depends(require_permission("media.upload")),
 ) -> dict:
     """Full deepfake/media-forensics pipeline for an uploaded media file."""
     content_type = file.content_type or ""
@@ -408,6 +434,7 @@ async def analyze_media_upload(
             "content_type": content_type,
             "size_bytes": size_bytes,
         },
+        org_id=analyst.org_id,
     )
 
     try:
@@ -436,18 +463,48 @@ async def analyze_media_upload(
             detail="Failed to store media file metadata",
         ) from exc
 
+    # Phase C-1: hand the heavy forensics to the Arq worker when the queue is
+    # available; otherwise fall through to the synchronous pipeline below.
+    settings = get_settings()
+    if settings.BACKGROUND_WORKERS_ENABLED and await enqueue_job(
+        "job_analyze_media", event_id=event_id
+    ):
+        return JSONResponse(
+            status_code=status.HTTP_202_ACCEPTED,
+            content={
+                "event_id": event_id,
+                "status": "analyzing",
+                "message": "Queued for background analysis",
+                "module": "deepfake",
+                "alert_id": None,
+                "risk_score": None,
+                "severity": None,
+                "indicators": [],
+                "explanation": None,
+                "explanation_provider": None,
+                "explanation_latency_ms": None,
+                "mitre_techniques": [],
+                "recommended_actions": [],
+                "storage_path": media_record["storage_path"],
+                "file_name": media_record["file_name"],
+            },
+        )
+
     return await _run_deepfake_pipeline(
         event_id=event_id,
         file_bytes=file_bytes,
         file_name=file_name,
         content_type=content_type,
         storage_path=media_record["storage_path"],
+        org_id=analyst.org_id,
     )
 
 
 @router.post("/media/event/{event_id}")
 async def analyze_media_event(
-    event_id: str, _analyst: CurrentUser = Depends(require_role("analyst"))
+    event_id: str,
+    analyst: CurrentUser = Depends(require_permission("analysis.run")),
+    _media: CurrentUser = Depends(require_permission("media.upload")),
 ) -> dict:
     """Re-run the deepfake pipeline for an already-ingested media event."""
     try:
@@ -488,17 +545,19 @@ async def analyze_media_event(
         file_name=media.get("file_name") or "media",
         content_type=media.get("file_type") or "",
         storage_path=media["storage_path"],
+        org_id=analyst.org_id,
     )
 
 
 @router.get("/alerts")
-def list_alerts(_user: dict = Depends(get_current_user)) -> dict:
-    """Return all alerts, newest first."""
+def list_alerts(user: CurrentUser = Depends(get_current_user)) -> dict:
+    """Return the caller's org alerts, newest first."""
     try:
         response = (
             get_supabase()
             .table("alerts")
             .select("*")
+            .eq("org_id", user.org_id)
             .order("created_at", desc=True)
             .execute()
         )
@@ -513,6 +572,6 @@ def list_alerts(_user: dict = Depends(get_current_user)) -> dict:
 
 
 @router.get("/alerts/{alert_id}")
-def get_alert(alert_id: str, _user: dict = Depends(get_current_user)) -> dict:
-    """Return a single alert with its recommended actions."""
-    return _fetch_alert_with_actions(alert_id)
+def get_alert(alert_id: str, user: CurrentUser = Depends(get_current_user)) -> dict:
+    """Return a single org-scoped alert with its recommended actions."""
+    return _fetch_alert_with_actions(alert_id, user.org_id)

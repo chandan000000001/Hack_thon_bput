@@ -27,6 +27,9 @@ class IncidentModel(Base):
     __tablename__ = "incidents"
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    # Tenant scope (migration 0004); the service layer filters on it because
+    # the service-role client bypasses RLS.
+    org_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("organizations.id"))
     title: Mapped[str] = mapped_column(Text)
     severity: Mapped[str] = mapped_column(String(32))
     status: Mapped[str] = mapped_column(String(32))
@@ -73,6 +76,7 @@ class AlertModel(Base):
     __tablename__ = "alerts"
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    org_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("organizations.id"))
     event_id: Mapped[Optional[uuid.UUID]] = mapped_column(Uuid)
     title: Mapped[str] = mapped_column(Text)
     module: Mapped[str] = mapped_column(String(32))

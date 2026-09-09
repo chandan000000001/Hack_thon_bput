@@ -89,15 +89,45 @@ All four are Vite environment variables read at build/dev time from `frontend/.e
 
 ### Roles & Authentication Flows
 
-Three roles are enforced by the backend (`profiles.role`) and mirrored in the UI:
+Three roles remain (`profiles.role`), but since Phase C-2 access is decided by a
+**granular permission matrix** (`backend/db/migrations/0005_permissions.sql`):
+roles resolve to permission keys, and the UI keys its decisions off the
+permission list returned by `GET /auth/me` (`authStore.can('key')`).
 
-| Role | Level | Can do |
+#### Permission Matrix
+
+| Permission | viewer | analyst | admin | Guards |
+|---|:---:|:---:|:---:|---|
+| `dashboard.view` | ✅ | ✅ | ✅ | Dashboard aggregates |
+| `alerts.view` | ✅ | ✅ | ✅ | Alerts list/detail |
+| `incidents.view` | ✅ | ✅ | ✅ | Incidents list/detail |
+| `reports.view` | ✅ | ✅ | ✅ | Reports page |
+| `analysis.run` | — | ✅ | ✅ | Analysis pipelines (email/URL/impersonation/account-takeover/network) + event ingestion |
+| `media.upload` | — | ✅ | ✅ | Deepfake media upload & re-analysis (in addition to `analysis.run`) |
+| `incident.create` | — | ✅ | ✅ | Create incident |
+| `incident.update` | — | ✅ | ✅ | Incident status transitions & assignment |
+| `incident.escalate` | — | ✅ | ✅ | Escalate incident to critical |
+| `incident.close` | — | ✅ | ✅ | Transition an incident to CLOSED (in addition to `incident.update`) |
+| `alert.acknowledge` | — | ✅ | ✅ | Alert status → acknowledged |
+| `alert.resolve` | — | ✅ | ✅ | Alert status → resolved/dismissed |
+| `response.execute` | — | ✅ | ✅ | Execute (simulated) response actions |
+| `response.execute_destructive` | — | — | ✅ | Approval-required (destructive) response actions |
+| `audit.view` | — | ✅ | ✅ | Audit log page |
+| `users.manage` | — | — | ✅ | Admin → User Management |
+
+UI enforcement: the execute button on approval-required catalog entries is
+disabled with the tooltip **"Requires destructive-response permission"** when
+`response.execute_destructive` is missing, and **Admin → User Management** is
+hidden unless the caller holds `users.manage`. In **mock mode** every
+permission is granted so the self-contained demo stays fully functional.
+
+| Role | Level | Practical summary |
 |---|---|---|
 | **viewer** | 1 | Read-only: dashboards, alerts, incidents, reports. All submit/execute/status-change controls are disabled with a "Read-only role" tooltip and a banner on each page. |
-| **analyst** | 2 | Everything viewer can, plus run analyses, ingest events, change alert statuses, execute response actions, and manage incidents. |
-| **admin** | 3 | Everything analyst can, plus **Admin → User Management** (`/admin/users`) to change other users' roles (audit-logged, self-demote blocked). |
+| **analyst** | 2 | Everything viewer can, plus run analyses, ingest events, change alert statuses, work incidents (incl. closing), execute safe response actions, and read the audit log. |
+| **admin** | 3 | Everything analyst can, plus destructive (approval-required) response execution and **Admin → User Management** (`/admin/users`) to change other users' roles (audit-logged, self-demote blocked). |
 
-- The role comes from the `profiles` table (fetched via `GET /auth/me` after every login and session restore). A missing profile falls back to **viewer**.
+- The role and permission list come from the backend (`GET /auth/me` after every login and session restore; permissions from the `role_permissions` table, migration 0005). A missing profile falls back to **viewer**; a missing permissions list falls back to the documented default matrix above.
 - **Sign-up default role is viewer**: "Create Account" on the Login page calls `supabase.auth.signUp` with the full name stored in the user metadata. New sign-ups get the `viewer` role until an admin elevates them.
 - **Forgot / Reset Password**: "Forgot Password" sends a Supabase reset email pointing at `/reset-password`, where the user sets a new password (`supabase.auth.updateUser`) and is returned to the sign-in page.
 - **Required Supabase configuration** (Authentication → URL Configuration):

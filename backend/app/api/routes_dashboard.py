@@ -13,7 +13,7 @@ router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
 @router.get("/summary", response_model=DashboardSummary)
 async def get_dashboard_summary(
-    _user: CurrentUser = Depends(get_current_user),
+    user: CurrentUser = Depends(get_current_user),
 ) -> dict[str, Any]:
-    """Return the aggregated dashboard summary."""
-    return await dashboard_service.get_dashboard_summary()
+    """Return the aggregated dashboard summary for the caller's organization."""
+    return await dashboard_service.get_dashboard_summary(user.org_id)

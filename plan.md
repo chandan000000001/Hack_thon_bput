@@ -2022,4 +2022,102 @@ Outstanding one-time DB step: widen the Postgres `incident_status` enum with the
 (`ALTER TYPE incident_status ADD VALUE IF NOT EXISTS 'TRIAGE';` etc. — see
 `backend/docs/deployment.md`). Until then legacy status values keep working.
 
+---
+
+# 42. Phase B: Multi-Tenancy & Data Isolation (DELIVERED)
+
+Date: 2026-09-10. Scope: backend (frontend/ML untouched); supabase-py clients kept.
+
+Delivered:
+
+1. **Migration `db/migrations/0004_multi_tenancy.sql`** (idempotent):
+   `organizations` table, `org_id` added to profiles/events/alerts/incidents/
+   audit_logs, every existing row backfilled to the "Default Organization"
+   (demo data survives), org_id indexes, handle_new_user trigger updated so
+   new signups land in the Default Organization.
+2. **Tenant resolution** — `app/core/supabase_client.get_user_org_id(user_id)`
+   (async, 5-minute per-user cache, Default Organization fallback for missing
+   profiles/NULL org); `app/core/security.get_current_user` returns CurrentUser
+   with `id`, `email`, `role`, `org_id`.
+3. **Service-layer isolation** — alert_service, incident_service,
+   dashboard_service, audit_service: every INSERT carries org_id, every SELECT
+   filters `.eq("org_id", org_id)` (primary enforcement since the service-role
+   client bypasses RLS); cross-tenant incident ids resolve to 404; linked
+   alerts are validated against the caller's org.
+4. **Routes** — routes_analysis + routes_events pass the caller's org_id into
+   event/alert creation; routes_incidents/dashboard/audit/alerts scoped as
+   well; the Phase A SQLAlchemy status path filters IncidentModel.org_id.
+
+Verification: `python -m compileall app` passes; app.main imports; org
+resolution/fallback/cache exercised with mocked Supabase clients.
+
+---
+
+# 43. Phase C-1: Background Workers (DELIVERED)
+
+Date: 2026-09-10. Scope: backend; detection logic, ML models and worker-facing
+frontend behaviour untouched.
+
+Delivered:
+
+1. **Queue access** — `app/services/job_queue.py`: cached Arq redis pool
+   (`get_arq_pool`, None + one warning on connection failure, 30 s retry
+   cooldown so fallback stays fast) and `enqueue_job(...)` that never raises,
+   logging "Worker queue unavailable, caller must run synchronously" and
+   returning False on any failure.
+2. **Workers** — `app/workers/jobs.py`: `job_analyze_media` (storage download →
+   deepfake detector → gateway explanation → org-scoped alert → event
+   completed/failed) and `job_analyze_bulk_logs` (auth-log/network batch →
+   matching detector → alert); both idempotent (completed events exit
+   immediately) and never re-raise. `app/workers/settings.py`: WorkerSettings
+   with max_jobs=4, job_timeout=300.
+3. **API** — `POST /analysis/media` answers 202 with a null-safe payload when
+   the job is queued (frontend mapper tolerates it; alert arrives via
+   Realtime), else runs the existing synchronous pipeline (200). New
+   `POST /events/bulk` (`kind: auth-log | network`) ingests a batch as one
+   org-scoped event and queues or falls back identically.
+4. **Infra/docs** — `arq` in requirements, REDIS_URL +
+   BACKGROUND_WORKERS_ENABLED in config/.env.example, redis service
+   (redis:7-alpine, healthcheck) in docker-compose, "Background Workers"
+   section in docs/deployment.md.
+
+Verification: compileall passes; WorkerSettings shape, job signatures,
+idempotency guards, bulk request validation and Redis-down fallback
+(including cooldown latency) exercised.
+
+---
+
+# 44. Phase C-2: Permission Matrix RBAC (DELIVERED)
+
+Date: 2026-09-10. Scope: backend + frontend auth surfaces; detection logic,
+ML models and worker jobs untouched.
+
+Delivered:
+
+1. **Migration `db/migrations/0005_permissions.sql`** (idempotent):
+   `permissions` (16 keys) + `role_permissions`; viewer = 4 view keys,
+   analyst = +analysis/media/incidents/alerts/safe responses/audit (14),
+   admin = +response.execute_destructive/users.manage (16).
+2. **Backend** — `get_role_permissions(role)` (service-role query, 5-minute
+   per-role cache, hardcoded DEFAULT_ROLE_PERMISSIONS fallback so the demo
+   works before the migration); `require_permission(key)` dependency
+   (403 "Missing permission: <key>"); `has_permission` for conditional gates;
+   `require_role` kept as a compatibility alias. All guarded routers switched:
+   analysis/events → analysis.run (+ media.upload for media), incidents →
+   incident.create/update/escalate (+ incident.close for the CLOSED
+   transition), responses → response.execute (+ response.execute_destructive
+   for approval-required catalog entries), audit → audit.view, admin →
+   users.manage; `/auth/me` returns the caller's permission list.
+3. **Frontend** — authStore stores permissions and `can(key)` checks them
+   (mock mode grants everything); ResponseActions disables destructive
+   execution with the "Requires destructive-response permission" tooltip;
+   Sidebar hides User Management without users.manage; AdminUsers guarded by
+   users.manage; README documents the full matrix. Legacy composite keys map
+   onto granular keys so untouched components keep working.
+
+Verification: `python -m compileall app` exits 0; `npm run build` (tsc strict)
+passes; 28 role×permission acceptance checks confirm viewer 403s on
+analysis, analyst 403s only on destructive/admin, admin passes everything;
+the hardcoded fallback matrix equals the migration seeds.
+
 End of plan.

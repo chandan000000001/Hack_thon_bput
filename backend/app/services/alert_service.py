@@ -150,12 +150,16 @@ def create_alert_in_db(
     score: int,
     severity: str,
     llm_output: dict[str, Any],
+    org_id: str,
 ) -> str:
     """Persist the alert, its recommended actions, and mark the event completed.
 
-    The alert row is inserted FIRST; recommended actions are best-effort
-    (type-cast, failures logged and skipped). Returns the created alert UUID.
-    Raises HTTPException 500 only if the alert itself cannot be saved.
+    The alert row is inserted FIRST, tagged with the caller's org_id
+    (multi-tenancy: the service-role client bypasses RLS, so org_id on every
+    write is the primary tenant isolation). Recommended actions are
+    best-effort (type-cast, failures logged and skipped). Returns the created
+    alert UUID. Raises HTTPException 500 only if the alert itself cannot be
+    saved.
     """
     client = get_supabase()
     alert_id = str(uuid.uuid4())
@@ -170,6 +174,7 @@ def create_alert_in_db(
         client.table("alerts").insert(
             {
                 "id": alert_id,
+                "org_id": org_id,
                 "event_id": event_id,
                 "title": title,
                 "module": module,

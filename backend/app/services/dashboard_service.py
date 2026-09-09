@@ -126,27 +126,44 @@ def _top_targeted_services(alerts: list[dict]) -> list[dict[str, Any]]:
     ]
 
 
-async def get_dashboard_summary() -> dict[str, Any]:
-    """Build the complete dashboard summary."""
+async def get_dashboard_summary(org_id: str) -> dict[str, Any]:
+    """Build the complete dashboard summary for one organization.
+
+    Every query is filtered by org_id — the service-role client bypasses RLS,
+    so this filter is the tenant isolation for dashboard counts, group-bys
+    and the recent-alerts feed.
+    """
     client = get_supabase()
     try:
         alerts = (
             client.table("alerts")
             .select("id, module, severity, target_user, target_service, created_at")
+            .eq("org_id", org_id)
             .order("created_at", desc=True)
             .execute()
             .data
             or []
         )
         events = (
-            client.table("events").select("id, created_at").execute().data or []
+            client.table("events")
+            .select("id, created_at")
+            .eq("org_id", org_id)
+            .execute()
+            .data
+            or []
         )
         incidents = (
-            client.table("incidents").select("id, status").execute().data or []
+            client.table("incidents")
+            .select("id, status")
+            .eq("org_id", org_id)
+            .execute()
+            .data
+            or []
         )
         recent_alerts = (
             client.table("alerts")
             .select("*")
+            .eq("org_id", org_id)
             .order("created_at", desc=True)
             .limit(10)
             .execute()

@@ -46,10 +46,15 @@ def _attach_recommended_actions(alerts: list[dict[str, Any]]) -> list[dict[str, 
 @router.get("", response_model=list[AlertResponse])
 def list_alerts(
     params: Annotated[AlertListParams, Depends()],
-    _user: CurrentUser = Depends(get_current_user),
+    user: CurrentUser = Depends(get_current_user),
 ) -> list[dict[str, Any]]:
-    """List alerts with optional severity/module/status filters and search."""
-    query = get_supabase().table("alerts").select("*")
+    """List the caller's org alerts with optional severity/module/status filters."""
+    query = (
+        get_supabase()
+        .table("alerts")
+        .select("*")
+        .eq("org_id", user.org_id)
+    )
     if params.severity:
         query = query.eq("severity", params.severity)
     if params.module:
@@ -84,15 +89,16 @@ def list_alerts(
 
 @router.get("/{alert_id}", response_model=AlertResponse)
 def get_alert(
-    alert_id: str, _user: CurrentUser = Depends(get_current_user)
+    alert_id: str, user: CurrentUser = Depends(get_current_user)
 ) -> dict[str, Any]:
-    """Fetch a single alert with its recommended actions."""
+    """Fetch a single org-scoped alert with its recommended actions."""
     try:
         response = (
             get_supabase()
             .table("alerts")
             .select("*")
             .eq("id", alert_id)
+            .eq("org_id", user.org_id)
             .limit(1)
             .execute()
         )
@@ -116,13 +122,14 @@ async def update_alert_status(
     payload: AlertStatusUpdate,
     user: CurrentUser = Depends(get_current_user),
 ) -> dict[str, Any]:
-    """Update an alert's status and record the change in the audit log."""
+    """Update an org-scoped alert's status and record the change in the audit log."""
     try:
         response = (
             get_supabase()
             .table("alerts")
             .update({"status": payload.status})
             .eq("id", alert_id)
+            .eq("org_id", user.org_id)
             .execute()
         )
     except Exception as exc:
@@ -144,5 +151,6 @@ async def update_alert_status(
         f"Alert status changed to {payload.status}",
         f"alert:{alert_id}",
         f"Alert '{alert.get('title')}'",
+        org_id=user.org_id,
     )
     return _attach_recommended_actions([alert])[0]

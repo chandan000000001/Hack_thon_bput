@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { ShieldAlert } from 'lucide-react';
 import * as api from '../services/api';
 import type { AdminUser } from '../services/api';
 import { useApi } from '../hooks/useApi';
 import { useUiStore } from '../store/uiStore';
+import { useAuthStore } from '../store/authStore';
 import PageHeader from '../components/common/PageHeader';
 import DataTable, { type Column } from '../components/common/DataTable';
-import RoleGuard from '../components/layout/RoleGuard';
 import { PanelSkeleton } from '../components/common/LoadingSkeleton';
 import { formatTime } from '../constants';
 
@@ -19,6 +20,8 @@ const ROLE_STYLES: Record<string, string> = {
 
 export default function AdminUsers() {
   const addToast = useUiStore((s) => s.addToast);
+  const canManageUsers = useAuthStore((s) => s.can('users.manage'));
+  const role = useAuthStore((s) => s.role);
   const { data: users, loading, refetch } = useApi(() => api.listAdminUsers(), []);
   const [savingId, setSavingId] = useState<string | null>(null);
 
@@ -81,9 +84,21 @@ export default function AdminUsers() {
     },
   ];
 
+  if (!canManageUsers) {
+    return (
+      <div className="flex flex-col items-center rounded-xl border border-red-500/30 bg-red-500/5 py-14 text-center">
+        <ShieldAlert className="h-10 w-10 text-red-400/70" />
+        <p className="mt-3 text-sm font-semibold text-zinc-100">Access denied: requires users.manage permission</p>
+        <p className="mt-1 max-w-md text-xs leading-relaxed text-zinc-500">
+          Your account has the <span className="font-mono text-zinc-300">{role}</span> role. Ask an
+          administrator to elevate your access (Admin → User Management).
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <RoleGuard minimumRole="admin">
-      <div className="space-y-4">
+    <div className="space-y-4">
         <PageHeader
           title="User Management"
           description="Assign viewer, analyst and admin roles. Role changes are audit-logged."
@@ -102,6 +117,5 @@ export default function AdminUsers() {
           New sign-ups start with the viewer role. Admins cannot change their own role (lockout prevention).
         </p>
       </div>
-    </RoleGuard>
   );
 }

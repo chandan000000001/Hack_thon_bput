@@ -11,7 +11,7 @@ flowchart LR
     end
 
     subgraph Backend["Backend — FastAPI (this repo: backend/)"]
-        API["FastAPI app\napp/main.py — 11 routers under /api/v1"]
+        API["FastAPI app\napp/main.py — 12 routers under /api/v1"]
         SEC["app/core/security.py\nJWT verification via Supabase Auth"]
         DET["Detection services\napp/services/*_detector.py"]
         SCORE["Risk scoring\napp/services/scoring_service.py"]
@@ -27,6 +27,8 @@ flowchart LR
     end
 
     LLM["LLM Gateway\n(OpenRouter -> Groq -> rule_based,\nper-provider circuit breakers)"]
+    REDIS["Redis\nArq job queue"]
+    WORKER["Arq worker\napp/workers/settings.py\njob_analyze_media / job_analyze_bulk_logs"]
 
     FE -- "HTTPS + Bearer JWT\n(src/services/http.ts)" --> API
     FE -- "signInWithPassword / getSession" --> AUTH
@@ -35,6 +37,9 @@ flowchart LR
     API -- "service role key\n(app/core/storage.py)" --> STO
     API -- "anon key + user JWT\n(app/core/security.py)" --> AUTH
     API -- "provider chain, JSON mode\n(app/ai/llm_gateway.py)" --> LLM
+    API -- "enqueue media/bulk jobs\n(app/services/job_queue.py)" --> REDIS
+    WORKER -- "run heavy analysis,\nwrite alerts via service role" --> DB
+    WORKER -- "consume jobs" --> REDIS
     DET --> SCORE --> XAI --> SVC
     RT -- "new alert INSERTs" --> FE
 ```
@@ -47,17 +52,18 @@ The backend is the only holder of the **service role key**; the browser only eve
 |---|---|---|
 | API | `app/main.py` | FastAPI app, CORS, routers, validation (400) and global (500) JSON error handlers |
 | API | `app/api/routes_health.py` | `GET /api/v1/health` liveness + Supabase connectivity |
-| API | `app/api/routes_events.py` | Multi-source ingestion (`/events/email`, `/url`, `/message`, `/auth-log`, `/network`, `/api-log`, `/media`) |
+| API | `app/api/routes_events.py` | Multi-source ingestion (`/events/email`, `/url`, `/message`, `/auth-log`, `/network`, `/api-log`, `/media`) + bulk batch endpoint (`/events/bulk`, Phase C-1) |
 | API | `app/api/routes_analysis.py` | Detection pipelines (`/analysis/email|url|impersonation|account-takeover|network|media`) and alert reads |
 | API | `app/api/routes_alerts.py` | Alert list/search/filter, detail, status transitions |
+| API | `app/api/routes_auth.py` | `GET /auth/me`: identity, role and the caller's granular permission list |
 | API | `app/api/routes_incidents.py` | Incident CRUD-lite: create, list, detail, status (NIST/SANS state-machine-gated), assign, escalate |
 | API | `app/api/routes_response.py` | Response catalog, approval-gated execution, history |
 | API | `app/api/routes_dashboard.py` | Aggregated dashboard summary (Python-side grouping) |
 | API | `app/api/routes_audit.py` | Audit trail reads |
 | API | `app/api/routes_assistant.py` | SOC assistant chat |
 | Core | `app/core/config.py` | pydantic-settings (`SUPABASE_*`, `DATABASE_URL`, `OPENROUTER_*`, `GROQ_*`, `*_TIMEOUT_SECONDS`, `API_V1_PREFIX`, `CORS_ORIGINS`) |
-| Core | `app/core/supabase_client.py` | Service-role client singleton + `check_connection()` (Auth / Storage / Realtime) |
-| Core | `app/core/security.py` | `get_current_user` (HTTPBearer → `supabase.auth.get_user`), `require_role` |
+| Core | `app/core/supabase_client.py` | Service-role client singleton + `check_connection()` (Auth / Storage / Realtime) + `get_user_org_id` (5-min cached tenant resolution, Default Organization fallback) |
+| Core | `app/core/security.py` | `get_current_user` (HTTPBearer → `supabase.auth.get_user` + org resolution), permission matrix: `get_role_permissions` (5-min cache), `require_permission`, backward-compatible `require_role` |
 | Core | `app/core/storage.py` | Media upload (25 MB cap), 1-hour signed URLs, download |
 | Core | `app/core/database.py` | Async SQLAlchemy engine (asyncpg, `pool_pre_ping`, `pool_size=10`, `max_overflow=20`), `async_sessionmaker`, `get_db_session` FastAPI dependency |
 | Domain | `app/domain/models.py` | ORM models over the existing Supabase tables: `IncidentModel`, `IncidentEventModel`, `AlertModel`, `IncidentAlertLinkModel` |
@@ -66,6 +72,9 @@ The backend is the only holder of the **service role key**; the browser only eve
 | AI | `app/ai/llm_gateway.py` | Provider chain: OpenRouter -> Groq (each behind its own AsyncCircuitBreaker) -> rule-based; explanation cache (TTL 3600 s, 256 entries) |
 | AI | `app/ai/openrouter_client.py` | OpenRouter provider (JSON mode) + backward-compatible never-raise wrapper |
 | AI | `app/ai/groq_client.py` | Groq provider (OpenAI-compatible endpoint) |
+| Queue | `app/services/job_queue.py` | Cached Arq redis pool + `enqueue_job` (fails soft: returns False so callers run synchronously when Redis is down) |
+| Workers | `app/workers/settings.py` | Arq `WorkerSettings` (max_jobs=4, job_timeout=300) — run: `arq app.workers.settings.WorkerSettings` |
+| Workers | `app/workers/jobs.py` | `job_analyze_media`, `job_analyze_bulk_logs` — idempotent, org-scoped heavy analysis off the request thread |
 | AI | `app/ai/explanation_cache.py` | Thread-safe LRU explanation cache (sha256 keys, TTL 3600 s, max 256) |
 | AI | `app/ai/prompt_templates.py` | System prompts for all 6 modules + SOC assistant |
 | Detection | `app/services/phishing_detector.py` | Email + SMS heuristics (lookalike domains, urgency, credential requests, URLs, SMS shortcodes/keywords) |
@@ -76,6 +85,8 @@ The backend is the only holder of the **service role key**; the browser only eve
 | Detection | `app/services/media_forensics/` | ELA image/video forensics + WAV signal statistics (`deepfake_detector.py` selects) |
 | Scoring | `app/services/scoring_service.py` | Indicator weights (critical 25 / high 15 / medium 5), severity bands |
 | Data | `db/schema.sql` | 7 enums, 11 tables, indexes, RLS policies, `handle_new_user` trigger, response catalog seed |
+| Data | `db/migrations/0004_multi_tenancy.sql` | `organizations` + `org_id` on profiles/events/alerts/incidents/audit_logs, Default Organization backfill |
+| Data | `db/migrations/0005_permissions.sql` | `permissions` + `role_permissions` matrix (16 keys seeded for viewer/analyst/admin) |
 
 ## Data Flow (detection-to-response pipeline)
 
@@ -106,7 +117,14 @@ Dashboard                GET /api/v1/dashboard/summary    (React SOC console)
          (channel `cyberguard-alerts`, hook: src/hooks/useRealtimeAlerts.ts)
 ```
 
-Every state-changing action (alert status change, incident create/assign/escalate, response execution, assistant query) writes an `audit_logs` row via `app/services/audit_service.py`.
+Every state-changing action (alert status change, incident create/assign/escalate, response execution, assistant query) writes an `audit_logs` row via `app/services/audit_service.py` — org-scoped since Phase B.
+
+**Background path (Phase C-1):** deepfake media uploads and bulk log batches
+(`/events/bulk`) insert the event with status `analyzing`, enqueue an Arq job
+through Redis and answer `202` immediately; the worker runs the same detector
+→ scoring → explanation → alert pipeline and flips the event to
+`completed`/`failed`. When Redis is unreachable the API runs the identical
+pipeline synchronously and answers `200`.
 
 ## Incident Lifecycle State Machine (Phase A)
 
@@ -139,6 +157,8 @@ When a breaker is OPEN the gateway logs `Circuit breaker OPEN for [provider], sk
    - **Service role key** — backend-only (`app/core/supabase_client.py`, `app/core/storage.py`). Bypasses RLS so the detection pipeline can write alerts/actions; never leaves the backend environment and is never committed (`.env` is git-ignored).
 2. **JWT authentication** — every protected route depends on `get_current_user` (`app/core/security.py`), which validates the bearer token with `supabase.auth.get_user(token)` on the anon client and returns the caller's `id`/`email`. Invalid or expired tokens receive `401` with `WWW-Authenticate: Bearer`. The frontend refreshes the session once on a 401 (`src/services/http.ts`) and falls back to sign-out.
 3. **Row Level Security** — `db/schema.sql` enables RLS on all 11 tables. Direct client access (anon key) is restricted: users read their own profile (`auth.uid() = id`), authenticated users can read/write the operational tables, and the service role bypasses RLS for the pipeline. This means a leaked anon key alone cannot tamper with data outside the policies.
-4. **Human-in-the-loop response actions** — catalog actions flagged `requires_approval` return HTTP 403 from `POST /responses/execute` unless `approved: true`; every execution (and rejection path) is audit-logged.
+4. **Human-in-the-loop response actions** — catalog actions flagged `requires_approval` return HTTP 403 from `POST /responses/execute` unless `approved: true`, and additionally require the `response.execute_destructive` permission (Phase C-2); every execution (and rejection path) is audit-logged.
 5. **Input hardening** — Pydantic validation returns structured 400s; media uploads are limited to 25 MB (413) and image/video/audio content types; file names are sanitized before storage; LLM output is parsed defensively and every analysis response carries `explanation_provider` / `explanation_latency_ms`; when every provider in the chain (OpenRouter, Groq) fails or returns non-JSON, a rule-based template explanation is generated locally.
 6. **Secrets** — all secrets come from environment variables (backend `.env`, frontend `VITE_*`); `.env.example` files document them without real values.
+7. **Multi-tenant isolation (Phase B)** — every user, event, alert, incident and audit row carries an `org_id` (migration 0004). The service-role client bypasses RLS, so the *service layer* enforces tenancy: every SELECT filters `.eq("org_id", ...)` and every INSERT carries the caller's org (resolved from `profiles.org_id`, cached 5 minutes, Default Organization fallback for unassigned users). Cross-tenant ids resolve to 404.
+8. **Permission matrix RBAC (Phase C-2)** — roles (viewer/analyst/admin) resolve to granular permission keys via the `role_permissions` table (migration 0005, cached 5 minutes per role); `require_permission(key)` guards every mutating endpoint with `403 Missing permission: <key>`. Destructive response execution additionally requires `response.execute_destructive`; closing an incident requires `incident.close`. If migration 0005 is not applied yet, the same matrix is served from a hardcoded fallback in `app/core/security.py`.

@@ -19,13 +19,17 @@ export default function ResponseActions() {
   const [target, setTarget] = useState('');
   const [approved, setApproved] = useState(false);
   const [executing, setExecuting] = useState(false);
-  const readOnly = !useAuthStore((s) => s.can('analyze'));
+  const readOnly = !useAuthStore((s) => s.can('response.execute'));
+  // Phase C-2: approval-required (destructive) catalog entries additionally
+  // need the response.execute_destructive permission.
+  const canDestructive = useAuthStore((s) => s.can('response.execute_destructive'));
 
 
   const selected = useMemo(
     () => catalog?.find((c) => c.id === selectedAction) ?? null,
     [catalog, selectedAction]
   );
+  const destructiveBlocked = selected?.requiresApproval === true && !canDestructive;
 
   const catalogColumns: Column<ResponseActionCatalog>[] = useMemo(
     () => [
@@ -100,6 +104,11 @@ export default function ResponseActions() {
           Read-only role — mutation actions are disabled. Contact an administrator for elevated access.
         </div>
       )}
+      {destructiveBlocked && (
+        <div className="rounded-lg border border-red-400/40 bg-red-400/10 px-3.5 py-2 text-xs text-red-400">
+          Approval-required actions are disabled — destructive-response permission missing. Contact an administrator.
+        </div>
+      )}
 
 
       {/* Action catalog */}
@@ -149,12 +158,17 @@ export default function ResponseActions() {
             </div>
 
             {selected?.requiresApproval && (
-              <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-red-400/40 bg-red-400/5 px-3 py-2.5 text-xs text-red-400">
+              <label
+                className={`flex items-center gap-2 rounded-lg border border-red-400/40 bg-red-400/5 px-3 py-2.5 text-xs text-red-400 ${
+                  readOnly || destructiveBlocked ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                }`}
+                title={destructiveBlocked ? 'Requires destructive-response permission' : readOnly ? 'Read-only role' : undefined}
+              >
                 <input
                   type="checkbox"
                   checked={approved}
-                  disabled={readOnly}
-                  title={readOnly ? 'Read-only role' : undefined}
+                  disabled={readOnly || destructiveBlocked}
+                  title={destructiveBlocked ? 'Requires destructive-response permission' : readOnly ? 'Read-only role' : undefined}
                   onChange={(e) => setApproved(e.target.checked)}
                   className="h-4 w-4 rounded border-zinc-600 bg-zinc-700 accent-red-500"
                 />
@@ -164,8 +178,14 @@ export default function ResponseActions() {
 
             <button
               onClick={execute}
-              disabled={executing || readOnly || !selectedAction || !target.trim() || (selected?.requiresApproval === true && !approved)}
-              title={readOnly ? 'Read-only role' : undefined}
+              disabled={executing || readOnly || destructiveBlocked || !selectedAction || !target.trim() || (selected?.requiresApproval === true && !approved)}
+              title={
+                destructiveBlocked
+                  ? 'Requires destructive-response permission'
+                  : readOnly
+                    ? 'Read-only role'
+                    : undefined
+              }
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 py-2.5 text-sm font-bold text-white hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {executing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}

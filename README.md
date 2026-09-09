@@ -19,7 +19,7 @@ A hackathon project by **Chandan** — a full-stack SOC (Security Operations Cen
 | 🌐 **Network / API abuse** | Data exfiltration (>10 MB flows), C2 ports (4444/8888/…), API rate abuse, 401 bursts |
 | 🖼️ **Deepfake / media forensics** | Error Level Analysis (images), frame-sampled ELA (videos), WAV signal statistics — blended with a trained CNN |
 
-Plus: a public editorial landing page at `/` (no auth), multi-source ingestion API, alert management & search, an incident lifecycle governed by a **strict NIST/SANS state machine** (TRIAGE → CONTAINMENT → ERADICATION → RECOVERY → CLOSED; illegal transitions are rejected with a 400 before anything is written), approval-gated response execution, dashboard summary, audit logging, SOC assistant chat, and **Supabase Realtime** live alert streaming.
+Plus: a public editorial landing page at `/` (no auth), multi-source ingestion API (incl. bulk batches), alert management & search, an incident lifecycle governed by a **strict NIST/SANS state machine** (TRIAGE → CONTAINMENT → ERADICATION → RECOVERY → CLOSED; illegal transitions are rejected with a 400 before anything is written), approval-gated response execution, dashboard summary, audit logging, SOC assistant chat, and **Supabase Realtime** live alert streaming — all **organization-scoped** (multi-tenant) and gated by a **database-backed permission matrix** (viewer/analyst/admin → 16 granular permission keys).
 
 ## 🧠 Hybrid Detection Engine
 
@@ -36,16 +36,17 @@ Ingestion → Heuristic Engine → Risk Scoring → XAI Gateway (OpenRouter → 
 ## 🏗️ Architecture
 
 - **Frontend** (`frontend/`): React 18 + Vite 5 + TypeScript + Tailwind + Zustand + Recharts, Supabase Auth login, Realtime alert stream
-- **Backend** (`backend/`): FastAPI (11 routers under `/api/v1`), pydantic-settings, supabase-py (Auth/Storage/Realtime) + SQLAlchemy 2.0 async domain layer (asyncpg), httpx (OpenRouter + Groq, each provider behind an async circuit breaker), joblib/XGBoost/PyTorch inference
+- **Backend** (`backend/`): FastAPI (12 routers under `/api/v1`, permission-matrix-gated), pydantic-settings, supabase-py (Auth/Storage/Realtime) + SQLAlchemy 2.0 async domain layer (asyncpg, org-scoped), httpx (OpenRouter + Groq, each provider behind an async circuit breaker), arq + Redis background workers for heavy media/bulk analysis, joblib/XGBoost/PyTorch inference
 - **Supabase (cloud)**: PostgreSQL with RLS on every table, Auth (JWT), Storage (private media bucket), Realtime
 - Full diagram & security model: [`backend/docs/architecture.md`](backend/docs/architecture.md)
 
 ## 🚀 Quick Start
 
 ```bash
-# 1. Supabase: create a project, run backend/db/schema.sql in the SQL editor,
-#    create the private bucket "cyberguard-media", add table alerts to the
-#    supabase_realtime publication (see backend/docs/deployment.md)
+# 1. Supabase: create a project, run backend/db/schema.sql plus the idempotent
+#    migrations backend/db/migrations/0004_multi_tenancy.sql and 0005_permissions.sql
+#    in the SQL editor, create the private bucket "cyberguard-media", add table
+#    alerts to the supabase_realtime publication (see backend/docs/deployment.md)
 
 # 2. Backend
 cd backend
@@ -87,9 +88,9 @@ Offline evaluation of all six modules (heuristics-only vs hybrid) on held-out da
 
 ```
 ├── backend/          FastAPI app, detection services, ML pipeline, docs
-│   ├── app/          api/ core/ ai/ domain/ services/ schemas/
+│   ├── app/          api/ core/ ai/ domain/ workers/ services/ schemas/
 │   ├── ml/           fetch_data.py preprocess.py train_models.py + data/ models/
-│   ├── db/           schema.sql (Supabase schema, RLS, seeds)
+│   ├── db/           schema.sql + migrations/ (0003 roles, 0004 multi-tenancy, 0005 permissions)
 │   ├── docs/         architecture, models, deployment, datasets, demo_script
 │   └── scripts/      fetch_datasets, generate_synthetic_datasets, evaluate, demo
 ├── frontend/         React SOC dashboard (services, store, pages, components)
@@ -129,4 +130,4 @@ are red on black. No cyan, teal or blue accents remain anywhere in `src/`.
 
 ## 🔒 Security
 
-The Supabase **service role key** lives only in `backend/.env` (git-ignored) — it is never exposed to the browser. All protected routes verify Supabase JWTs; RLS is enabled on every table; destructive response actions require explicit human approval and are audit-logged.
+The Supabase **service role key** lives only in `backend/.env` (git-ignored) — it is never exposed to the browser. All protected routes verify Supabase JWTs and a **granular permission matrix** (`role_permissions`, migration 0005): viewers are read-only, analysts run analyses and work incidents/alerts, admins additionally execute destructive responses and manage users. Every row is **organization-scoped** (migration 0004) with service-layer `org_id` filtering, RLS is enabled on every table, and destructive response actions require explicit human approval plus the `response.execute_destructive` permission — all audit-logged.
