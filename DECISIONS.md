@@ -1,5 +1,5 @@
 Hybrid blending is monotonic: ML can raise but never lower a heuristic score (safety property).
-Explanations run through a timed LLM provider gateway (OpenRouter 100 s -> Groq 60 s -> local rule-based template; cache TTL 3600 s, max 256 entries) so analysis latency is bounded even when a provider degrades.
+Explanations run through a timed LLM provider gateway (Groq 20 s -> OpenRouter 60 s -> local rule-based template; cache TTL 3600 s, max 256 entries) so analysis latency is bounded even when a provider degrades; Groq goes first as the fastest provider.
 Phase A (Enterprise Upgrade): domain reads/writes go through a SQLAlchemy 2.0 async layer (asyncpg, engine pool 10+20) mapped onto the existing Supabase tables; supabase-py is kept untouched for Auth, Storage and Realtime.
 Incident status changes are gated by a strict NIST/SANS state machine (TRIAGE -> CONTAINMENT -> ERADICATION -> RECOVERY -> CLOSED; TRIAGE can close as false positive, CONTAINMENT can escalate back to TRIAGE) — illegal transitions are rejected with 400 before any write.
 Each remote LLM provider is wrapped in a custom AsyncCircuitBreaker (threshold 3, 60 s recovery, CLOSED/OPEN/HALF_OPEN) instead of pybreaker, because pybreaker is synchronous and would block the asyncio event loop; an OPEN breaker means the gateway skips that provider instantly.

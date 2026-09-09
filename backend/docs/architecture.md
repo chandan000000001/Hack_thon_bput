@@ -26,7 +26,7 @@ flowchart LR
         RT["Realtime\npostgres_changes on alerts"]
     end
 
-    LLM["LLM Gateway\n(OpenRouter -> Groq -> rule_based,\nper-provider circuit breakers)"]
+    LLM["LLM Gateway\n(Groq 20s -> OpenRouter 60s -> rule_based,\nper-provider circuit breakers)"]
     REDIS["Redis\nArq job queue"]
     WORKER["Arq worker\napp/workers/settings.py\njob_analyze_media / job_analyze_bulk_logs"]
 
@@ -69,7 +69,7 @@ The backend is the only holder of the **service role key**; the browser only eve
 | Domain | `app/domain/models.py` | ORM models over the existing Supabase tables: `IncidentModel`, `IncidentEventModel`, `AlertModel`, `IncidentAlertLinkModel` |
 | Domain | `app/domain/incident_lifecycle.py` | Strict NIST/SANS state machine (`VALID_TRANSITIONS` matrix, `validate_transition`, legacy status normalization, `InvalidStateTransitionError` → 400) |
 | AI | `app/ai/async_circuit_breaker.py` | Coroutine-safe circuit breaker (CLOSED/OPEN/HALF_OPEN, failure_threshold=3, recovery_timeout=60 s) — pybreaker is synchronous and would block the event loop |
-| AI | `app/ai/llm_gateway.py` | Provider chain: OpenRouter -> Groq (each behind its own AsyncCircuitBreaker) -> rule-based; explanation cache (TTL 3600 s, 256 entries) |
+| AI | `app/ai/llm_gateway.py` | Provider chain: Groq (20 s) -> OpenRouter (60 s), each behind its own AsyncCircuitBreaker, then rule-based; explanation cache (TTL 3600 s, 256 entries) |
 | AI | `app/ai/openrouter_client.py` | OpenRouter provider (JSON mode) + backward-compatible never-raise wrapper |
 | AI | `app/ai/groq_client.py` | Groq provider (OpenAI-compatible endpoint) |
 | Queue | `app/services/job_queue.py` | Cached Arq redis pool + `enqueue_job` (fails soft: returns False so callers run synchronously when Redis is down) |
@@ -105,7 +105,7 @@ Risk Scoring             app/services/scoring_service.py  (risk_score = sum of w
     v
 Explainable AI           app/ai/llm_gateway.py            (LLM explanation, MITRE mapping,
     |                                                      recommended actions; provider chain
-    |                                                      OpenRouter -> Groq -> rule-based template)
+    |                                                      Groq -> OpenRouter -> rule-based template)
     v
 Alert Generation         app/services/alert_service.py    (alerts row, recommended_actions rows
     |                                                      matched against response_catalog,
@@ -148,7 +148,7 @@ Each remote provider in the gateway chain is wrapped in its own `AsyncCircuitBre
 - **OPEN** — after 3 consecutive failures; every call is rejected instantly with `CircuitBreakerOpenError` for 60 s.
 - **HALF_OPEN** — after the 60 s recovery window; exactly one probe call is allowed. Success closes the breaker, failure re-opens it for another window.
 
-When a breaker is OPEN the gateway logs `Circuit breaker OPEN for [provider], skipping to fallback` and moves to the next provider immediately, so a full OpenRouter+Groq outage costs zero added latency (instant rule-based fallback) instead of the previous 100 s + 60 s timeout chain.
+When a breaker is OPEN the gateway logs `Circuit breaker OPEN for [provider], skipping to fallback` and moves to the next provider immediately, so a full Groq+OpenRouter outage costs zero added latency (instant rule-based fallback) instead of the previous 20 s + 60 s timeout chain.
 
 ## Security Model
 

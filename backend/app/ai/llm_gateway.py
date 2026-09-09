@@ -1,8 +1,8 @@
 """LLM provider gateway with a circuit-breaker-guarded fallback chain.
 
-Chain order (strict):
-    1. OpenRouter  — settings.openrouter_timeout_seconds (default 100 s)
-    2. Groq        — settings.groq_timeout_seconds      (default 60 s)
+Chain order (strict — fastest provider first):
+    1. Groq        — settings.groq_timeout_seconds      (default 20 s)
+    2. OpenRouter  — settings.openrouter_timeout_seconds (default 60 s)
     3. rule_based  — local template built from the indicator context,
                      instant and never fails
 
@@ -33,8 +33,8 @@ from app.ai.openrouter_client import explain_openrouter, rule_based_explanation
 logger = logging.getLogger("cyberguard.llm_gateway")
 
 PROVIDERS: list[tuple[str, Callable[[str, str], Awaitable[dict[str, Any]]]]] = [
-    ("openrouter", explain_openrouter),
     ("groq", explain_groq),
+    ("openrouter", explain_openrouter),
 ]
 
 BREAKER_FAILURE_THRESHOLD = 3

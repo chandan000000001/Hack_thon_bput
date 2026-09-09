@@ -2,7 +2,7 @@
 
 **AI-Powered Cyber Threat, Phishing & Digital Impersonation Detection and Response System**
 
-A hackathon project by **Chandan** — a full-stack SOC (Security Operations Center) platform that ingests emails, URLs, messages, authentication logs, network flows, API logs and media files, runs them through a **hybrid detection engine** (transparent heuristics + trained ML models), scores risk, generates LLM explanations through a timed provider chain (OpenRouter → Groq → local rule-based fallback), and surfaces everything in a live cybersecurity command dashboard.
+A hackathon project by **Chandan** — a full-stack SOC (Security Operations Center) platform that ingests emails, URLs, messages, authentication logs, network flows, API logs and media files, runs them through a **hybrid detection engine** (transparent heuristics + trained ML models), scores risk, generates LLM explanations through a timed provider chain (Groq 20 s → OpenRouter 60 s → local rule-based fallback), and surfaces everything in a live cybersecurity command dashboard.
 
 > ⚠️ Educational prototype. All response actions are simulated; no real infrastructure is modified.
 
@@ -24,7 +24,7 @@ Plus: a public editorial landing page at `/` (no auth), multi-source ingestion A
 ## 🧠 Hybrid Detection Engine
 
 ```
-Ingestion → Heuristic Engine → Risk Scoring → XAI Gateway (OpenRouter → Groq → rule-based) → Alert Generation → Dashboard
+Ingestion → Heuristic Engine → Risk Scoring → XAI Gateway (Groq → OpenRouter → rule-based) → Alert Generation → Dashboard
                                    ↑
                   trained ML models (XGBoost + CNN, blended 45/55)
 ```

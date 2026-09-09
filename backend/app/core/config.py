@@ -34,13 +34,16 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
 
-    OPENROUTER_API_KEY: str = ""
-    OPENROUTER_MODEL: str = "meta-llama/llama-3.1-8b-instruct:free"
-    OPENROUTER_TIMEOUT_SECONDS: float = 100
-
+    # Explanation provider chain (strict order): Groq (20 s) -> OpenRouter
+    # (60 s) -> rule-based template. Timeouts bound how long each provider may
+    # take before the gateway falls through to the next one.
     GROQ_API_KEY: str = ""
     GROQ_MODEL: str = "llama-3.1-8b-instant"
-    GROQ_TIMEOUT_SECONDS: float = 60
+    GROQ_TIMEOUT_SECONDS: float = 20
+
+    OPENROUTER_API_KEY: str = ""
+    OPENROUTER_MODEL: str = "meta-llama/llama-3.1-8b-instruct:free"
+    OPENROUTER_TIMEOUT_SECONDS: float = 60
 
     ML_ENABLED: bool = True
     ML_MODELS_DIR: str = "ml/models"

@@ -8,10 +8,10 @@ FastAPI backend for CYBERGUARD: a multi-tenant, permission-matrix-gated threat d
 
 ## Overview
 
-The backend exposes a versioned REST API (`/api/v1`) that ingests security events, runs them through transparent heuristic detectors, scores risk, generates LLM explanations through a timed provider chain (OpenRouter → Groq → local rule-based fallback), and persists alerts, incidents, response actions and a full audit trail in Supabase. The React frontend (`../frontend`) consumes the same API and streams new alerts over Supabase Realtime.
+The backend exposes a versioned REST API (`/api/v1`) that ingests security events, runs them through transparent heuristic detectors, scores risk, generates LLM explanations through a timed provider chain (Groq 20 s → OpenRouter 60 s → local rule-based fallback), and persists alerts, incidents, response actions and a full audit trail in Supabase. The React frontend (`../frontend`) consumes the same API and streams new alerts over Supabase Realtime.
 
 ```
-Ingestion → Heuristic Engine → Risk Scoring → XAI Gateway (OpenRouter → Groq → rule-based, circuit-broken) → Alert Generation → Dashboard
+Ingestion → Heuristic Engine → Risk Scoring → XAI Gateway (Groq → OpenRouter → rule-based, circuit-broken) → Alert Generation → Dashboard
                └─ heavy media/bulk analysis may run on the Arq worker (Redis) instead of the request thread
 ```
 
@@ -40,7 +40,7 @@ React SPA ──JWT──> FastAPI (12 routers, /api/v1, permission-matrix-gated
                       ├──> Supabase Postgres+RLS  ├──> Supabase Auth (token verification)
                       ├──> Supabase Storage       └──> frontend session (signInWithPassword)
                       ├──> SQLAlchemy async (org-scoped domain reads/writes)
-                      ├──> LLM gateway (XAI: OpenRouter -> Groq -> rule-based, each remote provider behind an async circuit breaker)
+                      ├──> LLM gateway (XAI: Groq 20s -> OpenRouter 60s -> rule-based, each remote provider behind an async circuit breaker)
                       └──> Redis (Arq queue) ──> background worker (media forensics, bulk logs)
 Supabase Realtime ──new alert INSERTs──> Dashboard / Alerts pages
 ```
