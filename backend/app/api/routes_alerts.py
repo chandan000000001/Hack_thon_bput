@@ -67,8 +67,15 @@ def list_alerts(
             params.search.replace(",", " ").replace("(", " ").replace(")", " ").strip()
         )
         if sanitized:
+            # Phase D-2 (item 4): escape PostgREST ilike wildcards so user
+            # input cannot craft %/_ patterns or break the or(...) syntax.
+            escaped = (
+                sanitized.replace("\\", "\\\\")
+                .replace("%", "\\%")
+                .replace("_", "\\_")
+            )
             conditions = ",".join(
-                f"{field}.ilike.*{sanitized}*" for field in SEARCH_FIELDS
+                f"{field}.ilike.*{escaped}*" for field in SEARCH_FIELDS
             )
             query = query.or_(conditions)
 

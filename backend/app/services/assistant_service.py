@@ -1,9 +1,9 @@
-"""SOC assistant chat service (Part 6).
+"""SOC assistant chat service (Part 6 + Phase D-1).
 
-Answers analyst questions using recent alerts as context. The chat reply
-is plain text; the OpenRouter call reuses the shared client, which
-returns strict JSON, so the assistant asks the model for a single-key
-JSON object and extracts the text reply from it.
+Answers analyst questions using recent alerts as context. The chat goes
+through the shared LLM gateway (llm_gateway.explain with json_mode=False)
+so the assistant inherits the Groq -> OpenRouter -> rule-based chain and the
+per-provider circuit breakers; the reply is plain text, not strict JSON.
 """
 
 import logging
@@ -12,8 +12,9 @@ from typing import Any
 
 from fastapi import HTTPException, status
 
-from app.ai.openrouter_client import call_openrouter
+from app.ai.llm_gateway import explain, make_cache_key
 from app.ai.prompt_templates import SOC_ASSISTANT_SYSTEM_PROMPT
+from app.core.asyncbridge import to_thread
 from app.core.supabase_client import get_supabase
 from app.services import audit_service
 
@@ -55,15 +56,15 @@ async def chat_with_assistant(
     """Answer an analyst question grounded in recent alert context."""
     try:
         alerts = (
-            get_supabase()
-            .table("alerts")
-            .select("id, title, severity, module, status, created_at")
-            .order("created_at", desc=True)
-            .limit(CONTEXT_ALERT_COUNT)
-            .execute()
-            .data
-            or []
-        )
+            await to_thread(
+                lambda: get_supabase()
+                .table("alerts")
+                .select("id, title, severity, module, status, created_at")
+                .order("created_at", desc=True)
+                .limit(CONTEXT_ALERT_COUNT)
+                .execute()
+            )
+).data or []
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -76,14 +77,24 @@ async def chat_with_assistant(
     user_prompt = (
         f"Current threat context:\n{context_summary}\n\n"
         f"Analyst question: {user_message}\n\n"
-        "Respond with a strict JSON object with a single key 'reply' "
-        "containing your full answer as plain text."
+        "Answer in plain text (no JSON, no markdown headings). Be concise and "
+        "cite alert IDs from the context where relevant."
     )
 
-    llm_output = await call_openrouter(SOC_ASSISTANT_SYSTEM_PROMPT, user_prompt)
+    explained = await explain(
+        "assistant",
+        SOC_ASSISTANT_SYSTEM_PROMPT,
+        user_prompt,
+        make_cache_key("assistant", {"message": user_message, "context": context_summary}),
+        json_mode=False,
+    )
+    raw = explained["explanation"]
+    # json_mode=False providers return {"explanation": <text>, ...}; unwrap the
+    # gateway wrapper (a dict) to the plain text reply.
+    if isinstance(raw, dict):
+        raw = raw.get("reply") or raw.get("explanation") or ""
     reply = str(
-        llm_output.get("reply")
-        or llm_output.get("explanation")
+        raw
         or "The assistant is temporarily unable to generate a response. "
         "Please review the alerts directly."
     )

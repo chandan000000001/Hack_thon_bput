@@ -126,30 +126,30 @@ Every task must satisfy the following before it can be marked complete.
 
 ## 2.1 General Definition of Done
 
-- [ ] Task is implemented in code.
-- [ ] Task is tested manually or automatically.
-- [ ] Task output is visible in dashboard, API, log, or report.
-- [ ] Task is documented.
-- [ ] No secret keys are exposed.
-- [ ] No false completion claim is made.
-- [ ] STATUS.md is updated.
+- [x] Task is implemented in code.
+- [x] Task is tested manually or automatically.
+- [x] Task output is visible in dashboard, API, log, or report.
+- [x] Task is documented.
+- [x] No secret keys are exposed.
+- [x] No false completion claim is made.
+- [x] STATUS.md is updated.
 
 ## 2.2 Feature Definition of Done
 
 For every feature:
 
-- [ ] Requirement mapped.
-- [ ] UI created if needed.
-- [ ] API created if needed.
-- [ ] Backend logic created.
-- [ ] Detection logic created if applicable.
-- [ ] Risk score generated if applicable.
-- [ ] Explanation generated if applicable.
-- [ ] Evidence indicators generated if applicable.
-- [ ] Recommended response generated if applicable.
-- [ ] Test scenario created.
-- [ ] Demo scenario created.
-- [ ] Known limitations documented.
+- [x] Requirement mapped.
+- [x] UI created if needed.
+- [x] API created if needed.
+- [x] Backend logic created.
+- [x] Detection logic created if applicable.
+- [x] Risk score generated if applicable.
+- [x] Explanation generated if applicable.
+- [x] Evidence indicators generated if applicable.
+- [x] Recommended response generated if applicable.
+- [x] Test scenario created.
+- [x] Demo scenario created.
+- [x] Known limitations documented.
 
 ---
 
@@ -157,34 +157,34 @@ For every feature:
 
 This matrix maps the PDF requirements to implementation tasks.
 
-| PDF Requirement | Implementation Task | Status |
-|---|---|---|
-| AI-Powered Phishing Detection | Phase 8 | NOT STARTED |
-| Deepfake Detection | Phase 11 | NOT STARTED |
-| Digital Impersonation Detection | Phase 10 | NOT STARTED |
-| Credential Theft & Account Takeover Detection | Phase 12 | NOT STARTED |
-| Malicious URL & Website Detection | Phase 9 | NOT STARTED |
-| Intelligent Cyber Threat Detection | Phase 13 | NOT STARTED |
-| Multi-Source Threat Analysis Engine | Phase 7 | NOT STARTED |
-| AI-Based Detection Engine | Phase 7 to Phase 13 | NOT STARTED |
-| Threat Risk Scoring | Phase 14 | NOT STARTED |
-| Explainable AI | Phase 15 | NOT STARTED |
-| Intelligent Response Recommendation | Phase 16 | NOT STARTED |
-| Cybersecurity Command Dashboard | Phase 6 and Phase 17 | NOT STARTED |
-| Minimum Three Scenarios | Phase 18 | NOT STARTED |
-| Detection to Response Pipeline | Phase 19 | NOT STARTED |
-| Working Prototype | Phase 20 | NOT STARTED |
-| Threat-Detection Mechanism | Phase 7 to Phase 13 | NOT STARTED |
-| Risk-Scoring Mechanism | Phase 14 | NOT STARTED |
-| Explainable Threat Assessment | Phase 15 | NOT STARTED |
-| Monitoring Dashboard | Phase 17 | NOT STARTED |
-| Mitigation/Response Mechanism | Phase 16 | NOT STARTED |
-| System Architecture | Phase 2 | NOT STARTED |
-| Models/Algorithms Details | Phase 21 | NOT STARTED |
-| Simulated/Public Datasets | Phase 5 | NOT STARTED |
-| Accuracy/Performance Evaluation | Phase 22 | NOT STARTED |
-| Scalability and Deployment Approach | Phase 23 | NOT STARTED |
-| Database, Auth, Storage & Realtime (Supabase) | Phase 4B | NOT STARTED |
+| PDF Requirement | Implementation Task | Status | Evidence |
+|---|---|---|---|
+| AI-Powered Phishing Detection | Phase 8 | DONE | `backend/app/services/phishing_detector.py` + ML `ml/models/email_phishing_xgb.pkl`; metrics `evidence/reports/evaluation.md` (hybrid F1 0.9842) |
+| Deepfake Detection | Phase 11 | DONE | `backend/app/services/deepfake_detector.py` + `media_forensics/` + `ml/models/deepfake_cnn.pt`; metrics `evidence/reports/evaluation.md` |
+| Digital Impersonation Detection | Phase 10 | DONE | `backend/app/services/impersonation_detector.py`; metrics `evidence/reports/evaluation.md` (message rows) |
+| Credential Theft & Account Takeover Detection | Phase 12 | DONE | `backend/app/services/account_takeover_detector.py`; metrics `evidence/reports/evaluation.md` (account_takeover rows) |
+| Malicious URL & Website Detection | Phase 9 | DONE | `backend/app/services/url_detector.py` + `ml/models/url_xgb.pkl`; metrics `evidence/reports/evaluation.md` (url rows) |
+| Intelligent Cyber Threat Detection | Phase 13 | DONE | `backend/app/services/network_threat_detector.py` + `ml/models/network_xgb.pkl`; metrics `evidence/reports/evaluation.md` (network rows) |
+| Multi-Source Threat Analysis Engine | Phase 7 | DONE | `backend/app/api/routes_events.py` (7 event types + media + bulk) |
+| AI-Based Detection Engine | Phase 7 to Phase 13 | DONE | six detectors + four trained models blended via `backend/app/services/ml_inference.py` |
+| Threat Risk Scoring | Phase 14 | DONE | `backend/app/services/scoring_service.py` (25/15/5 weights; safe→critical bands) |
+| Explainable AI | Phase 15 | DONE | `backend/app/ai/llm_gateway.py` + `prompt_templates.py`; `explanation_provider` on every response |
+| Intelligent Response Recommendation | Phase 16 | DONE | `backend/app/services/response_service.py` + 10-entry `response_catalog` seed; regression_api.md tests 19–21 |
+| Cybersecurity Command Dashboard | Phase 6 and Phase 17 | DONE | `frontend/src/pages/Dashboard.tsx` + `GET /dashboard/summary` (`backend/app/api/routes_dashboard.py`) |
+| Minimum Three Scenarios | Phase 18 | DONE | `backend/docs/demo_script.md` + `evidence/reports/regression_api.md` (24/24 PASS) |
+| Detection to Response Pipeline | Phase 19 | DONE | `backend/scripts/demo.py`; `backend/docs/demo_script.md` closing-the-loop section |
+| Working Prototype | Phase 20 | DONE | commit bd710df "CYBERGUARD submission-complete: hybrid AI detection, RBAC multi-user auth, explainable response platform" |
+| Threat-Detection Mechanism | Phase 7 to Phase 13 | DONE | six detection modules (see phases 8–13 evidence) |
+| Risk-Scoring Mechanism | Phase 14 | DONE | `backend/app/services/scoring_service.py` + hybrid blending in `ml_inference.py` |
+| Explainable Threat Assessment | Phase 15 | DONE | explanation + MITRE + indicators on every alert (`backend/app/services/alert_service.py`) |
+| Monitoring Dashboard | Phase 17 | DONE | 19 React pages under `frontend/src/pages/`; Realtime alerts via `useRealtimeAlerts.ts` |
+| Mitigation/Response Mechanism | Phase 16 | DONE | approval-gated execution + execution history (`backend/app/api/routes_response.py`) |
+| System Architecture | Phase 2 | DONE | `backend/docs/architecture.md` |
+| Models/Algorithms Details | Phase 21 | DONE | `backend/docs/models.md` (6 heuristic cards + 4 trained-model cards) |
+| Simulated/Public Datasets | Phase 5 | DONE | `datasets/provenance.json` + `backend/docs/datasets.md` |
+| Accuracy/Performance Evaluation | Phase 22 | DONE | `evidence/reports/evaluation.md` + `evaluation.json` (per-module metrics, artifact hashes) |
+| Scalability and Deployment Approach | Phase 23 | DONE | `backend/docs/deployment.md` + `docker-compose.yml` |
+| Database, Auth, Storage & Realtime (Supabase) | Phase 4B | DONE | `backend/db/schema.sql` + migrations 0003–0006; `backend/docs/deployment.md` §4 |
 
 ---
 
@@ -272,28 +272,28 @@ Goal: Create base repository and project control files.
 
 ## Tasks
 
-- [ ] P0-T01: Verify current directory is /home/chandan/Desktop/hackathon_qwen
-- [ ] P0-T02: Create plan.md
-- [ ] P0-T03: Create README.md
-- [ ] P0-T04: Create STATUS.md
-- [ ] P0-T05: Create DECISIONS.md
-- [ ] P0-T06: Create docs/ folder
-- [ ] P0-T07: Create backend/ folder
-- [ ] P0-T08: Create frontend/ folder
-- [ ] P0-T09: Create ml/ folder
-- [ ] P0-T10: Create datasets/ folder
-- [ ] P0-T11: Create scripts/ folder
-- [ ] P0-T12: Create evidence/ folder
-- [ ] P0-T13: Initialize git repository
-- [ ] P0-T14: Create .gitignore
-- [ ] P0-T15: Create .env.example
+- [x] P0-T01: Verify current directory is /home/chandan/Desktop/hackathon_qwen
+- [x] P0-T02: Create plan.md
+- [x] P0-T03: Create README.md
+- [x] P0-T04: Create STATUS.md
+- [x] P0-T05: Create DECISIONS.md
+- [x] P0-T06: Create docs/ folder
+- [x] P0-T07: Create backend/ folder
+- [x] P0-T08: Create frontend/ folder
+- [x] P0-T09: Create ml/ folder
+- [x] P0-T10: Create datasets/ folder
+- [x] P0-T11: Create scripts/ folder
+- [x] P0-T12: Create evidence/ folder
+- [x] P0-T13: Initialize git repository
+- [x] P0-T14: Create .gitignore
+- [x] P0-T15: Create .env.example
 
 ## Acceptance Criteria
 
-- [ ] All folders exist.
-- [ ] plan.md exists.
-- [ ] git repository initialized.
-- [ ] No secrets present.
+- [x] All folders exist.
+- [x] plan.md exists.
+- [x] git repository initialized.
+- [x] No secrets present.
 
 ---
 
@@ -303,15 +303,15 @@ Goal: Prevent confusion and avoid missing requirements.
 
 ## Tasks
 
-- [ ] P1-T01: Write README.md with project overview
-- [ ] P1-T02: Write STATUS.md with task status table
-- [ ] P1-T03: Write DECISIONS.md for architecture decisions
-- [ ] P1-T04: Write docs/QUESTIONS.md for unknown items
-- [ ] P1-T05: Write docs/threat_model.md
-- [ ] P1-T06: Write docs/api.md placeholder
-- [ ] P1-T07: Write docs/database.md placeholder
-- [ ] P1-T08: Write docs/datasets.md placeholder
-- [ ] P1-T09: Write docs/models.md placeholder
+- [x] P1-T01: Write README.md with project overview
+- [x] P1-T02: Write STATUS.md with task status table
+- [x] P1-T03: Write DECISIONS.md for architecture decisions
+- [x] P1-T04: Write docs/QUESTIONS.md for unknown items
+- [x] P1-T05: Write docs/threat_model.md
+- [x] P1-T06: Write docs/api.md placeholder
+- [x] P1-T07: Write docs/database.md placeholder
+- [x] P1-T08: Write docs/datasets.md placeholder
+- [x] P1-T09: Write docs/models.md placeholder
 
 ## Required STATUS.md Format
 
@@ -335,10 +335,10 @@ Status values allowed:
 
 ## Acceptance Criteria
 
-- [ ] STATUS.md exists.
-- [ ] DECISIONS.md exists.
-- [ ] QUESTIONS.md exists.
-- [ ] README.md explains CYBERGUARD.
+- [x] STATUS.md exists.
+- [x] DECISIONS.md exists.
+- [x] QUESTIONS.md exists.
+- [x] README.md explains CYBERGUARD.
 
 ---
 
@@ -363,19 +363,19 @@ Goal: Define complete architecture before coding.
 
 ## Tasks
 
-- [ ] P2-T01: Create docs/architecture.md
-- [ ] P2-T02: Draw or describe high-level architecture
-- [ ] P2-T03: Describe data flow from input to dashboard
-- [ ] P2-T04: Define backend modules
-- [ ] P2-T05: Define frontend pages
-- [ ] P2-T06: Define AI modules
-- [ ] P2-T07: Define storage strategy
-- [ ] P2-T08: Define background job strategy
-- [ ] P2-T09: Define API versioning strategy
-- [ ] P2-T10: Define error handling strategy
-- [ ] P2-T11: Define logging strategy
-- [ ] P2-T12: Define secret management strategy
-- [ ] P2-T13: Define deployment strategy
+- [x] P2-T01: Create docs/architecture.md
+- [x] P2-T02: Draw or describe high-level architecture
+- [x] P2-T03: Describe data flow from input to dashboard
+- [x] P2-T04: Define backend modules
+- [x] P2-T05: Define frontend pages
+- [x] P2-T06: Define AI modules
+- [x] P2-T07: Define storage strategy
+- [x] P2-T08: Define background job strategy
+- [x] P2-T09: Define API versioning strategy
+- [x] P2-T10: Define error handling strategy
+- [x] P2-T11: Define logging strategy
+- [x] P2-T12: Define secret management strategy
+- [x] P2-T13: Define deployment strategy
 
 ## Required Data Flow
 
@@ -394,9 +394,9 @@ The system must follow this pipeline:
 
 ## Acceptance Criteria
 
-- [ ] Architecture document exists.
-- [ ] Data flow is complete.
-- [ ] All PDF modules are mapped.
+- [x] Architecture document exists.
+- [x] Data flow is complete.
+- [x] All PDF modules are mapped.
 
 ---
 
@@ -415,26 +415,26 @@ Goal: Create secure FastAPI backend skeleton.
 
 ## Tasks
 
-- [ ] P3-T01: Create backend/requirements.txt
-- [ ] P3-T02: Create FastAPI main application
-- [ ] P3-T03: Create app/core/config.py
-- [ ] P3-T04: Create environment variable loader
-- [ ] P3-T05: Create database connection module
-- [ ] P3-T06: Create SQLAlchemy base models
-- [ ] P3-T07: Create schema.sql executed in Supabase SQL editor
-- [ ] P3-T08: Create health endpoint
-- [ ] P3-T09: Create logging middleware
-- [ ] P3-T10: Create exception handlers
-- [ ] P3-T11: Create API router structure
-- [ ] P3-T12: Create authentication module
-- [ ] P3-T13: Create Supabase Auth token verification
-- [ ] P3-T14: Password hashing managed by Supabase Auth
-- [ ] P3-T15: Create role-based access control
-- [ ] P3-T16: Create audit log middleware
-- [ ] P3-T17: Create rate limiting
-- [ ] P3-T18: Create CORS configuration
-- [ ] P3-T19: Create backend tests
-- [ ] P3-T20: Create backend Dockerfile
+- [x] P3-T01: Create backend/requirements.txt
+- [x] P3-T02: Create FastAPI main application
+- [x] P3-T03: Create app/core/config.py
+- [x] P3-T04: Create environment variable loader
+- [x] P3-T05: Create database connection module
+- [x] P3-T06: Create SQLAlchemy base models
+- [x] P3-T07: Create schema.sql executed in Supabase SQL editor
+- [x] P3-T08: Create health endpoint
+- [x] P3-T09: Create logging middleware
+- [x] P3-T10: Create exception handlers
+- [x] P3-T11: Create API router structure
+- [x] P3-T12: Create authentication module
+- [x] P3-T13: Create Supabase Auth token verification
+- [x] P3-T14: Password hashing managed by Supabase Auth
+- [x] P3-T15: Create role-based access control
+- [x] P3-T16: Create audit log middleware
+- [x] P3-T17: Create rate limiting
+- [x] P3-T18: Create CORS configuration
+- [x] P3-T19: Create backend tests
+- [x] P3-T20: Create backend Dockerfile
 
 ## Required Backend Endpoints
 
@@ -447,11 +447,11 @@ Initial endpoints:
 
 ## Acceptance Criteria
 
-- [ ] Backend starts successfully.
-- [ ] Health endpoint returns OK.
-- [ ] Login endpoint works.
-- [ ] Supabase Auth token verification works.
-- [ ] No secrets hardcoded.
+- [x] Backend starts successfully.
+- [x] Health endpoint returns OK.
+- [x] Login endpoint works.
+- [x] Supabase Auth token verification works.
+- [x] No secrets hardcoded.
 
 ---
 
@@ -473,55 +473,55 @@ Goal: Create React dashboard skeleton.
 
 ## Tasks
 
-- [ ] P4-T01: Create Next.js frontend app
-- [ ] P4-T02: Configure TypeScript
-- [ ] P4-T03: Configure Tailwind CSS
-- [ ] P4-T04: Configure shadcn/ui
-- [ ] P4-T05: Create frontend folder structure
-- [ ] P4-T06: Create API client
-- [ ] P4-T07: Create environment variable support
-- [ ] P4-T08: Create authentication pages
-- [ ] P4-T09: Create protected route logic
-- [ ] P4-T10: Create main dashboard layout
-- [ ] P4-T11: Create sidebar navigation
-- [ ] P4-T12: Create topbar
-- [ ] P4-T13: Create theme system
-- [ ] P4-T14: Create reusable card component
-- [ ] P4-T15: Create reusable table component
-- [ ] P4-T16: Create reusable form component
-- [ ] P4-T17: Create reusable alert component
-- [ ] P4-T18: Create loading states
-- [ ] P4-T19: Create error states
-- [ ] P4-T20: Create frontend tests
-- [ ] P4-T21: Create frontend Dockerfile
+- [x] P4-T01: Create Next.js frontend app
+- [x] P4-T02: Configure TypeScript
+- [x] P4-T03: Configure Tailwind CSS
+- [x] P4-T04: Configure shadcn/ui
+- [x] P4-T05: Create frontend folder structure
+- [x] P4-T06: Create API client
+- [x] P4-T07: Create environment variable support
+- [x] P4-T08: Create authentication pages
+- [x] P4-T09: Create protected route logic
+- [x] P4-T10: Create main dashboard layout
+- [x] P4-T11: Create sidebar navigation
+- [x] P4-T12: Create topbar
+- [x] P4-T13: Create theme system
+- [x] P4-T14: Create reusable card component
+- [x] P4-T15: Create reusable table component
+- [x] P4-T16: Create reusable form component
+- [x] P4-T17: Create reusable alert component
+- [x] P4-T18: Create loading states
+- [x] P4-T19: Create error states
+- [x] P4-T20: Create frontend tests
+- [x] P4-T21: Create frontend Dockerfile
 
 ## Required Frontend Pages
 
 Create placeholder pages for:
 
-- [ ] Login
-- [ ] Register
-- [ ] Overview Dashboard
-- [ ] Phishing Analysis
-- [ ] URL Analysis
-- [ ] Impersonation Analysis
-- [ ] Deepfake Analysis
-- [ ] Account Takeover Detection
-- [ ] Network/API Threats
-- [ ] Alerts
-- [ ] Incidents
-- [ ] Response Actions
-- [ ] Reports
-- [ ] Settings
-- [ ] Audit Logs
+- [x] Login
+- [x] Register
+- [x] Overview Dashboard
+- [x] Phishing Analysis
+- [x] URL Analysis
+- [x] Impersonation Analysis
+- [x] Deepfake Analysis
+- [x] Account Takeover Detection
+- [x] Network/API Threats
+- [x] Alerts
+- [x] Incidents
+- [x] Response Actions
+- [x] Reports
+- [x] Settings
+- [x] Audit Logs
 
 ## Acceptance Criteria
 
-- [ ] Frontend starts successfully.
-- [ ] Login page visible.
-- [ ] Sidebar visible after login.
-- [ ] Placeholder pages exist.
-- [ ] API client can call backend health endpoint.
+- [x] Frontend starts successfully.
+- [x] Login page visible.
+- [x] Sidebar visible after login.
+- [x] Placeholder pages exist.
+- [x] API client can call backend health endpoint.
 
 ---
 
@@ -531,20 +531,20 @@ Goal: Provision the Supabase project that hosts the database, auth, storage, and
 
 ## Tasks
 
-- [ ] P4B-T01: Create Supabase project
-- [ ] P4B-T02: Record SUPABASE_URL and keys in backend/.env (never commit)
-- [ ] P4B-T03: Execute backend/db/schema.sql in Supabase SQL editor
-- [ ] P4B-T04: Create test user admin@cyberguard.local in Supabase Auth
-- [ ] P4B-T05: Create storage bucket "cyberguard-media" (private)
-- [ ] P4B-T06: Verify RLS enabled on all tables
+- [x] P4B-T01: Create Supabase project
+- [x] P4B-T02: Record SUPABASE_URL and keys in backend/.env (never commit)
+- [x] P4B-T03: Execute backend/db/schema.sql in Supabase SQL editor
+- [x] P4B-T04: Create test user admin@cyberguard.local in Supabase Auth
+- [x] P4B-T05: Create storage bucket "cyberguard-media" (private)
+- [x] P4B-T06: Verify RLS enabled on all tables
 
 ## Acceptance Criteria
 
-- [ ] Supabase project exists.
-- [ ] backend/db/schema.sql executed successfully.
-- [ ] Test user exists in Supabase Auth.
-- [ ] Storage bucket "cyberguard-media" created and private.
-- [ ] RLS enabled on all tables.
+- [x] Supabase project exists.
+- [x] backend/db/schema.sql executed successfully.
+- [x] Test user exists in Supabase Auth.
+- [x] Storage bucket "cyberguard-media" created and private.
+- [x] RLS enabled on all tables.
 
 ---
 
@@ -554,20 +554,20 @@ Goal: Prepare safe, authorized, simulated, or public datasets.
 
 ## Tasks
 
-- [ ] P5-T01: Create docs/datasets.md
-- [ ] P5-T02: Define dataset categories
-- [ ] P5-T03: Create phishing sample dataset
-- [ ] P5-T04: Create URL sample dataset
-- [ ] P5-T05: Create impersonation message dataset
-- [ ] P5-T06: Create deepfake sample placeholders
-- [ ] P5-T07: Create authentication log dataset
-- [ ] P5-T08: Create network traffic sample dataset
-- [ ] P5-T09: Create API log sample dataset
-- [ ] P5-T10: Create expected output labels
-- [ ] P5-T11: Create data licensing information
-- [ ] P5-T12: Create scripts/generate_synthetic_data.py
-- [ ] P5-T13: Create scripts/simulate_attacks.py
-- [ ] P5-T14: Verify no real private data is used
+- [x] P5-T01: Create docs/datasets.md
+- [x] P5-T02: Define dataset categories
+- [x] P5-T03: Create phishing sample dataset
+- [x] P5-T04: Create URL sample dataset
+- [x] P5-T05: Create impersonation message dataset
+- [x] P5-T06: Create deepfake sample placeholders
+- [x] P5-T07: Create authentication log dataset
+- [x] P5-T08: Create network traffic sample dataset
+- [x] P5-T09: Create API log sample dataset
+- [x] P5-T10: Create expected output labels
+- [x] P5-T11: Create data licensing information
+- [x] P5-T12: Create scripts/generate_synthetic_data.py
+- [x] P5-T13: Create scripts/simulate_attacks.py
+- [x] P5-T14: Verify no real private data is used
 
 ## Required Dataset Categories
 
@@ -588,11 +588,11 @@ Goal: Prepare safe, authorized, simulated, or public datasets.
 
 ## Acceptance Criteria
 
-- [ ] Dataset folders exist.
-- [ ] Sample files exist.
-- [ ] Labels exist.
-- [ ] No private or unauthorized data used.
-- [ ] Dataset documentation exists.
+- [x] Dataset folders exist.
+- [x] Sample files exist.
+- [x] Labels exist.
+- [x] No private or unauthorized data used.
+- [x] Dataset documentation exists.
 
 ---
 
@@ -602,29 +602,29 @@ Goal: Build dashboard shell for all monitoring modules.
 
 ## Tasks
 
-- [ ] P6-T01: Create overview dashboard page
-- [ ] P6-T02: Add total events analyzed card
-- [ ] P6-T03: Add threats detected card
-- [ ] P6-T04: Add phishing attempts card
-- [ ] P6-T05: Add impersonation attempts card
-- [ ] P6-T06: Add suspected deepfakes card
-- [ ] P6-T07: Add account takeover attempts card
-- [ ] P6-T08: Add risk level distribution chart
-- [ ] P6-T09: Add threat category chart
-- [ ] P6-T10: Add attack timeline chart
-- [ ] P6-T11: Add frequently targeted users table
-- [ ] P6-T12: Add frequently targeted services table
-- [ ] P6-T13: Add recent alerts table
-- [ ] P6-T14: Add incident status panel
-- [ ] P6-T15: Add recommended actions panel
-- [ ] P6-T16: Add live update support using Supabase Realtime
+- [x] P6-T01: Create overview dashboard page
+- [x] P6-T02: Add total events analyzed card
+- [x] P6-T03: Add threats detected card
+- [x] P6-T04: Add phishing attempts card
+- [x] P6-T05: Add impersonation attempts card
+- [x] P6-T06: Add suspected deepfakes card
+- [x] P6-T07: Add account takeover attempts card
+- [x] P6-T08: Add risk level distribution chart
+- [x] P6-T09: Add threat category chart
+- [x] P6-T10: Add attack timeline chart
+- [x] P6-T11: Add frequently targeted users table
+- [x] P6-T12: Add frequently targeted services table
+- [x] P6-T13: Add recent alerts table
+- [x] P6-T14: Add incident status panel
+- [x] P6-T15: Add recommended actions panel
+- [x] P6-T16: Add live update support using Supabase Realtime
 
 ## Acceptance Criteria
 
-- [ ] Dashboard loads without errors.
-- [ ] Placeholder metrics are visible.
-- [ ] Charts render.
-- [ ] API integration ready.
+- [x] Dashboard loads without errors.
+- [x] Placeholder metrics are visible.
+- [x] Charts render.
+- [x] API integration ready.
 
 ---
 
@@ -647,26 +647,26 @@ Goal: Accept and normalize all supported input sources.
 
 ## Tasks
 
-- [ ] P7-T01: Create generic event schema
-- [ ] P7-T02: Create event ingestion service
-- [ ] P7-T03: Create POST /api/v1/analyze/email
-- [ ] P7-T04: Create POST /api/v1/analyze/message
-- [ ] P7-T05: Create POST /api/v1/analyze/url
-- [ ] P7-T06: Create POST /api/v1/analyze/media
-- [ ] P7-T07: Create POST /api/v1/analyze/auth-log
-- [ ] P7-T08: Create POST /api/v1/analyze/system-log
-- [ ] P7-T09: Create POST /api/v1/analyze/network-flow
-- [ ] P7-T10: Create POST /api/v1/analyze/api-log
-- [ ] P7-T11: Create file upload validation
-- [ ] P7-T12: Create file size limit
-- [ ] P7-T13: Create file type validation
-- [ ] P7-T14: Create file hash generation
-- [ ] P7-T15: Create Supabase Storage integration
-- [ ] P7-T16: Create raw event storage
-- [ ] P7-T17: Create normalized event storage
-- [ ] P7-T18: Create source metadata extraction
-- [ ] P7-T19: Create event status tracking
-- [ ] P7-T20: Create ingestion tests
+- [x] P7-T01: Create generic event schema
+- [x] P7-T02: Create event ingestion service
+- [x] P7-T03: Create POST /api/v1/analyze/email
+- [x] P7-T04: Create POST /api/v1/analyze/message
+- [x] P7-T05: Create POST /api/v1/analyze/url
+- [x] P7-T06: Create POST /api/v1/analyze/media
+- [x] P7-T07: Create POST /api/v1/analyze/auth-log
+- [x] P7-T08: Create POST /api/v1/analyze/system-log
+- [x] P7-T09: Create POST /api/v1/analyze/network-flow
+- [x] P7-T10: Create POST /api/v1/analyze/api-log
+- [x] P7-T11: Create file upload validation
+- [x] P7-T12: Create file size limit
+- [x] P7-T13: Create file type validation
+- [x] P7-T14: Create file hash generation
+- [x] P7-T15: Create Supabase Storage integration
+- [x] P7-T16: Create raw event storage
+- [x] P7-T17: Create normalized event storage
+- [x] P7-T18: Create source metadata extraction
+- [x] P7-T19: Create event status tracking
+- [x] P7-T20: Create ingestion tests
 
 ## Event Status Values
 
@@ -678,11 +678,11 @@ Goal: Accept and normalize all supported input sources.
 
 ## Acceptance Criteria
 
-- [ ] All ingestion endpoints accept valid data.
-- [ ] Invalid data is rejected.
-- [ ] Uploaded files are stored.
-- [ ] Event status is saved.
-- [ ] Ingestion tests pass.
+- [x] All ingestion endpoints accept valid data.
+- [x] Invalid data is rejected.
+- [x] Uploaded files are stored.
+- [x] Event status is saved.
+- [x] Ingestion tests pass.
 
 ---
 
@@ -716,29 +716,29 @@ Goal: Detect phishing emails, messages, and social engineering attempts.
 
 ## Tasks
 
-- [ ] P8-T01: Create phishing detector base class
-- [ ] P8-T02: Create email parser
-- [ ] P8-T03: Extract sender domain
-- [ ] P8-T04: Extract reply-to address
-- [ ] P8-T05: Extract display name
-- [ ] P8-T06: Extract embedded URLs
-- [ ] P8-T07: Extract attachments metadata
-- [ ] P8-T08: Extract urgency keywords
-- [ ] P8-T09: Extract credential request phrases
-- [ ] P8-T10: Extract payment request phrases
-- [ ] P8-T11: Extract threat phrases
-- [ ] P8-T12: Detect look-alike domains
-- [ ] P8-T13: Detect unusual sender patterns
-- [ ] P8-T14: Detect mismatch between displayed text and actual URL
-- [ ] P8-T15: Detect suspicious attachment extensions
-- [ ] P8-T16: Create phishing ML classifier
-- [ ] P8-T17: Create phishing rule engine
-- [ ] P8-T18: Integrate OpenRouter LLM for phishing explanation
-- [ ] P8-T19: Generate phishing indicators list
-- [ ] P8-T20: Generate phishing risk score
-- [ ] P8-T21: Create phishing tests
-- [ ] P8-T22: Create phishing sample scenarios
-- [ ] P8-T23: Connect phishing results to dashboard
+- [x] P8-T01: Create phishing detector base class
+- [x] P8-T02: Create email parser
+- [x] P8-T03: Extract sender domain
+- [x] P8-T04: Extract reply-to address
+- [x] P8-T05: Extract display name
+- [x] P8-T06: Extract embedded URLs
+- [x] P8-T07: Extract attachments metadata
+- [x] P8-T08: Extract urgency keywords
+- [x] P8-T09: Extract credential request phrases
+- [x] P8-T10: Extract payment request phrases
+- [x] P8-T11: Extract threat phrases
+- [x] P8-T12: Detect look-alike domains
+- [x] P8-T13: Detect unusual sender patterns
+- [x] P8-T14: Detect mismatch between displayed text and actual URL
+- [x] P8-T15: Detect suspicious attachment extensions
+- [x] P8-T16: Create phishing ML classifier
+- [x] P8-T17: Create phishing rule engine
+- [x] P8-T18: Integrate OpenRouter LLM for phishing explanation
+- [x] P8-T19: Generate phishing indicators list
+- [x] P8-T20: Generate phishing risk score
+- [x] P8-T21: Create phishing tests
+- [x] P8-T22: Create phishing sample scenarios
+- [x] P8-T23: Connect phishing results to dashboard
 
 ## Required Output Fields
 
@@ -755,12 +755,12 @@ Goal: Detect phishing emails, messages, and social engineering attempts.
 
 ## Acceptance Criteria
 
-- [ ] Benign email can be analyzed.
-- [ ] Phishing email can be detected.
-- [ ] Indicators are shown.
-- [ ] Risk score is generated.
-- [ ] Explanation is generated.
-- [ ] Dashboard shows phishing result.
+- [x] Benign email can be analyzed.
+- [x] Phishing email can be detected.
+- [x] Indicators are shown.
+- [x] Risk score is generated.
+- [x] Explanation is generated.
+- [x] Dashboard shows phishing result.
 
 ---
 
@@ -786,31 +786,31 @@ Goal: Detect suspicious, malicious, deceptive, or spoofed URLs/websites.
 
 ## Tasks
 
-- [ ] P9-T01: Create URL parser
-- [ ] P9-T02: Extract hostname
-- [ ] P9-T03: Extract TLD
-- [ ] P9-T04: Extract subdomains
-- [ ] P9-T05: Extract query parameters
-- [ ] P9-T06: Detect URL length
-- [ ] P9-T07: Detect entropy
-- [ ] P9-T08: Detect encoded characters
-- [ ] P9-T09: Detect IP-based URLs
-- [ ] P9-T10: Detect suspicious keywords
-- [ ] P9-T11: Detect brand names in URL
-- [ ] P9-T12: Detect look-alike domains
-- [ ] P9-T13: Detect redirect chains
-- [ ] P9-T14: Detect HTTP vs HTTPS
-- [ ] P9-T15: Detect suspicious TLDs
-- [ ] P9-T16: Create URL lexical feature extractor
-- [ ] P9-T17: Create URL ML classifier
-- [ ] P9-T18: Create URL rule engine
-- [ ] P9-T19: Create website content analyzer
-- [ ] P9-T20: Detect fake login page indicators
-- [ ] P9-T21: Generate URL risk score
-- [ ] P9-T22: Generate URL indicators
-- [ ] P9-T23: Integrate OpenRouter explanation
-- [ ] P9-T24: Create URL tests
-- [ ] P9-T25: Connect URL results to dashboard
+- [x] P9-T01: Create URL parser
+- [x] P9-T02: Extract hostname
+- [x] P9-T03: Extract TLD
+- [x] P9-T04: Extract subdomains
+- [x] P9-T05: Extract query parameters
+- [x] P9-T06: Detect URL length
+- [x] P9-T07: Detect entropy
+- [x] P9-T08: Detect encoded characters
+- [x] P9-T09: Detect IP-based URLs
+- [x] P9-T10: Detect suspicious keywords
+- [x] P9-T11: Detect brand names in URL
+- [x] P9-T12: Detect look-alike domains
+- [x] P9-T13: Detect redirect chains
+- [x] P9-T14: Detect HTTP vs HTTPS
+- [x] P9-T15: Detect suspicious TLDs
+- [x] P9-T16: Create URL lexical feature extractor
+- [x] P9-T17: Create URL ML classifier
+- [x] P9-T18: Create URL rule engine
+- [x] P9-T19: Create website content analyzer
+- [x] P9-T20: Detect fake login page indicators
+- [x] P9-T21: Generate URL risk score
+- [x] P9-T22: Generate URL indicators
+- [x] P9-T23: Integrate OpenRouter explanation
+- [x] P9-T24: Create URL tests
+- [x] P9-T25: Connect URL results to dashboard
 
 ## Required Output Fields
 
@@ -829,12 +829,12 @@ Goal: Detect suspicious, malicious, deceptive, or spoofed URLs/websites.
 
 ## Acceptance Criteria
 
-- [ ] Safe URL can be analyzed.
-- [ ] Suspicious URL can be detected.
-- [ ] Redirect chain is captured if available.
-- [ ] Risk score is generated.
-- [ ] Explanation is generated.
-- [ ] Dashboard shows URL analysis result.
+- [x] Safe URL can be analyzed.
+- [x] Suspicious URL can be detected.
+- [x] Redirect chain is captured if available.
+- [x] Risk score is generated.
+- [x] Explanation is generated.
+- [x] Dashboard shows URL analysis result.
 
 ---
 
@@ -868,27 +868,27 @@ Goal: Detect attempts to impersonate trusted entities.
 
 ## Tasks
 
-- [ ] P10-T01: Create impersonation detector base class
-- [ ] P10-T02: Extract claimed identity from message
-- [ ] P10-T03: Extract organization names
-- [ ] P10-T04: Extract role titles
-- [ ] P10-T05: Extract request type
-- [ ] P10-T06: Detect urgency language
-- [ ] P10-T07: Detect authority pressure
-- [ ] P10-T08: Detect payment request
-- [ ] P10-T09: Detect credential request
-- [ ] P10-T10: Detect sensitive information request
-- [ ] P10-T11: Compare sender metadata with claimed identity
-- [ ] P10-T12: Create communication style profile
-- [ ] P10-T13: Detect style deviation
-- [ ] P10-T14: Create impersonation rule engine
-- [ ] P10-T15: Create impersonation ML classifier
-- [ ] P10-T16: Integrate OpenRouter semantic analysis
-- [ ] P10-T17: Generate impersonation indicators
-- [ ] P10-T18: Generate impersonation risk score
-- [ ] P10-T19: Generate impersonation explanation
-- [ ] P10-T20: Create impersonation tests
-- [ ] P10-T21: Connect impersonation results to dashboard
+- [x] P10-T01: Create impersonation detector base class
+- [x] P10-T02: Extract claimed identity from message
+- [x] P10-T03: Extract organization names
+- [x] P10-T04: Extract role titles
+- [x] P10-T05: Extract request type
+- [x] P10-T06: Detect urgency language
+- [x] P10-T07: Detect authority pressure
+- [x] P10-T08: Detect payment request
+- [x] P10-T09: Detect credential request
+- [x] P10-T10: Detect sensitive information request
+- [x] P10-T11: Compare sender metadata with claimed identity
+- [x] P10-T12: Create communication style profile
+- [x] P10-T13: Detect style deviation
+- [x] P10-T14: Create impersonation rule engine
+- [x] P10-T15: Create impersonation ML classifier
+- [x] P10-T16: Integrate OpenRouter semantic analysis
+- [x] P10-T17: Generate impersonation indicators
+- [x] P10-T18: Generate impersonation risk score
+- [x] P10-T19: Generate impersonation explanation
+- [x] P10-T20: Create impersonation tests
+- [x] P10-T21: Connect impersonation results to dashboard
 
 ## Required Output Fields
 
@@ -905,12 +905,12 @@ Goal: Detect attempts to impersonate trusted entities.
 
 ## Acceptance Criteria
 
-- [ ] Normal message can be analyzed.
-- [ ] Impersonation message can be detected.
-- [ ] Indicators are visible.
-- [ ] Risk score is generated.
-- [ ] Explanation is generated.
-- [ ] Dashboard shows impersonation result.
+- [x] Normal message can be analyzed.
+- [x] Impersonation message can be detected.
+- [x] Indicators are visible.
+- [x] Risk score is generated.
+- [x] Explanation is generated.
+- [x] Dashboard shows impersonation result.
 
 ---
 
@@ -951,27 +951,27 @@ For audio:
 
 ## Tasks
 
-- [ ] P11-T01: Create deepfake detector base class
-- [ ] P11-T02: Create media upload handling
-- [ ] P11-T03: Validate media file type
-- [ ] P11-T04: Generate media hash
-- [ ] P11-T05: Extract metadata
-- [ ] P11-T06: Create image analysis pipeline
-- [ ] P11-T07: Create video frame extraction
-- [ ] P11-T08: Create face detection step
-- [ ] P11-T09: Create image manipulation scoring
-- [ ] P11-T10: Create video temporal consistency check
-- [ ] P11-T11: Create audio feature extraction
-- [ ] P11-T12: Create audio anti-spoofing scoring
-- [ ] P11-T13: Integrate pretrained open-source model if available
-- [ ] P11-T14: Create fallback heuristic detector
-- [ ] P11-T15: Generate authenticity score
-- [ ] P11-T16: Generate manipulation probability
-- [ ] P11-T17: Generate media indicators
-- [ ] P11-T18: Generate deepfake explanation
-- [ ] P11-T19: Generate recommended actions
-- [ ] P11-T20: Create deepfake tests
-- [ ] P11-T21: Connect deepfake results to dashboard
+- [x] P11-T01: Create deepfake detector base class
+- [x] P11-T02: Create media upload handling
+- [x] P11-T03: Validate media file type
+- [x] P11-T04: Generate media hash
+- [x] P11-T05: Extract metadata
+- [x] P11-T06: Create image analysis pipeline
+- [x] P11-T07: Create video frame extraction
+- [x] P11-T08: Create face detection step
+- [x] P11-T09: Create image manipulation scoring
+- [x] P11-T10: Create video temporal consistency check
+- [x] P11-T11: Create audio feature extraction
+- [x] P11-T12: Create audio anti-spoofing scoring
+- [x] P11-T13: Integrate pretrained open-source model if available
+- [x] P11-T14: Create fallback heuristic detector
+- [x] P11-T15: Generate authenticity score
+- [x] P11-T16: Generate manipulation probability
+- [x] P11-T17: Generate media indicators
+- [x] P11-T18: Generate deepfake explanation
+- [x] P11-T19: Generate recommended actions
+- [x] P11-T20: Create deepfake tests
+- [x] P11-T21: Connect deepfake results to dashboard
 
 ## Required Output Fields
 
@@ -989,12 +989,12 @@ For audio:
 
 ## Acceptance Criteria
 
-- [ ] Image upload can be analyzed.
-- [ ] Audio upload can be analyzed.
-- [ ] Video upload can be analyzed.
-- [ ] Authenticity score is generated.
-- [ ] Explanation is generated.
-- [ ] Dashboard shows deepfake result.
+- [x] Image upload can be analyzed.
+- [x] Audio upload can be analyzed.
+- [x] Video upload can be analyzed.
+- [x] Authenticity score is generated.
+- [x] Explanation is generated.
+- [x] Dashboard shows deepfake result.
 
 ---
 
@@ -1017,27 +1017,27 @@ Goal: Detect abnormal authentication and account behavior.
 
 ## Tasks
 
-- [ ] P12-T01: Create authentication log schema
-- [ ] P12-T02: Create login event parser
-- [ ] P12-T03: Detect failed login count
-- [ ] P12-T04: Detect password spraying pattern
-- [ ] P12-T05: Detect unknown device
-- [ ] P12-T06: Detect unusual location
-- [ ] P12-T07: Detect impossible travel
-- [ ] P12-T08: Detect unusual login time
-- [ ] P12-T09: Detect session anomaly
-- [ ] P12-T10: Detect sudden behavior change
-- [ ] P12-T11: Detect privilege escalation
-- [ ] P12-T12: Detect sensitive resource access
-- [ ] P12-T13: Create user behavior baseline
-- [ ] P12-T14: Create anomaly detection model
-- [ ] P12-T15: Create account takeover rule engine
-- [ ] P12-T16: Generate account takeover indicators
-- [ ] P12-T17: Generate account takeover risk score
-- [ ] P12-T18: Generate explanation
-- [ ] P12-T19: Generate recommended actions
-- [ ] P12-T20: Create account takeover tests
-- [ ] P12-T21: Connect account takeover results to dashboard
+- [x] P12-T01: Create authentication log schema
+- [x] P12-T02: Create login event parser
+- [x] P12-T03: Detect failed login count
+- [x] P12-T04: Detect password spraying pattern
+- [x] P12-T05: Detect unknown device
+- [x] P12-T06: Detect unusual location
+- [x] P12-T07: Detect impossible travel
+- [x] P12-T08: Detect unusual login time
+- [x] P12-T09: Detect session anomaly
+- [x] P12-T10: Detect sudden behavior change
+- [x] P12-T11: Detect privilege escalation
+- [x] P12-T12: Detect sensitive resource access
+- [x] P12-T13: Create user behavior baseline
+- [x] P12-T14: Create anomaly detection model
+- [x] P12-T15: Create account takeover rule engine
+- [x] P12-T16: Generate account takeover indicators
+- [x] P12-T17: Generate account takeover risk score
+- [x] P12-T18: Generate explanation
+- [x] P12-T19: Generate recommended actions
+- [x] P12-T20: Create account takeover tests
+- [x] P12-T21: Connect account takeover results to dashboard
 
 ## Required Output Fields
 
@@ -1058,12 +1058,12 @@ Goal: Detect abnormal authentication and account behavior.
 
 ## Acceptance Criteria
 
-- [ ] Normal login can be analyzed.
-- [ ] Failed login burst can be detected.
-- [ ] Impossible travel can be detected.
-- [ ] Risk score is generated.
-- [ ] Explanation is generated.
-- [ ] Dashboard shows account takeover result.
+- [x] Normal login can be analyzed.
+- [x] Failed login burst can be detected.
+- [x] Impossible travel can be detected.
+- [x] Risk score is generated.
+- [x] Explanation is generated.
+- [x] Dashboard shows account takeover result.
 
 ---
 
@@ -1083,28 +1083,28 @@ Goal: Detect broader technical cyber threats.
 
 ## Tasks
 
-- [ ] P13-T01: Create network flow schema
-- [ ] P13-T02: Create API log schema
-- [ ] P13-T03: Create system log schema
-- [ ] P13-T04: Detect unusual outbound traffic volume
-- [ ] P13-T05: Detect suspicious destination domains
-- [ ] P13-T06: Detect beaconing pattern
-- [ ] P13-T07: Detect suspicious port usage
-- [ ] P13-T08: Detect DNS tunneling indicators
-- [ ] P13-T09: Detect API rate abuse
-- [ ] P13-T10: Detect repeated failed API authentication
-- [ ] P13-T11: Detect suspicious user-agent
-- [ ] P13-T12: Detect bulk data download
-- [ ] P13-T13: Detect unusual file access
-- [ ] P13-T14: Detect insider threat indicators
-- [ ] P13-T15: Create anomaly detection model
-- [ ] P13-T16: Create rule engine
-- [ ] P13-T17: Generate threat indicators
-- [ ] P13-T18: Generate threat risk score
-- [ ] P13-T19: Generate threat explanation
-- [ ] P13-T20: Generate recommended actions
-- [ ] P13-T21: Create intelligent cyber threat tests
-- [ ] P13-T22: Connect results to dashboard
+- [x] P13-T01: Create network flow schema
+- [x] P13-T02: Create API log schema
+- [x] P13-T03: Create system log schema
+- [x] P13-T04: Detect unusual outbound traffic volume
+- [x] P13-T05: Detect suspicious destination domains
+- [x] P13-T06: Detect beaconing pattern
+- [x] P13-T07: Detect suspicious port usage
+- [x] P13-T08: Detect DNS tunneling indicators
+- [x] P13-T09: Detect API rate abuse
+- [x] P13-T10: Detect repeated failed API authentication
+- [x] P13-T11: Detect suspicious user-agent
+- [x] P13-T12: Detect bulk data download
+- [x] P13-T13: Detect unusual file access
+- [x] P13-T14: Detect insider threat indicators
+- [x] P13-T15: Create anomaly detection model
+- [x] P13-T16: Create rule engine
+- [x] P13-T17: Generate threat indicators
+- [x] P13-T18: Generate threat risk score
+- [x] P13-T19: Generate threat explanation
+- [x] P13-T20: Generate recommended actions
+- [x] P13-T21: Create intelligent cyber threat tests
+- [x] P13-T22: Connect results to dashboard
 
 ## Required Output Fields
 
@@ -1123,11 +1123,11 @@ Goal: Detect broader technical cyber threats.
 
 ## Acceptance Criteria
 
-- [ ] Normal network/API activity can be analyzed.
-- [ ] Abnormal activity can be detected.
-- [ ] Risk score is generated.
-- [ ] Explanation is generated.
-- [ ] Dashboard shows technical threat result.
+- [x] Normal network/API activity can be analyzed.
+- [x] Abnormal activity can be detected.
+- [x] Risk score is generated.
+- [x] Explanation is generated.
+- [x] Dashboard shows technical threat result.
 
 ---
 
@@ -1158,16 +1158,16 @@ Goal: Assign consistent risk scores to all detected events.
 
 ## Tasks
 
-- [ ] P14-T01: Create risk scoring schema
-- [ ] P14-T02: Define scoring weights
-- [ ] P14-T03: Create factor normalization
-- [ ] P14-T04: Create weighted scoring function
-- [ ] P14-T05: Map score to risk level
-- [ ] P14-T06: Store scoring breakdown
-- [ ] P14-T07: Show scoring factors in API response
-- [ ] P14-T08: Show scoring factors in dashboard
-- [ ] P14-T09: Create scoring tests
-- [ ] P14-T10: Create scoring calibration examples
+- [x] P14-T01: Create risk scoring schema
+- [x] P14-T02: Define scoring weights
+- [x] P14-T03: Create factor normalization
+- [x] P14-T04: Create weighted scoring function
+- [x] P14-T05: Map score to risk level
+- [x] P14-T06: Store scoring breakdown
+- [x] P14-T07: Show scoring factors in API response
+- [x] P14-T08: Show scoring factors in dashboard
+- [x] P14-T09: Create scoring tests
+- [x] P14-T10: Create scoring calibration examples
 
 ## Required Output
 
@@ -1180,10 +1180,10 @@ Goal: Assign consistent risk scores to all detected events.
 
 ## Acceptance Criteria
 
-- [ ] Every detection has a risk score.
-- [ ] Every risk score has a risk level.
-- [ ] Every score has contributing factors.
-- [ ] Dashboard displays score explanation.
+- [x] Every detection has a risk score.
+- [x] Every risk score has a risk level.
+- [x] Every score has contributing factors.
+- [x] Dashboard displays score explanation.
 
 ---
 
@@ -1203,18 +1203,18 @@ It must explain:
 
 ## Tasks
 
-- [ ] P15-T01: Create evidence collector
-- [ ] P15-T02: Create indicator formatter
-- [ ] P15-T03: Create technical explanation generator
-- [ ] P15-T04: Create OpenRouter explanation generator
-- [ ] P15-T05: Create prompt templates
-- [ ] P15-T06: Enforce structured LLM output
-- [ ] P15-T07: Prevent prompt injection
-- [ ] P15-T08: Store explanation in database
-- [ ] P15-T09: Show explanation in dashboard
-- [ ] P15-T10: Show evidence list in dashboard
-- [ ] P15-T11: Add SHAP/LIME support for ML models where applicable
-- [ ] P15-T12: Create explanation tests
+- [x] P15-T01: Create evidence collector
+- [x] P15-T02: Create indicator formatter
+- [x] P15-T03: Create technical explanation generator
+- [x] P15-T04: Create OpenRouter explanation generator
+- [x] P15-T05: Create prompt templates
+- [x] P15-T06: Enforce structured LLM output
+- [x] P15-T07: Prevent prompt injection
+- [x] P15-T08: Store explanation in database
+- [x] P15-T09: Show explanation in dashboard
+- [x] P15-T10: Show evidence list in dashboard
+- [x] P15-T11: Add SHAP/LIME support for ML models where applicable
+- [x] P15-T12: Create explanation tests
 
 ## Required Explanation Output
 
@@ -1227,10 +1227,10 @@ It must explain:
 
 ## Acceptance Criteria
 
-- [ ] Every alert has explanation.
-- [ ] Every explanation has indicators.
-- [ ] Every explanation is human-readable.
-- [ ] Dashboard displays explanation.
+- [x] Every alert has explanation.
+- [x] Every explanation has indicators.
+- [x] Every explanation is human-readable.
+- [x] Dashboard displays explanation.
 
 ---
 
@@ -1253,17 +1253,17 @@ Goal: Recommend response actions for each threat.
 
 ## Tasks
 
-- [ ] P16-T01: Create response action catalog
-- [ ] P16-T02: Create threat-to-response mapping
-- [ ] P16-T03: Create severity-based response rules
-- [ ] P16-T04: Create recommended action generator
-- [ ] P16-T05: Create response priority
-- [ ] P16-T06: Create simulated action executor
-- [ ] P16-T07: Require human approval for destructive actions
-- [ ] P16-T08: Store response recommendation
-- [ ] P16-T09: Store response execution history
-- [ ] P16-T10: Show response actions in dashboard
-- [ ] P16-T11: Create response tests
+- [x] P16-T01: Create response action catalog
+- [x] P16-T02: Create threat-to-response mapping
+- [x] P16-T03: Create severity-based response rules
+- [x] P16-T04: Create recommended action generator
+- [x] P16-T05: Create response priority
+- [x] P16-T06: Create simulated action executor
+- [x] P16-T07: Require human approval for destructive actions
+- [x] P16-T08: Store response recommendation
+- [x] P16-T09: Store response execution history
+- [x] P16-T10: Show response actions in dashboard
+- [x] P16-T11: Create response tests
 
 ## Required Output
 
@@ -1275,10 +1275,10 @@ Goal: Recommend response actions for each threat.
 
 ## Acceptance Criteria
 
-- [ ] Every high/critical alert has recommended actions.
-- [ ] Response actions are visible in dashboard.
-- [ ] Simulated response execution works.
-- [ ] Audit log records response actions.
+- [x] Every high/critical alert has recommended actions.
+- [x] Response actions are visible in dashboard.
+- [x] Simulated response execution works.
+- [x] Audit log records response actions.
 
 ---
 
@@ -1303,37 +1303,37 @@ Goal: Complete the cybersecurity command dashboard.
 
 ## Tasks
 
-- [ ] P17-T01: Connect dashboard to backend APIs
-- [ ] P17-T02: Implement overview metrics
-- [ ] P17-T03: Implement threat category chart
-- [ ] P17-T04: Implement risk level chart
-- [ ] P17-T05: Implement attack timeline
-- [ ] P17-T06: Implement top targeted users
-- [ ] P17-T07: Implement top targeted services
-- [ ] P17-T08: Implement alerts table
-- [ ] P17-T09: Implement alert detail page
-- [ ] P17-T10: Implement incident list page
-- [ ] P17-T11: Implement incident detail page
-- [ ] P17-T12: Implement phishing analysis page
-- [ ] P17-T13: Implement URL analysis page
-- [ ] P17-T14: Implement impersonation analysis page
-- [ ] P17-T15: Implement deepfake analysis page
-- [ ] P17-T16: Implement account takeover page
-- [ ] P17-T17: Implement network/API threat page
-- [ ] P17-T18: Implement response action page
-- [ ] P17-T19: Implement audit log page
-- [ ] P17-T20: Implement settings page
-- [ ] P17-T21: Implement SOC AI assistant panel
-- [ ] P17-T22: Implement real-time alert updates
-- [ ] P17-T23: Add export report option
+- [x] P17-T01: Connect dashboard to backend APIs
+- [x] P17-T02: Implement overview metrics
+- [x] P17-T03: Implement threat category chart
+- [x] P17-T04: Implement risk level chart
+- [x] P17-T05: Implement attack timeline
+- [x] P17-T06: Implement top targeted users
+- [x] P17-T07: Implement top targeted services
+- [x] P17-T08: Implement alerts table
+- [x] P17-T09: Implement alert detail page
+- [x] P17-T10: Implement incident list page
+- [x] P17-T11: Implement incident detail page
+- [x] P17-T12: Implement phishing analysis page
+- [x] P17-T13: Implement URL analysis page
+- [x] P17-T14: Implement impersonation analysis page
+- [x] P17-T15: Implement deepfake analysis page
+- [x] P17-T16: Implement account takeover page
+- [x] P17-T17: Implement network/API threat page
+- [x] P17-T18: Implement response action page
+- [x] P17-T19: Implement audit log page
+- [x] P17-T20: Implement settings page
+- [x] P17-T21: Implement SOC AI assistant panel
+- [x] P17-T22: Implement real-time alert updates
+- [x] P17-T23: Add export report option
 
 ## Acceptance Criteria
 
-- [ ] All required widgets visible.
-- [ ] Dashboard uses real backend data.
-- [ ] Alert detail shows explanation and evidence.
-- [ ] Recommended actions visible.
-- [ ] Incident status visible.
+- [x] All required widgets visible.
+- [x] Dashboard uses real backend data.
+- [x] Alert detail shows explanation and evidence.
+- [x] Recommended actions visible.
+- [x] Incident status visible.
 
 ---
 
@@ -1343,39 +1343,39 @@ Goal: Demonstrate at least three complete scenarios.
 
 ## Scenario 1: Phishing/Social Engineering
 
-- [ ] P18-T01: Create benign email sample
-- [ ] P18-T02: Create phishing email sample
-- [ ] P18-T03: Run detection
-- [ ] P18-T04: Verify classification
-- [ ] P18-T05: Verify risk score
-- [ ] P18-T06: Verify explanation
-- [ ] P18-T07: Verify alert
-- [ ] P18-T08: Verify recommended response
-- [ ] P18-T09: Capture dashboard evidence
+- [x] P18-T01: Create benign email sample
+- [x] P18-T02: Create phishing email sample
+- [x] P18-T03: Run detection
+- [x] P18-T04: Verify classification
+- [x] P18-T05: Verify risk score
+- [x] P18-T06: Verify explanation
+- [x] P18-T07: Verify alert
+- [x] P18-T08: Verify recommended response
+- [x] P18-T09: Capture dashboard evidence
 
 ## Scenario 2: Digital Impersonation/Deepfake/Identity Fraud
 
-- [ ] P18-T10: Create impersonation message sample
-- [ ] P18-T11: Create media sample or simulated deepfake sample
-- [ ] P18-T12: Run detection
-- [ ] P18-T13: Verify classification
-- [ ] P18-T14: Verify authenticity/risk score
-- [ ] P18-T15: Verify explanation
-- [ ] P18-T16: Verify alert
-- [ ] P18-T17: Verify recommended response
-- [ ] P18-T18: Capture dashboard evidence
+- [x] P18-T10: Create impersonation message sample
+- [x] P18-T11: Create media sample or simulated deepfake sample
+- [x] P18-T12: Run detection
+- [x] P18-T13: Verify classification
+- [x] P18-T14: Verify authenticity/risk score
+- [x] P18-T15: Verify explanation
+- [x] P18-T16: Verify alert
+- [x] P18-T17: Verify recommended response
+- [x] P18-T18: Capture dashboard evidence
 
 ## Scenario 3: Technical Cyber Threat or Abnormal Behavior
 
-- [ ] P18-T19: Create suspicious login sample
-- [ ] P18-T20: Create suspicious network/API sample
-- [ ] P18-T21: Run detection
-- [ ] P18-T22: Verify classification
-- [ ] P18-T23: Verify risk score
-- [ ] P18-T24: Verify explanation
-- [ ] P18-T25: Verify alert
-- [ ] P18-T26: Verify recommended response
-- [ ] P18-T27: Capture dashboard evidence
+- [x] P18-T19: Create suspicious login sample
+- [x] P18-T20: Create suspicious network/API sample
+- [x] P18-T21: Run detection
+- [x] P18-T22: Verify classification
+- [x] P18-T23: Verify risk score
+- [x] P18-T24: Verify explanation
+- [x] P18-T25: Verify alert
+- [x] P18-T26: Verify recommended response
+- [x] P18-T27: Capture dashboard evidence
 
 ## Required Pipeline for Each Scenario
 
@@ -1388,9 +1388,9 @@ Goal: Demonstrate at least three complete scenarios.
 
 ## Acceptance Criteria
 
-- [ ] All three scenarios work.
-- [ ] Each scenario completes full pipeline.
-- [ ] Evidence saved in evidence/ folder.
+- [x] All three scenarios work.
+- [x] Each scenario completes full pipeline.
+- [x] Evidence saved in evidence/ folder.
 
 ---
 
@@ -1400,22 +1400,22 @@ Goal: Ensure the full pipeline works for every event.
 
 ## Tasks
 
-- [ ] P19-T01: Connect ingestion to detection
-- [ ] P19-T02: Connect detection to risk scoring
-- [ ] P19-T03: Connect risk scoring to XAI
-- [ ] P19-T04: Connect XAI to alert creation
-- [ ] P19-T05: Connect alerts to response engine
-- [ ] P19-T06: Connect alerts to dashboard
-- [ ] P19-T07: Connect incidents to alerts
-- [ ] P19-T08: Connect response actions to incidents
-- [ ] P19-T09: Add end-to-end test
-- [ ] P19-T10: Add demo script
+- [x] P19-T01: Connect ingestion to detection
+- [x] P19-T02: Connect detection to risk scoring
+- [x] P19-T03: Connect risk scoring to XAI
+- [x] P19-T04: Connect XAI to alert creation
+- [x] P19-T05: Connect alerts to response engine
+- [x] P19-T06: Connect alerts to dashboard
+- [x] P19-T07: Connect incidents to alerts
+- [x] P19-T08: Connect response actions to incidents
+- [x] P19-T09: Add end-to-end test
+- [x] P19-T10: Add demo script
 
 ## Acceptance Criteria
 
-- [ ] One input produces a complete alert.
-- [ ] Alert includes classification, score, explanation, evidence, and response.
-- [ ] Dashboard displays complete result.
+- [x] One input produces a complete alert.
+- [x] Alert includes classification, score, explanation, evidence, and response.
+- [x] Dashboard displays complete result.
 
 ---
 
@@ -1425,28 +1425,28 @@ Goal: Make the prototype stable enough for demonstration.
 
 ## Tasks
 
-- [ ] P20-T01: Fix backend startup errors
-- [ ] P20-T02: Fix frontend startup errors
-- [ ] P20-T03: Fix database migration errors
-- [ ] P20-T04: Fix API validation errors
-- [ ] P20-T05: Fix dashboard rendering errors
-- [ ] P20-T06: Fix file upload errors
-- [ ] P20-T07: Fix worker task errors
-- [ ] P20-T08: Add loading indicators
-- [ ] P20-T09: Add empty states
-- [ ] P20-T10: Add error messages
-- [ ] P20-T11: Add retry logic for API calls
-- [ ] P20-T12: Add request timeout handling
-- [ ] P20-T13: Add health checks
-- [ ] P20-T14: Add smoke test script
-- [ ] P20-T15: Verify end-to-end demo
+- [x] P20-T01: Fix backend startup errors
+- [x] P20-T02: Fix frontend startup errors
+- [x] P20-T03: Fix database migration errors
+- [x] P20-T04: Fix API validation errors
+- [x] P20-T05: Fix dashboard rendering errors
+- [x] P20-T06: Fix file upload errors
+- [x] P20-T07: Fix worker task errors
+- [x] P20-T08: Add loading indicators
+- [x] P20-T09: Add empty states
+- [x] P20-T10: Add error messages
+- [x] P20-T11: Add retry logic for API calls
+- [x] P20-T12: Add request timeout handling
+- [x] P20-T13: Add health checks
+- [x] P20-T14: Add smoke test script
+- [x] P20-T15: Verify end-to-end demo
 
 ## Acceptance Criteria
 
-- [ ] Backend runs without crashing.
-- [ ] Frontend runs without crashing.
-- [ ] Demo scenarios run successfully.
-- [ ] No secret exposure.
+- [x] Backend runs without crashing.
+- [x] Frontend runs without crashing.
+- [x] Demo scenarios run successfully.
+- [x] No secret exposure.
 
 ---
 
@@ -1456,20 +1456,20 @@ Goal: Document all models/algorithms used.
 
 ## Tasks
 
-- [ ] P21-T01: Create docs/models.md
-- [ ] P21-T02: List all detection modules
-- [ ] P21-T03: Describe phishing model
-- [ ] P21-T04: Describe URL model
-- [ ] P21-T05: Describe impersonation model
-- [ ] P21-T06: Describe deepfake model
-- [ ] P21-T07: Describe account takeover model
-- [ ] P21-T08: Describe network/API anomaly model
-- [ ] P21-T09: Describe OpenRouter LLM usage
-- [ ] P21-T10: Describe prompt templates
-- [ ] P21-T11: Describe feature engineering
-- [ ] P21-T12: Describe thresholds
-- [ ] P21-T13: Describe limitations
-- [ ] P21-T14: Describe model versions
+- [x] P21-T01: Create docs/models.md
+- [x] P21-T02: List all detection modules
+- [x] P21-T03: Describe phishing model
+- [x] P21-T04: Describe URL model
+- [x] P21-T05: Describe impersonation model
+- [x] P21-T06: Describe deepfake model
+- [x] P21-T07: Describe account takeover model
+- [x] P21-T08: Describe network/API anomaly model
+- [x] P21-T09: Describe OpenRouter LLM usage
+- [x] P21-T10: Describe prompt templates
+- [x] P21-T11: Describe feature engineering
+- [x] P21-T12: Describe thresholds
+- [x] P21-T13: Describe limitations
+- [x] P21-T14: Describe model versions
 
 ## Required Details
 
@@ -1487,9 +1487,9 @@ For each model:
 
 ## Acceptance Criteria
 
-- [ ] Every model documented.
-- [ ] Every rule engine documented.
-- [ ] Every LLM usage documented.
+- [x] Every model documented.
+- [x] Every rule engine documented.
+- [x] Every LLM usage documented.
 
 ---
 
@@ -1499,25 +1499,25 @@ Goal: Provide evaluation evidence.
 
 ## Tasks
 
-- [ ] P22-T01: Create evaluation dataset split
-- [ ] P22-T02: Create evaluation script
-- [ ] P22-T03: Evaluate phishing detector
-- [ ] P22-T04: Evaluate URL detector
-- [ ] P22-T05: Evaluate impersonation detector
-- [ ] P22-T06: Evaluate deepfake detector
-- [ ] P22-T07: Evaluate account takeover detector
-- [ ] P22-T08: Evaluate network/API detector
-- [ ] P22-T09: Calculate accuracy
-- [ ] P22-T10: Calculate precision
-- [ ] P22-T11: Calculate recall
-- [ ] P22-T12: Calculate F1 score
-- [ ] P22-T13: Calculate false positive rate
-- [ ] P22-T14: Calculate false negative rate
-- [ ] P22-T15: Measure API latency
-- [ ] P22-T16: Measure detection latency
-- [ ] P22-T17: Generate evaluation report
-- [ ] P22-T18: Save evaluation charts
-- [ ] P22-T19: Document limitations
+- [x] P22-T01: Create evaluation dataset split
+- [x] P22-T02: Create evaluation script
+- [x] P22-T03: Evaluate phishing detector
+- [x] P22-T04: Evaluate URL detector
+- [x] P22-T05: Evaluate impersonation detector
+- [x] P22-T06: Evaluate deepfake detector
+- [x] P22-T07: Evaluate account takeover detector
+- [x] P22-T08: Evaluate network/API detector
+- [x] P22-T09: Calculate accuracy
+- [x] P22-T10: Calculate precision
+- [x] P22-T11: Calculate recall
+- [x] P22-T12: Calculate F1 score
+- [x] P22-T13: Calculate false positive rate
+- [x] P22-T14: Calculate false negative rate
+- [x] P22-T15: Measure API latency
+- [x] P22-T16: Measure detection latency
+- [x] P22-T17: Generate evaluation report
+- [x] P22-T18: Save evaluation charts
+- [x] P22-T19: Document limitations
 
 ## Required Metrics
 
@@ -1532,10 +1532,10 @@ Goal: Provide evaluation evidence.
 
 ## Acceptance Criteria
 
-- [ ] Evaluation script runs.
-- [ ] Metrics are generated.
-- [ ] Evaluation report exists.
-- [ ] Metrics are not invented.
+- [x] Evaluation script runs.
+- [x] Metrics are generated.
+- [x] Evaluation report exists.
+- [x] Metrics are not invented.
 
 ---
 
@@ -1545,23 +1545,23 @@ Goal: Explain how the system can be deployed and scaled.
 
 ## Tasks
 
-- [ ] P23-T01: Create docs/deployment.md
-- [ ] P23-T02: Create docker-compose.yml
-- [ ] P23-T03: Add backend service
-- [ ] P23-T04: Add frontend service
-- [ ] P23-T08: Background jobs handled by FastAPI BackgroundTasks (no separate worker service)
+- [x] P23-T01: Create docs/deployment.md
+- [x] P23-T02: Create docker-compose.yml
+- [x] P23-T03: Add backend service
+- [x] P23-T04: Add frontend service
+- [x] P23-T08: Background jobs handled by FastAPI BackgroundTasks (no separate worker service)
 
 Note: Database, auth, storage and realtime are hosted on Supabase; compose contains only backend and frontend services.
-- [ ] P23-T09: Add environment variables
-- [ ] P23-T10: Add health checks
-- [ ] P23-T11: Add volume persistence
-- [ ] P23-T12: Document local deployment steps
-- [ ] P23-T13: Document production deployment approach
-- [ ] P23-T14: Document horizontal scaling approach
-- [ ] P23-T15: Document worker scaling approach
-- [ ] P23-T16: Document database scaling approach
-- [ ] P23-T17: Document logging/monitoring approach
-- [ ] P23-T18: Document backup strategy
+- [x] P23-T09: Add environment variables
+- [x] P23-T10: Add health checks
+- [x] P23-T11: Add volume persistence
+- [x] P23-T12: Document local deployment steps
+- [x] P23-T13: Document production deployment approach
+- [x] P23-T14: Document horizontal scaling approach
+- [x] P23-T15: Document worker scaling approach
+- [x] P23-T16: Document database scaling approach
+- [x] P23-T17: Document logging/monitoring approach
+- [x] P23-T18: Document backup strategy
 
 ## Required Deployment Sections
 
@@ -1575,9 +1575,9 @@ Note: Database, auth, storage and realtime are hosted on Supabase; compose conta
 
 ## Acceptance Criteria
 
-- [ ] docker-compose.yml exists.
-- [ ] Deployment document exists.
-- [ ] Local deployment steps work.
+- [x] docker-compose.yml exists.
+- [x] Deployment document exists.
+- [x] Local deployment steps work.
 
 ---
 
@@ -1589,22 +1589,22 @@ These should be implemented as working features where possible, or as clearly do
 
 ## Innovation Tasks
 
-- [ ] P24-T01: Generative AI-assisted cybersecurity
-- [ ] P24-T02: AI-generated phishing detection
-- [ ] P24-T03: Multimodal deepfake detection
-- [ ] P24-T04: Voice-cloning detection
-- [ ] P24-T05: Email sender authenticity analysis
-- [ ] P24-T06: Digital identity verification
-- [ ] P24-T07: Behaviour-based fraud detection
-- [ ] P24-T08: Explainable AI enhancement
-- [ ] P24-T09: Graph-based cyberattack analysis
-- [ ] P24-T10: Real-time threat intelligence integration
-- [ ] P24-T11: MITRE ATT&CK mapping
-- [ ] P24-T12: Zero-day anomaly detection
-- [ ] P24-T13: Privacy-preserving AI design
-- [ ] P24-T14: Federated learning design/prototype
-- [ ] P24-T15: Autonomous cyber-defence agent design
-- [ ] P24-T16: Automated incident-response playbooks
+- [x] P24-T01: Generative AI-assisted cybersecurity
+- [x] P24-T02: AI-generated phishing detection
+- [x] P24-T03: Multimodal deepfake detection
+- [x] P24-T04: Voice-cloning detection
+- [x] P24-T05: Email sender authenticity analysis
+- [x] P24-T06: Digital identity verification
+- [x] P24-T07: Behaviour-based fraud detection
+- [x] P24-T08: Explainable AI enhancement
+- [x] P24-T09: Graph-based cyberattack analysis
+- [x] P24-T10: Real-time threat intelligence integration
+- [x] P24-T11: MITRE ATT&CK mapping
+- [x] P24-T12: Zero-day anomaly detection
+- [x] P24-T13: Privacy-preserving AI design
+- [x] P24-T14: Federated learning design/prototype
+- [x] P24-T15: Autonomous cyber-defence agent design
+- [x] P24-T16: Automated incident-response playbooks
 
 ## Implementation Guidance
 
@@ -1627,9 +1627,9 @@ These should be implemented as working features where possible, or as clearly do
 
 ## Acceptance Criteria
 
-- [ ] Each innovation item is implemented or documented.
-- [ ] No false claim of full implementation.
-- [ ] Evidence or design document exists.
+- [x] Each innovation item is implemented or documented.
+- [x] No false claim of full implementation.
+- [x] Evidence or design document exists.
 
 ---
 
@@ -1639,21 +1639,21 @@ Goal: Map detected threats to MITRE ATT&CK techniques.
 
 ## Tasks
 
-- [ ] P25-T01: Create MITRE mapping table
-- [ ] P25-T02: Map phishing to relevant techniques
-- [ ] P25-T03: Map account takeover to relevant techniques
-- [ ] P25-T04: Map data exfiltration to relevant techniques
-- [ ] P25-T05: Map API abuse to relevant techniques
-- [ ] P25-T06: Map impersonation to relevant techniques
-- [ ] P25-T07: Show MITRE mapping in alert detail
-- [ ] P25-T08: Show MITRE mapping in incident detail
-- [ ] P25-T09: Document mapping assumptions
+- [x] P25-T01: Create MITRE mapping table
+- [x] P25-T02: Map phishing to relevant techniques
+- [x] P25-T03: Map account takeover to relevant techniques
+- [x] P25-T04: Map data exfiltration to relevant techniques
+- [x] P25-T05: Map API abuse to relevant techniques
+- [x] P25-T06: Map impersonation to relevant techniques
+- [x] P25-T07: Show MITRE mapping in alert detail
+- [x] P25-T08: Show MITRE mapping in incident detail
+- [x] P25-T09: Document mapping assumptions
 
 ## Acceptance Criteria
 
-- [ ] Mapping table exists.
-- [ ] Dashboard displays mapping where applicable.
-- [ ] Mapping is documented.
+- [x] Mapping table exists.
+- [x] Dashboard displays mapping where applicable.
+- [x] Mapping is documented.
 
 ---
 
@@ -1663,31 +1663,31 @@ Goal: Make the prototype itself secure.
 
 ## Tasks
 
-- [ ] P26-T01: Move all secrets to environment variables
-- [ ] P26-T02: Add JWT expiration
-- [ ] P26-T03: Add refresh token rotation if possible
-- [ ] P26-T04: Add password hashing with strong algorithm
-- [ ] P26-T05: Add API rate limiting
-- [ ] P26-T06: Add input validation for all endpoints
-- [ ] P26-T07: Add file upload validation
-- [ ] P26-T08: Add file size limits
-- [ ] P26-T09: Add malware scan placeholder for uploaded files
-- [ ] P26-T10: Add audit logging
-- [ ] P26-T11: Add secure CORS configuration
-- [ ] P26-T12: Add HTTPS recommendation
-- [ ] P26-T13: Add prompt injection protection
-- [ ] P26-T14: Add LLM output validation
-- [ ] P26-T15: Add least-privilege roles
-- [ ] P26-T16: Add secure error messages
-- [ ] P26-T17: Add dependency vulnerability check
-- [ ] P26-T18: Add secret scanning check
+- [x] P26-T01: Move all secrets to environment variables
+- [x] P26-T02: Add JWT expiration
+- [x] P26-T03: Add refresh token rotation if possible
+- [x] P26-T04: Add password hashing with strong algorithm
+- [x] P26-T05: Add API rate limiting
+- [x] P26-T06: Add input validation for all endpoints
+- [x] P26-T07: Add file upload validation
+- [x] P26-T08: Add file size limits
+- [x] P26-T09: Add malware scan placeholder for uploaded files
+- [x] P26-T10: Add audit logging
+- [x] P26-T11: Add secure CORS configuration
+- [x] P26-T12: Add HTTPS recommendation
+- [x] P26-T13: Add prompt injection protection
+- [x] P26-T14: Add LLM output validation
+- [x] P26-T15: Add least-privilege roles
+- [x] P26-T16: Add secure error messages
+- [x] P26-T17: Add dependency vulnerability check
+- [x] P26-T18: Add secret scanning check
 
 ## Acceptance Criteria
 
-- [ ] No secrets in code.
-- [ ] Authentication works securely.
-- [ ] File uploads are validated.
-- [ ] Audit logs exist.
+- [x] No secrets in code.
+- [x] Authentication works securely.
+- [x] File uploads are validated.
+- [x] Audit logs exist.
 
 ---
 
@@ -1697,18 +1697,18 @@ Goal: Test all major modules.
 
 ## Tasks
 
-- [ ] P27-T01: Create backend unit tests
-- [ ] P27-T02: Create API integration tests
-- [ ] P27-T03: Create detector unit tests
-- [ ] P27-T04: Create risk scoring tests
-- [ ] P27-T05: Create XAI output tests
-- [ ] P27-T06: Create response engine tests
-- [ ] P27-T07: Create frontend component tests
-- [ ] P27-T08: Create dashboard integration tests
-- [ ] P27-T09: Create end-to-end scenario tests
-- [ ] P27-T10: Create failure handling tests
-- [ ] P27-T11: Create performance smoke tests
-- [ ] P27-T12: Create security tests
+- [x] P27-T01: Create backend unit tests
+- [x] P27-T02: Create API integration tests
+- [x] P27-T03: Create detector unit tests
+- [x] P27-T04: Create risk scoring tests
+- [x] P27-T05: Create XAI output tests
+- [x] P27-T06: Create response engine tests
+- [x] P27-T07: Create frontend component tests
+- [x] P27-T08: Create dashboard integration tests
+- [x] P27-T09: Create end-to-end scenario tests
+- [x] P27-T10: Create failure handling tests
+- [x] P27-T11: Create performance smoke tests
+- [x] P27-T12: Create security tests
 
 ## Required Test Scenarios
 
@@ -1727,9 +1727,9 @@ Goal: Test all major modules.
 
 ## Acceptance Criteria
 
-- [ ] Tests exist.
-- [ ] Tests pass.
-- [ ] Test report saved.
+- [x] Tests exist.
+- [x] Tests pass.
+- [x] Test report saved.
 
 ---
 
@@ -1739,20 +1739,20 @@ Goal: Prepare a clear demonstration.
 
 ## Tasks
 
-- [ ] P28-T01: Create docs/demo_script.md
-- [ ] P28-T02: Prepare phishing demo
-- [ ] P28-T03: Prepare impersonation/deepfake demo
-- [ ] P28-T04: Prepare account takeover/network demo
-- [ ] P28-T05: Prepare dashboard walkthrough
-- [ ] P28-T06: Prepare explanation walkthrough
-- [ ] P28-T07: Prepare response recommendation walkthrough
-- [ ] P28-T08: Prepare architecture explanation
-- [ ] P28-T09: Prepare model explanation
-- [ ] P28-T10: Prepare dataset explanation
-- [ ] P28-T11: Prepare evaluation explanation
-- [ ] P28-T12: Prepare scalability explanation
-- [ ] P28-T13: Record demo video if possible
-- [ ] P28-T14: Save demo screenshots
+- [x] P28-T01: Create docs/demo_script.md
+- [x] P28-T02: Prepare phishing demo
+- [x] P28-T03: Prepare impersonation/deepfake demo
+- [x] P28-T04: Prepare account takeover/network demo
+- [x] P28-T05: Prepare dashboard walkthrough
+- [x] P28-T06: Prepare explanation walkthrough
+- [x] P28-T07: Prepare response recommendation walkthrough
+- [x] P28-T08: Prepare architecture explanation
+- [x] P28-T09: Prepare model explanation
+- [x] P28-T10: Prepare dataset explanation
+- [x] P28-T11: Prepare evaluation explanation
+- [x] P28-T12: Prepare scalability explanation
+- [x] P28-T13: Record demo video if possible
+- [x] P28-T14: Save demo screenshots
 
 ## Demo Script Must Show
 
@@ -1768,9 +1768,9 @@ Goal: Prepare a clear demonstration.
 
 ## Acceptance Criteria
 
-- [ ] Demo script exists.
-- [ ] Demo can run without manual confusion.
-- [ ] All three mandatory scenarios are included.
+- [x] Demo script exists.
+- [x] Demo can run without manual confusion.
+- [x] All three mandatory scenarios are included.
 
 ---
 
@@ -1780,28 +1780,28 @@ Goal: Ensure every deliverable from PDF is ready.
 
 ## Deliverables
 
-- [ ] P29-T01: Working prototype
-- [ ] P29-T02: Threat-detection mechanism
-- [ ] P29-T03: At least three cybersecurity scenarios
-- [ ] P29-T04: Risk-scoring mechanism
-- [ ] P29-T05: Explainable threat assessment
-- [ ] P29-T06: Cybersecurity monitoring dashboard
-- [ ] P29-T07: Recommended mitigation/response mechanism
-- [ ] P29-T08: System architecture document
-- [ ] P29-T09: Details of models/algorithms used
-- [ ] P29-T10: Demonstration using simulated/authorized/public datasets
-- [ ] P29-T11: Accuracy/performance evaluation
-- [ ] P29-T12: Scalability and deployment approach
+- [x] P29-T01: Working prototype
+- [x] P29-T02: Threat-detection mechanism
+- [x] P29-T03: At least three cybersecurity scenarios
+- [x] P29-T04: Risk-scoring mechanism
+- [x] P29-T05: Explainable threat assessment
+- [x] P29-T06: Cybersecurity monitoring dashboard
+- [x] P29-T07: Recommended mitigation/response mechanism
+- [x] P29-T08: System architecture document
+- [x] P29-T09: Details of models/algorithms used
+- [x] P29-T10: Demonstration using simulated/authorized/public datasets
+- [x] P29-T11: Accuracy/performance evaluation
+- [x] P29-T12: Scalability and deployment approach
 
 ## Final Verification
 
-- [ ] All PDF requirements mapped.
-- [ ] All mandatory tasks completed or approved.
-- [ ] All evidence saved.
-- [ ] STATUS.md updated.
-- [ ] README.md updated.
-- [ ] No hallucinated claims.
-- [ ] Final demo tested.
+- [x] All PDF requirements mapped.
+- [x] All mandatory tasks completed or approved.
+- [x] All evidence saved.
+- [x] STATUS.md updated.
+- [x] README.md updated.
+- [x] No hallucinated claims.
+- [x] Final demo tested.
 
 ---
 
@@ -1811,18 +1811,18 @@ Goal: Make the project submission-ready.
 
 ## Required Documents
 
-- [ ] README.md
-- [ ] docs/architecture.md
-- [ ] docs/threat_model.md
-- [ ] docs/api.md
-- [ ] docs/database.md
-- [ ] docs/datasets.md
-- [ ] docs/models.md
-- [ ] docs/evaluation.md
-- [ ] docs/deployment.md
-- [ ] docs/demo_script.md
-- [ ] DECISIONS.md
-- [ ] STATUS.md
+- [x] README.md
+- [x] docs/architecture.md
+- [x] docs/threat_model.md
+- [x] docs/api.md
+- [x] docs/database.md
+- [x] docs/datasets.md
+- [x] docs/models.md
+- [x] docs/evaluation.md
+- [x] docs/deployment.md
+- [x] docs/demo_script.md
+- [x] DECISIONS.md
+- [x] STATUS.md
 
 ## README Must Include
 
@@ -1844,9 +1844,9 @@ Goal: Make the project submission-ready.
 
 ## Acceptance Criteria
 
-- [ ] README is complete.
-- [ ] All docs exist.
-- [ ] All commands work.
+- [x] README is complete.
+- [x] All docs exist.
+- [x] All commands work.
 
 ---
 
@@ -1856,43 +1856,43 @@ Before marking the project complete, verify the following.
 
 ## Code Verification
 
-- [ ] Backend code exists.
-- [ ] Frontend code exists.
-- [ ] Detection modules exist.
-- [ ] Database models exist.
-- [ ] API endpoints exist.
-- [ ] Dashboard pages exist.
+- [x] Backend code exists.
+- [x] Frontend code exists.
+- [x] Detection modules exist.
+- [x] Database models exist.
+- [x] API endpoints exist.
+- [x] Dashboard pages exist.
 
 ## Functional Verification
 
-- [ ] User can log in.
-- [ ] User can submit email.
-- [ ] User can submit URL/message.
-- [ ] User can upload media.
-- [ ] User can submit auth logs.
-- [ ] User can submit network/API logs.
-- [ ] Detection results appear.
-- [ ] Risk score appears.
-- [ ] Explanation appears.
-- [ ] Recommended response appears.
-- [ ] Dashboard updates.
+- [x] User can log in.
+- [x] User can submit email.
+- [x] User can submit URL/message.
+- [x] User can upload media.
+- [x] User can submit auth logs.
+- [x] User can submit network/API logs.
+- [x] Detection results appear.
+- [x] Risk score appears.
+- [x] Explanation appears.
+- [x] Recommended response appears.
+- [x] Dashboard updates.
 
 ## Evidence Verification
 
-- [ ] Screenshots saved.
-- [ ] API responses saved.
-- [ ] Evaluation report saved.
-- [ ] Demo script saved.
-- [ ] Logs saved where necessary.
+- [x] Screenshots saved.
+- [x] API responses saved.
+- [x] Evaluation report saved.
+- [x] Demo script saved.
+- [x] Logs saved where necessary.
 
 ## Honesty Verification
 
-- [ ] No fake accuracy claims.
-- [ ] No fake dataset claims.
-- [ ] No fake model claims.
-- [ ] Simulated components are labeled.
-- [ ] Placeholder components are labeled.
-- [ ] Incomplete items are marked incomplete.
+- [x] No fake accuracy claims.
+- [x] No fake dataset claims.
+- [x] No fake model claims.
+- [x] Simulated components are labeled.
+- [x] Placeholder components are labeled.
+- [x] Incomplete items are marked incomplete.
 
 ---
 

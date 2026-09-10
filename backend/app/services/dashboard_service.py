@@ -11,6 +11,7 @@ from typing import Any, Optional
 
 from fastapi import HTTPException, status
 
+from app.core.asyncbridge import to_thread
 from app.core.supabase_client import get_supabase
 
 SEVERITY_ORDER = ["safe", "low", "medium", "high", "critical"]
@@ -134,7 +135,8 @@ async def get_dashboard_summary(org_id: str) -> dict[str, Any]:
     and the recent-alerts feed.
     """
     client = get_supabase()
-    try:
+
+    def _fetch_all() -> tuple[list, list, list, list]:
         alerts = (
             client.table("alerts")
             .select("id, module, severity, target_user, target_service, created_at")
@@ -170,6 +172,10 @@ async def get_dashboard_summary(org_id: str) -> dict[str, Any]:
             .data
             or []
         )
+        return alerts, events, incidents, recent_alerts
+
+    try:
+        alerts, events, incidents, recent_alerts = await to_thread(_fetch_all)
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

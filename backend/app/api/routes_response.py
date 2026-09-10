@@ -4,6 +4,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from app.core.asyncbridge import to_thread
 from app.core.security import CurrentUser, get_current_user, has_permission, require_permission
 from app.core.supabase_client import get_supabase
 from app.schemas.responses import ResponseExecuteRequest, ResponseExecutionResponse
@@ -32,15 +33,15 @@ async def execute_response(
     """
     try:
         catalog_rows = (
-            get_supabase()
-            .table("response_catalog")
-            .select("requires_approval")
-            .eq("id", payload.catalog_id)
-            .limit(1)
-            .execute()
-            .data
-            or []
-        )
+            await to_thread(
+                lambda: get_supabase()
+                .table("response_catalog")
+                .select("requires_approval")
+                .eq("id", payload.catalog_id)
+                .limit(1)
+                .execute()
+            )
+        ).data or []
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

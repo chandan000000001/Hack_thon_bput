@@ -15,6 +15,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+from app.core.asyncbridge import to_thread
 from app.core.config import get_settings
 from app.core.security import CurrentUser, get_current_user, require_permission
 from app.core.storage import (
@@ -150,7 +151,8 @@ def ingest_media_event(
     )
 
     try:
-        media_record = upload_media_to_supabase(file, event_id)
+        # FIX 7: read the upload exactly once; the uploader takes bytes.
+        media_record = upload_media_to_supabase(file.file.read(), file.filename, event_id)
     except HTTPException:
         raise
     except Exception as exc:
@@ -194,19 +196,30 @@ async def ingest_bulk_events(
     heavy analysis then runs on the Arq worker (202) or, when Redis is
     unavailable, synchronously on this request (200).
     """
+    if len(payload.rows) > 1000:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Bulk batch exceeds 1000 rows",
+        )
+
     event_type = "account_takeover" if payload.kind == "auth-log" else "network"
     event_id = str(uuid.uuid4())
     try:
-        get_supabase().table("events").insert(
-            {
-                "id": event_id,
-                "org_id": analyst.org_id,
-                "event_type": event_type,
-                "source": BULK_SOURCE,
-                "raw_data": {"kind": payload.kind, "rows": payload.rows},
-                "status": "analyzing",
-            }
-        ).execute()
+        await to_thread(
+            lambda: get_supabase()
+            .table("events")
+            .insert(
+                {
+                    "id": event_id,
+                    "org_id": analyst.org_id,
+                    "event_type": event_type,
+                    "source": BULK_SOURCE,
+                    "raw_data": {"kind": payload.kind, "rows": payload.rows},
+                    "status": "analyzing",
+                }
+            )
+            .execute()
+        )
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

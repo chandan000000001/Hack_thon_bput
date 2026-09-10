@@ -1,21 +1,24 @@
-fastapi
-uvicorn[standard]
-supabase
-pydantic
-pydantic-settings
-httpx
-python-multipart
-Pillow
-opencv-python-headless
-numpy
-datasets
-scikit-learn
-xgboost
-torch
-torchvision
-pandas
-joblib
-sqlalchemy[asyncio]
-asyncpg
-pybreaker
-arq
+# CYBERGUARD runtime dependencies — exact pins from the working .venv
+# (Phase D-2, item 6). Training-only extras (datasets, matplotlib, ...) live
+# out of scope; install them ad hoc for backend/ml tooling.
+fastapi==0.141.1
+uvicorn==0.52.4
+starlette==1.6.0
+supabase==2.31.0
+pydantic==2.13.5
+pydantic-settings==2.15.0
+httpx==0.28.1
+python-multipart==0.0.32
+SQLAlchemy==2.0.52
+asyncpg==0.31.0
+arq==0.28.0
+redis==5.3.1
+xgboost==3.4.1
+scikit-learn==1.9.0
+pandas==3.0.5
+torch==2.14.0
+torchvision==0.29.0
+Pillow==12.3.0
+opencv-python-headless==5.0.0.93
+numpy==2.5.3
+joblib==1.6.0

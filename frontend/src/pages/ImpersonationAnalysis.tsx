@@ -3,6 +3,7 @@ import { Loader2, PlayCircle, UserX } from 'lucide-react';
 import * as api from '../services/api';
 import type { AnalysisResult } from '../types';
 import PageHeader from '../components/common/PageHeader';
+import QueuedAnalysisPanel from '../components/common/QueuedAnalysisPanel';
 import RiskGauge from '../components/common/RiskGauge';
 import SeverityBadge from '../components/common/SeverityBadge';
 import IndicatorList from '../components/common/IndicatorList';
@@ -149,7 +150,8 @@ export default function ImpersonationAnalysis() {
             </div>
           )}
 
-          {!loading && result && (
+          {!loading && result?.queued && <QueuedAnalysisPanel />}
+          {!loading && result && !result.queued && (
             <>
               <div className="flex items-center gap-6 rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-5 backdrop-blur">
                 <RiskGauge score={result.riskScore} size="lg" />

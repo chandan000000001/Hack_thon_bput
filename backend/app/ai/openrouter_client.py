@@ -67,12 +67,19 @@ def rule_based_explanation(system_prompt: str, user_prompt: str) -> dict[str, An
     return dict(FALLBACK_LLM_OUTPUT)
 
 
-async def explain_openrouter(system_prompt: str, user_prompt: str) -> dict[str, Any]:
-    """Provider interface: call OpenRouter and return the parsed strict-JSON dict.
+async def explain_openrouter(
+    system_prompt: str, user_prompt: str, json_mode: bool = True
+) -> dict[str, Any]:
+    """Provider interface: call OpenRouter and return the parsed dict.
+
+    With json_mode=True the strict-JSON contract is enforced and parsed.
+    With json_mode=False the raw text is returned as
+    {"explanation": <text>, "mitre_techniques": [], "recommended_actions": []}
+    (used by free-form callers such as the SOC assistant).
 
     Raises ProviderError when the API key is missing, the request times out or
-    fails, or the response cannot be parsed as JSON — the gateway treats any
-    exception as a fall-through to the next provider.
+    fails, or (in json_mode) the response cannot be parsed as JSON — the
+    gateway treats any exception as a fall-through to the next provider.
     """
     settings = get_settings()
     if not settings.OPENROUTER_API_KEY:
@@ -90,9 +97,10 @@ async def explain_openrouter(system_prompt: str, user_prompt: str) -> dict[str, 
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
-        "response_format": {"type": "json_object"},
         "temperature": 0.2,
     }
+    if json_mode:
+        payload["response_format"] = {"type": "json_object"}
 
     async with httpx.AsyncClient(
         timeout=httpx.Timeout(settings.openrouter_timeout_seconds)
@@ -102,6 +110,8 @@ async def explain_openrouter(system_prompt: str, user_prompt: str) -> dict[str, 
         body = response.json()
     content = body["choices"][0]["message"]["content"]
 
+    if not json_mode:
+        return {"explanation": (content or "").strip(), "mitre_techniques": [], "recommended_actions": []}
     parsed = _parse_llm_content(content)
     if parsed is None:
         raise ProviderError("OpenRouter returned unparseable content")

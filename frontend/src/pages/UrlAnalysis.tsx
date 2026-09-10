@@ -3,6 +3,7 @@ import { Link2, Loader2, PlayCircle } from 'lucide-react';
 import * as api from '../services/api';
 import type { AnalysisResult } from '../types';
 import PageHeader from '../components/common/PageHeader';
+import QueuedAnalysisPanel from '../components/common/QueuedAnalysisPanel';
 import RiskGauge from '../components/common/RiskGauge';
 import SeverityBadge from '../components/common/SeverityBadge';
 import IndicatorList from '../components/common/IndicatorList';
@@ -126,7 +127,8 @@ export default function UrlAnalysis() {
         </div>
       )}
 
-      {!loading && result && (
+      {!loading && result?.queued && <QueuedAnalysisPanel />}
+          {!loading && result && !result.queued && (
         <div className="grid gap-5 lg:grid-cols-3">
           {/* Left: score + breakdown */}
           <div className="space-y-4">

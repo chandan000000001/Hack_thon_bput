@@ -28,6 +28,7 @@ from app.ai.prompt_templates import (
     format_deepfake_user_prompt,
     format_network_user_prompt,
 )
+from app.core.asyncbridge import to_thread
 from app.core.storage import download_media
 from app.core.supabase_client import get_supabase
 from app.services.account_takeover_detector import analyze_auth_log_heuristics
@@ -42,21 +43,19 @@ logger = logging.getLogger("cyberguard.jobs")
 
 async def _load_event(client: Any, event_id: str) -> Optional[dict[str, Any]]:
     """Fetch the event row, or None when it does not exist."""
-    response = (
-        client.table("events")
-        .select("*")
-        .eq("id", event_id)
-        .limit(1)
-        .execute()
+    response = await to_thread(
+        lambda: client.table("events").select("*").eq("id", event_id).limit(1).execute()
     )
     rows = response.data or []
     return rows[0] if rows else None
 
 
-def _mark_event(client: Any, event_id: str, status: str) -> None:
+async def _mark_event(client: Any, event_id: str, status: str) -> None:
     """Best-effort event status update ('completed' or 'failed')."""
     try:
-        client.table("events").update({"status": status}).eq("id", event_id).execute()
+        await to_thread(
+            lambda: client.table("events").update({"status": status}).eq("id", event_id).execute()
+        )
     except Exception:
         logger.exception("Failed to mark event %s as %s", event_id, status)
 
@@ -82,8 +81,8 @@ async def run_media_analysis(event_id: str) -> str:
         return "completed"
 
     try:
-        media_response = (
-            client.table("media_files")
+        media_response = await to_thread(
+            lambda: client.table("media_files")
             .select("*")
             .eq("event_id", event_id)
             .order("created_at", desc=True)
@@ -95,8 +94,10 @@ async def run_media_analysis(event_id: str) -> str:
             raise ValueError(f"No media_files row exists for event {event_id}")
         media = media_rows[0]
 
-        file_bytes = download_media(media["storage_path"])
-        result = analyze_media(
+        file_bytes = await to_thread(download_media, media["storage_path"])
+        # ELA/CNN inference is CPU-bound: never run it on the event loop.
+        result = await to_thread(
+            analyze_media,
             file_bytes,
             media.get("file_name") or "media",
             media.get("file_type") or "",
@@ -117,7 +118,7 @@ async def run_media_analysis(event_id: str) -> str:
             "method": result["method"],
             "simulated": result["simulated"],
         }
-        create_alert_in_db(
+        await create_alert_in_db(
             event_id=event_id,
             module="deepfake",
             raw_data=raw_data,
@@ -127,11 +128,11 @@ async def run_media_analysis(event_id: str) -> str:
             llm_output=explained["explanation"],
             org_id=event["org_id"],
         )
-        _mark_event(client, event_id, "completed")
+        await _mark_event(client, event_id, "completed")
         return "completed"
     except Exception:
         logger.exception("Background media analysis failed for event %s", event_id)
-        _mark_event(client, event_id, "failed")
+        await _mark_event(client, event_id, "failed")
         return "failed"
 
 
@@ -180,7 +181,7 @@ async def run_bulk_log_analysis(event_id: str) -> str:
             module, system_prompt, user_prompt, make_cache_key(module, raw_data)
         )
 
-        create_alert_in_db(
+        await create_alert_in_db(
             event_id=event_id,
             module=module,
             raw_data=raw_data,
@@ -190,11 +191,11 @@ async def run_bulk_log_analysis(event_id: str) -> str:
             llm_output=explained["explanation"],
             org_id=event["org_id"],
         )
-        _mark_event(client, event_id, "completed")
+        await _mark_event(client, event_id, "completed")
         return "completed"
     except Exception:
         logger.exception("Background bulk log analysis failed for event %s", event_id)
-        _mark_event(client, event_id, "failed")
+        await _mark_event(client, event_id, "failed")
         return "failed"
 
 

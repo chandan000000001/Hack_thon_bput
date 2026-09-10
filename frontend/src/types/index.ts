@@ -45,6 +45,8 @@ export interface RecommendedAction {
 
 export interface AnalysisResult {
   eventId: string;
+  /** True when the backend queued the analysis (202); render a pending panel. */
+  queued?: boolean;
   module: ThreatModule;
   threatType: string;
   riskScore: number;

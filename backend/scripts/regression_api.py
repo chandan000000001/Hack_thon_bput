@@ -156,11 +156,66 @@ def api(method: str, path: str, token: str, **kwargs) -> tuple[int, dict | list]
     return code, body
 
 
+def service_role_config() -> tuple[str, str]:
+    """Resolve SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY from env/backend .env."""
+    env = {**load_env_file(REPO_ROOT / "frontend" / ".env"),
+           **load_env_file(REPO_ROOT / "backend" / ".env")}
+    supabase_url = os.environ.get("SUPABASE_URL", env.get("SUPABASE_URL", ""))
+    service_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", env.get("SUPABASE_SERVICE_ROLE_KEY", ""))
+    return supabase_url, service_key
+
+
+def service_role_rest(
+    method: str, table: str, supabase_url: str, service_key: str,
+    *, payload: list[dict] | None = None, query: str = "",
+) -> tuple[int, list | dict]:
+    """Service-role PostgREST call (bypasses RLS) for test-fixture setup/teardown."""
+    url = f"{supabase_url.rstrip('/')}/rest/v1/{table}{query}"
+    headers = {
+        "apikey": service_key,
+        "Authorization": f"Bearer {service_key}",
+        "Content-Type": "application/json",
+    }
+    if method == "POST":
+        headers["Prefer"] = "return=representation"
+    req = request.Request(url, data=json.dumps(payload).encode() if payload else None,
+                          headers=headers, method=method)
+    try:
+        with request.urlopen(req, timeout=60) as resp:
+            data = resp.read()
+            code = resp.status
+    except error.HTTPError as exc:
+        data = exc.read()
+        code = exc.code
+    try:
+        parsed = json.loads(data) if data else []
+    except json.JSONDecodeError:
+        parsed = []
+    return code, parsed
+
+
 def main() -> int:
     token = supabase_login()
     if not token:
         return 1
     _state["token"] = token
+
+    # --- health (Phase D-2, item 9) ------------------------------------------
+    # /health is a shallow liveness probe (no Supabase round-trip per call).
+    code, health = api("GET", "/health", token)
+    check(
+        "GET /health shallow liveness 200",
+        code == 200 and isinstance(health, dict) and health.get("status") == "ok",
+        f"status {code}",
+    )
+
+    # /health/deep is the authenticated diagnostics probe (live round-trip).
+    code, deep = api("GET", "/health/deep", token)
+    check(
+        "GET /health/deep authenticated diagnostics 200",
+        code == 200 and isinstance(deep, dict) and deep.get("supabase_connected") is True,
+        f"status {code}",
+    )
 
     # --- dashboard ---------------------------------------------------------
     code, summary = api("GET", "/dashboard/summary", token)
@@ -287,8 +342,11 @@ def main() -> int:
             raw_body=part,
             content_type=f"multipart/form-data; boundary={boundary}",
         )
-        has_prob = isinstance(media, dict) and "manipulation_probability" in media
-        check("POST /analysis/media upload -> 200 with manipulation_probability", code == 200 and has_prob, f"status {code}")
+        # Phase C-1: 200 = synchronous result with manipulation_probability;
+        # 202 = queued for the background worker (event_id + status analyzing).
+        sync_ok = isinstance(media, dict) and "manipulation_probability" in media
+        queued_ok = isinstance(media, dict) and media.get("status") == "analyzing" and media.get("event_id")
+        check("POST /analysis/media upload -> 200 sync | 202 queued", code == 200 and sync_ok or code == 202 and queued_ok, f"status {code}")
     else:
         check("POST /analysis/media upload -> 200 with manipulation_probability", False, f"missing file {MEDIA_PATH}")
 
@@ -328,8 +386,44 @@ def main() -> int:
     code, timeline_before = api("GET", f"/incidents/{incident_id}", token)
     tl_len_before = len(timeline_before.get("timeline", [])) if isinstance(timeline_before, dict) else 0
 
-    code, upd = api("PATCH", f"/incidents/{incident_id}/status", token, payload={"status": "investigating"})
-    check("PATCH /incidents/{id}/status investigating 200", code == 200 and (isinstance(upd, dict) and upd.get("status") == "investigating"), f"status {code}")
+    # Phase D-1: legal NIST/SANS lifecycle walk (created as open -> TRIAGE).
+    # Each step must answer 200; statuses come back canonical uppercase.
+    lifecycle_steps = [
+        ("CONTAINMENT", "TRIAGE -> CONTAINMENT"),
+        ("ERADICATION", "CONTAINMENT -> ERADICATION"),
+        ("RECOVERY", "ERADICATION -> RECOVERY"),
+        ("CLOSED", "RECOVERY -> CLOSED"),
+    ]
+    for step_status, step_label in lifecycle_steps:
+        code, walked = api(
+            "PATCH", f"/incidents/{incident_id}/status", token, payload={"status": step_status}
+        )
+        check(
+            f"PATCH /incidents/{{id}}/status {step_label} 200",
+            code == 200 and (isinstance(walked, dict) and walked.get("status") == step_status),
+            f"status {code} got={walked.get('status') if isinstance(walked, dict) else '?'}",
+        )
+
+    # Illegal jump: a fresh incident sits in TRIAGE; skipping straight to
+    # RECOVERY skips CONTAINMENT and ERADICATION and must be rejected 400.
+    # (TRIAGE -> CLOSED is a LEGAL false-positive close in the Phase A matrix,
+    # so RECOVERY is the representative illegal jump.)
+    code, second_incident = api(
+        "POST",
+        "/incidents",
+        token,
+        payload={"title": "Regression: illegal jump probe", "severity": "low"},
+    )
+    second_id = second_incident.get("id") if isinstance(second_incident, dict) else None
+    code, rejected = api(
+        "PATCH", f"/incidents/{second_id}/status", token, payload={"status": "RECOVERY"}
+    )
+    detail = rejected.get("detail") if isinstance(rejected, dict) else ""
+    check(
+        "PATCH /incidents/{id}/status TRIAGE -> RECOVERY 400",
+        code == 400 and "Cannot transition" in str(detail),
+        f"status {code} detail={detail}",
+    )
 
     code, esc = api("POST", f"/incidents/{incident_id}/escalate", token, payload={"reason": "Regression escalation check"})
     check("POST /incidents/{id}/escalate 200", code == 200 and isinstance(esc, dict), f"status {code}")
@@ -384,6 +478,58 @@ def main() -> int:
         (u.get("email") or "").lower() == admin_email for u in users if isinstance(u, dict)
     )
     check("GET /admin/users lists the admin email", code == 200 and listed, f"status {code}")
+
+    # --- cross-tenant isolation (Phase D-1) ---------------------------------
+    # Create a second organization plus one event inside it via the service
+    # role client, then verify the default-org token gets 404 for that event
+    # on both GET /events/{id} and POST /analysis/media/event/{id}.
+    supabase_url, service_key = service_role_config()
+    if supabase_url and service_key:
+        marker = f"regression-org-{time.time_ns()}"
+        code, created_org = service_role_rest(
+            "POST", "organizations", supabase_url, service_key,
+            payload=[{"name": marker}],
+        )
+        org2_id = created_org[0].get("id") if code in (200, 201) and isinstance(created_org, list) and created_org else None
+
+        code, foreign_event_resp = service_role_rest(
+            "POST", "events", supabase_url, service_key,
+            payload=[{
+                "org_id": org2_id,
+                "event_type": "phishing_email",
+                "source": "regression",
+                "raw_data": {"subject": "cross-tenant probe"},
+                "status": "analyzing",
+            }] if org2_id else None,
+        )
+        foreign_event_id = (
+            foreign_event_resp[0].get("id")
+            if org2_id and isinstance(foreign_event_resp, list) and foreign_event_resp
+            else None
+        )
+
+        if foreign_event_id:
+            code, _ = api("GET", f"/events/{foreign_event_id}", token)
+            check("Cross-tenant event GET -> 404", code == 404, f"status {code}")
+
+            code, _ = api("POST", f"/analysis/media/event/{foreign_event_id}", token)
+            check("Cross-tenant media re-analysis -> 404", code == 404, f"status {code}")
+
+            # cleanup: remove the fixture rows
+            service_role_rest(
+                "DELETE", "events", supabase_url, service_key,
+                query=f"?id=eq.{foreign_event_id}",
+            )
+            service_role_rest(
+                "DELETE", "organizations", supabase_url, service_key,
+                query=f"?id=eq.{org2_id}",
+            )
+        else:
+            check("Cross-tenant event GET -> 404", False, f"fixture setup failed (org status {code})")
+            check("Cross-tenant media re-analysis -> 404", False, "fixture setup failed")
+    else:
+        check("Cross-tenant event GET -> 404", False, "SUPABASE_SERVICE_ROLE_KEY not configured")
+        check("Cross-tenant media re-analysis -> 404", False, "SUPABASE_SERVICE_ROLE_KEY not configured")
 
     # --- report ---------------------------------------------------------------------
     passed = sum(1 for _, ok, _ in results if ok)

@@ -76,14 +76,24 @@ def make_cache_key_from_bytes(module: str, data: bytes) -> str:
 
 
 async def explain(
-    module: str, system_prompt: str, user_prompt: str, cache_key: str
+    module: str,
+    system_prompt: str,
+    user_prompt: str,
+    cache_key: str,
+    json_mode: bool = True,
 ) -> dict[str, Any]:
     """Explain a detection through the provider chain.
 
-    Returns {"explanation": <parsed strict-JSON contract dict>,
-             "provider": "openrouter" | "groq" | "rule_based" | "cache:<orig>",
+    json_mode=True enforces the strict-JSON analysis contract; json_mode=False
+    (used by the SOC assistant) returns the raw model text wrapped as
+    {"explanation": <text>, ...} while still inheriting the chain order,
+    circuit breakers and cache.
+
+    Returns {"explanation": <parsed contract dict or raw text>,
+             "provider": "groq" | "openrouter" | "rule_based" | "cache:<orig>",
              "latency_ms": <int>}.
     """
+    cache_key = f"{cache_key}|json={json_mode}"
     cached = cache.get(cache_key)
     if cached is not None:
         return {
@@ -96,7 +106,7 @@ async def explain(
         breaker = _BREAKERS[provider_name]
         started = time.perf_counter()
         try:
-            output = await breaker.call(provider, system_prompt, user_prompt)
+            output = await breaker.call(provider, system_prompt, user_prompt, json_mode=json_mode)
         except CircuitBreakerOpenError:
             logger.warning(
                 "Circuit breaker OPEN for %s, skipping to fallback", provider_name

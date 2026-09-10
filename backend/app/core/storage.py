@@ -4,9 +4,10 @@ All uploads use the service role client. The 'cyberguard-media' bucket is
 private; read access is granted through short-lived signed URLs.
 """
 
+import mimetypes
 from pathlib import PurePosixPath
 
-from fastapi import HTTPException, UploadFile, status
+from fastapi import HTTPException, status
 from supabase import Client
 
 from app.core.supabase_client import get_supabase
@@ -23,37 +24,40 @@ def _sanitize_file_name(file_name: str | None) -> str:
     return PurePosixPath(file_name.replace("\\", "/")).name or "upload.bin"
 
 
-def upload_media_to_supabase(file: UploadFile, event_id: str) -> dict:
-    """Upload a media file to the private 'cyberguard-media' bucket.
+def upload_media_to_supabase(file_bytes: bytes, file_name: str | None, event_id: str) -> dict:
+    """Upload already-read media bytes to the private 'cyberguard-media' bucket.
+
+    Phase D-1: the caller reads the SpooledUploadFile exactly once and passes
+    the bytes here, so the upload never re-reads the request stream.
 
     Returns a dict with file_name, storage_path, file_type and size_bytes.
-    Raises HTTPException 413 if the file exceeds the 25 MB limit.
+    Raises HTTPException 413 if the bytes exceed the 25 MB limit.
     """
-    content = file.file.read()
-    if len(content) > MAX_MEDIA_SIZE_BYTES:
+    if len(file_bytes) > MAX_MEDIA_SIZE_BYTES:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
             detail="File exceeds the maximum allowed size of 25 MB",
         )
 
-    file_name = _sanitize_file_name(file.filename)
-    storage_path = f"media/{event_id}/{file_name}"
+    safe_name = _sanitize_file_name(file_name)
+    storage_path = f"media/{event_id}/{safe_name}"
+    content_type = mimetypes.guess_type(safe_name)[0] or "application/octet-stream"
     client: Client = get_supabase()
 
     client.storage.from_(MEDIA_BUCKET).upload(
         path=storage_path,
-        file=content,
+        file=file_bytes,
         file_options={
-            "content-type": file.content_type or "application/octet-stream",
+            "content-type": content_type,
             "upsert": "true",
         },
     )
 
     return {
-        "file_name": file_name,
+        "file_name": safe_name,
         "storage_path": storage_path,
-        "file_type": file.content_type,
-        "size_bytes": len(content),
+        "file_type": content_type,
+        "size_bytes": len(file_bytes),
     }
 
 

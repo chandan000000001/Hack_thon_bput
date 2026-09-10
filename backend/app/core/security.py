@@ -14,6 +14,7 @@ its queries with it — the primary isolation layer, because the service-role
 client bypasses RLS.
 """
 
+import hashlib
 import logging
 import time
 
@@ -22,6 +23,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 from supabase import Client, create_client
 
+from app.core.asyncbridge import to_thread
 from app.core.config import get_settings
 from app.core.supabase_client import get_supabase, get_user_org_id
 
@@ -38,6 +40,35 @@ _CREDENTIALS_EXCEPTION = HTTPException(
 # Role hierarchy: a caller is allowed everything at or below their level.
 ROLE_LEVELS = {"viewer": 1, "analyst": 2, "admin": 3}
 DEFAULT_ROLE = "viewer"
+
+# ---------------------------------------------------------------------------
+# Verified-auth-context cache (Phase D-2, item 1): a verified bearer token is
+# expensive (one Supabase Auth round-trip per request), so the resolved
+# identity (user id + email) is cached keyed by sha256(token) for 60 s. The
+# JWT itself stays the source of truth for expiry — Supabase rejects expired
+# tokens and the cache TTL is far shorter than the token lifetime.
+# ---------------------------------------------------------------------------
+_AUTH_CONTEXT_TTL_SECONDS = 60.0
+_auth_context_cache: dict[str, tuple[float, str, str | None]] = {}
+# reverse index user_id -> {token_hash} so invalidate_user can clear them all
+_auth_context_index: dict[str, set[str]] = {}
+
+
+def _token_hash(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()
+
+
+def _auth_context_get(token: str) -> tuple[str, str | None] | None:
+    entry = _auth_context_cache.get(_token_hash(token))
+    if entry is None or time.monotonic() >= entry[0]:
+        return None
+    return entry[1], entry[2]
+
+
+def _auth_context_put(token: str, user_id: str, email: str | None) -> None:
+    token_key = _token_hash(token)
+    _auth_context_cache[token_key] = (time.monotonic() + _AUTH_CONTEXT_TTL_SECONDS, user_id, email)
+    _auth_context_index.setdefault(user_id, set()).add(token_key)
 
 
 class CurrentUser(BaseModel):
@@ -69,8 +100,18 @@ async def get_current_user(
         raise _CREDENTIALS_EXCEPTION
 
     token = credentials.credentials
+
+    # Phase D-2: reuse the verified identity for 60 s per token; the network
+    # verification only runs on a cache miss.
+    cached = _auth_context_get(token)
+    if cached is not None:
+        user_id, email = cached
+        org_id = await get_user_org_id(user_id)
+        return CurrentUser(id=user_id, email=email, org_id=org_id)
+
     try:
-        response = _get_anon_client().auth.get_user(token)
+        # Phase D-1: the Auth network call must not block the event loop.
+        response = await to_thread(_get_anon_client().auth.get_user, token)
     except Exception as exc:
         raise _CREDENTIALS_EXCEPTION from exc
 
@@ -78,24 +119,24 @@ async def get_current_user(
     if user is None:
         raise _CREDENTIALS_EXCEPTION
 
-    org_id = await get_user_org_id(str(user.id))
-    return CurrentUser(
-        id=str(user.id),
-        email=getattr(user, "email", None),
-        org_id=org_id,
-    )
+    user_id = str(user.id)
+    email = getattr(user, "email", None)
+    _auth_context_put(token, user_id, email)
+    org_id = await get_user_org_id(user_id)
+    return CurrentUser(id=user_id, email=email, org_id=org_id)
 
 
-def fetch_profile(user_id: str) -> dict:
+async def fetch_profile(user_id: str) -> dict:
     """Fetch the caller's profile row (role, full_name, email) — fail safe.
 
     Returns an empty dict when the profile is missing or the query fails;
     callers treat that as the default role (viewer). If the email column is
     not present yet (migration 0003 not applied), retries with role only so
-    existing deployments keep working during the migration window."""
+    existing deployments keep working during the migration window. The
+    supabase-py query runs in the threadpool (Phase D-1)."""
     try:
-        response = (
-            get_supabase()
+        response = await to_thread(
+            lambda: get_supabase()
             .table("profiles")
             .select("role, full_name, email")
             .eq("id", user_id)
@@ -106,8 +147,8 @@ def fetch_profile(user_id: str) -> dict:
         return rows[0] if rows else {}
     except Exception:
         try:
-            response = (
-                get_supabase()
+            response = await to_thread(
+                lambda: get_supabase()
                 .table("profiles")
                 .select("role")
                 .eq("id", user_id)
@@ -121,11 +162,23 @@ def fetch_profile(user_id: str) -> dict:
             return {}
 
 
-def _profile_role(user_id: str) -> str:
-    """Resolve the caller's role; missing profile or unknown value -> viewer."""
-    profile = fetch_profile(user_id)
+_PROFILE_ROLE_TTL_SECONDS = 60.0  # Phase D-2: short TTL, invalidated on role change
+_profile_role_cache: dict[str, tuple[float, str]] = {}
+
+
+async def _profile_role(user_id: str) -> str:
+    """Resolve the caller's role; missing profile or unknown value -> viewer.
+
+    Cached for 60 s per user (Phase D-2) and invalidated by invalidate_user()
+    whenever an admin changes the user's role."""
+    cached = _profile_role_cache.get(user_id)
+    if cached and time.monotonic() < cached[0]:
+        return cached[1]
+    profile = await fetch_profile(user_id)
     role = str(profile.get("role") or DEFAULT_ROLE)
-    return role if role in ROLE_LEVELS else DEFAULT_ROLE
+    role = role if role in ROLE_LEVELS else DEFAULT_ROLE
+    _profile_role_cache[user_id] = (time.monotonic() + _PROFILE_ROLE_TTL_SECONDS, role)
+    return role
 
 
 def require_role(minimum_role: str):
@@ -138,8 +191,8 @@ def require_role(minimum_role: str):
     if required_level is None:
         raise ValueError(f"Unknown role: {minimum_role!r}")
 
-    def checker(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
-        role = _profile_role(user.id)
+    async def checker(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
+        role = await _profile_role(user.id)
         user.role = role
         if ROLE_LEVELS.get(role, ROLE_LEVELS[DEFAULT_ROLE]) < required_level:
             raise HTTPException(
@@ -203,7 +256,7 @@ DEFAULT_ROLE_PERMISSIONS: dict[str, frozenset[str]] = {
     ),
 }
 
-_ROLE_PERMISSIONS_TTL_SECONDS = 300.0  # 5 minutes per role
+_ROLE_PERMISSIONS_TTL_SECONDS = 60.0  # Phase D-2: 60 s per role
 _role_permissions_cache: dict[str, tuple[float, frozenset[str]]] = {}
 
 
@@ -221,8 +274,8 @@ async def get_role_permissions(role: str) -> list[str]:
 
     permissions: frozenset[str]
     try:
-        response = (
-            get_supabase()
+        response = await to_thread(
+            lambda: get_supabase()
             .table("role_permissions")
             .select("permission_key")
             .eq("role", role)
@@ -262,7 +315,7 @@ async def has_permission(user: CurrentUser, key: str) -> bool:
     cached role matrix. Used inside handlers for conditional checks such as
     the incident.close gate on the CLOSED transition.
     """
-    role = _profile_role(user.id)
+    role = await _profile_role(user.id)
     permissions = await get_role_permissions(role)
     return key in permissions
 
@@ -275,15 +328,47 @@ def require_permission(key: str):
     not granted. The authenticated user (with role and org_id filled in) is
     injected into the route.
     """
+    return require_permissions(key)
+
+
+def require_permissions(*keys: str):
+    """FastAPI dependency factory enforcing several granular permissions at once.
+
+    The user, profile role and permission set are resolved exactly once per
+    request (Phase D-2), so stacking requirements — e.g. analysis.run plus
+    media.upload on the media endpoints — costs a single dependency instead of
+    one per key. Raises 403 "Missing permission: <key>" for the first key the
+    caller lacks.
+    """
+    if not keys:
+        raise ValueError("require_permissions() needs at least one permission key")
 
     async def dependency(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
-        user.role = _profile_role(user.id)
+        user.role = await _profile_role(user.id)
         permissions = await get_role_permissions(user.role)
-        if key not in permissions:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Missing permission: {key}",
-            )
+        for key in keys:
+            if key not in permissions:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Missing permission: {key}",
+                )
         return user
 
     return dependency
+
+
+def invalidate_user(user_id: str) -> None:
+    """Drop every cached authorization artifact for one user (Phase D-2, item 2).
+
+    Called after an admin changes a user's role so privilege changes take
+    effect immediately instead of at cache expiry. Clears the profile-role
+    cache, the verified-auth-context cache entries for that user's tokens,
+    and the organization cache entry (via supabase_client).
+    """
+    _profile_role_cache.pop(user_id, None)
+    for token_key in _auth_context_index.pop(user_id, set()):
+        _auth_context_cache.pop(token_key, None)
+    from app.core.supabase_client import invalidate_user_org_cache
+
+    invalidate_user_org_cache(user_id)
+    logger.info("Authorization caches invalidated for user %s", user_id)

@@ -29,8 +29,9 @@ from app.ai.prompt_templates import (
     format_phishing_user_prompt,
     format_url_user_prompt,
 )
+from app.core.asyncbridge import to_thread
 from app.core.config import get_settings
-from app.core.security import CurrentUser, get_current_user, require_permission
+from app.core.security import CurrentUser, get_current_user, require_permission, require_permissions
 from app.core.storage import (
     MAX_MEDIA_SIZE_BYTES,
     download_media,
@@ -85,13 +86,13 @@ class NetworkAnalysisRequest(BaseModel):
     api_logs: list[dict[str, Any]] = []
 
 
-def _create_analysis_event(
+async def _create_analysis_event(
     event_type: str, source: str, raw_data: dict[str, Any], org_id: str
 ) -> str:
     """Insert a new org-scoped event with status 'analyzing' and return its id."""
     try:
-        response = (
-            get_supabase()
+        response = await to_thread(
+            lambda: get_supabase()
             .table("events")
             .insert(
                 {
@@ -119,12 +120,12 @@ def _create_analysis_event(
     return rows[0]["id"]
 
 
-def _fetch_alert_with_actions(alert_id: str, org_id: str) -> dict[str, Any]:
+async def _fetch_alert_with_actions(alert_id: str, org_id: str) -> dict[str, Any]:
     """Return the org-scoped alert row with its recommended_actions attached."""
     client = get_supabase()
     try:
-        alert_response = (
-            client.table("alerts")
+        alert_response = await to_thread(
+            lambda: client.table("alerts")
             .select("*")
             .eq("id", alert_id)
             .eq("org_id", org_id)
@@ -150,8 +151,8 @@ def _fetch_alert_with_actions(alert_id: str, org_id: str) -> dict[str, Any]:
     # so this query must not order by it.
     actions_response = None
     try:
-        actions_response = (
-            client.table("recommended_actions")
+        actions_response = await to_thread(
+            lambda: client.table("recommended_actions")
             .select("*")
             .eq("alert_id", alert_id)
             .execute()
@@ -174,7 +175,7 @@ async def _run_analysis_pipeline(
     org_id: str,
 ) -> dict[str, Any]:
     """Shared detection pipeline: persist org-scoped event, score, explain, alert."""
-    event_id = _create_analysis_event(
+    event_id = await _create_analysis_event(
         event_type=event_type,
         source=source,
         raw_data=raw_data,
@@ -191,7 +192,7 @@ async def _run_analysis_pipeline(
     )
     llm_output = explained["explanation"]
 
-    alert_id = create_alert_in_db(
+    alert_id = await create_alert_in_db(
         event_id=event_id,
         module=module,
         raw_data=raw_data,
@@ -311,7 +312,7 @@ async def analyze_network(
     )
 
 
-def _finalize_deepfake_response(
+async def _finalize_deepfake_response(
     *,
     event_id: str,
     result: dict[str, Any],
@@ -332,7 +333,7 @@ def _finalize_deepfake_response(
         "method": result["method"],
         "simulated": result["simulated"],
     }
-    alert_id = create_alert_in_db(
+    alert_id = await create_alert_in_db(
         event_id=event_id,
         module="deepfake",
         raw_data=raw_data,
@@ -374,7 +375,8 @@ async def _run_deepfake_pipeline(
 ) -> dict[str, Any]:
     """Shared deepfake pipeline: forensics, LLM explanation, alert, response."""
     try:
-        result = analyze_media(file_bytes, file_name, content_type)
+        # ELA/CNN inference is CPU-bound: keep it off the event loop (Phase D-1).
+        result = await to_thread(analyze_media, file_bytes, file_name, content_type)
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -387,7 +389,7 @@ async def _run_deepfake_pipeline(
         format_deepfake_user_prompt(result),
         make_cache_key_from_bytes("deepfake", file_bytes),
     )
-    return _finalize_deepfake_response(
+    return await _finalize_deepfake_response(
         event_id=event_id,
         result=result,
         storage_path=storage_path,
@@ -403,8 +405,7 @@ async def _run_deepfake_pipeline(
 @router.post("/media")
 async def analyze_media_upload(
     file: UploadFile,
-    analyst: CurrentUser = Depends(require_permission("analysis.run")),
-    _media: CurrentUser = Depends(require_permission("media.upload")),
+    analyst: CurrentUser = Depends(require_permissions("analysis.run", "media.upload")),
 ) -> dict:
     """Full deepfake/media-forensics pipeline for an uploaded media file."""
     content_type = file.content_type or ""
@@ -426,7 +427,7 @@ async def analyze_media_upload(
     file_name = file.filename or "upload.bin"
     file.file.seek(0)  # the storage helper re-reads the spooled file
 
-    event_id = _create_analysis_event(
+    event_id = await _create_analysis_event(
         event_type="deepfake_media",
         source=ANALYSIS_MEDIA_SOURCE,
         raw_data={
@@ -438,7 +439,11 @@ async def analyze_media_upload(
     )
 
     try:
-        media_record = upload_media_to_supabase(file, event_id)
+        # FIX 7: file_bytes were read exactly once above; the uploader never
+        # re-reads the SpooledUploadFile. Storage IO stays off the event loop.
+        media_record = await to_thread(
+            upload_media_to_supabase, file_bytes, file_name, event_id
+        )
     except HTTPException:
         raise
     except Exception as exc:
@@ -448,15 +453,20 @@ async def analyze_media_upload(
         ) from exc
 
     try:
-        get_supabase().table("media_files").insert(
-            {
-                "event_id": event_id,
-                "file_name": media_record["file_name"],
-                "storage_path": media_record["storage_path"],
-                "file_type": media_record["file_type"],
-                "size_bytes": media_record["size_bytes"],
-            }
-        ).execute()
+        await to_thread(
+            lambda: get_supabase()
+            .table("media_files")
+            .insert(
+                {
+                    "event_id": event_id,
+                    "file_name": media_record["file_name"],
+                    "storage_path": media_record["storage_path"],
+                    "file_type": media_record["file_type"],
+                    "size_bytes": media_record["size_bytes"],
+                }
+            )
+            .execute()
+        )
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -503,13 +513,39 @@ async def analyze_media_upload(
 @router.post("/media/event/{event_id}")
 async def analyze_media_event(
     event_id: str,
-    analyst: CurrentUser = Depends(require_permission("analysis.run")),
-    _media: CurrentUser = Depends(require_permission("media.upload")),
+    analyst: CurrentUser = Depends(require_permissions("analysis.run", "media.upload")),
 ) -> dict:
-    """Re-run the deepfake pipeline for an already-ingested media event."""
+    """Re-run the deepfake pipeline for an already-ingested media event.
+
+    The event must belong to the caller's organization: cross-tenant ids
+    resolve to 404 before any media metadata is touched (Phase D-1).
+    """
     try:
-        response = (
-            get_supabase()
+        owned = (
+            await to_thread(
+                lambda: get_supabase()
+                .table("events")
+                .select("id")
+                .eq("id", event_id)
+                .eq("org_id", analyst.org_id)
+                .limit(1)
+                .execute()
+            )
+).data or []
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to query event",
+        ) from exc
+    if not owned:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Event not found",
+        )
+
+    try:
+        response = await to_thread(
+            lambda: get_supabase()
             .table("media_files")
             .select("*")
             .eq("event_id", event_id)
@@ -532,7 +568,7 @@ async def analyze_media_event(
     media = rows[0]
 
     try:
-        file_bytes = download_media(media["storage_path"])
+        file_bytes = await to_thread(download_media, media["storage_path"])
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -572,6 +608,6 @@ def list_alerts(user: CurrentUser = Depends(get_current_user)) -> dict:
 
 
 @router.get("/alerts/{alert_id}")
-def get_alert(alert_id: str, user: CurrentUser = Depends(get_current_user)) -> dict:
+async def get_alert(alert_id: str, user: CurrentUser = Depends(get_current_user)) -> dict:
     """Return a single org-scoped alert with its recommended actions."""
-    return _fetch_alert_with_actions(alert_id, user.org_id)
+    return await _fetch_alert_with_actions(alert_id, user.org_id)

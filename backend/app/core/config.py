@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379"
     BACKGROUND_WORKERS_ENABLED: bool = True
 
+    # Phase D-1: per-user (or per-IP) request budget, in requests per minute.
+    RATE_LIMIT_RPM: int = 300
+
     API_V1_PREFIX: str = "/api/v1"
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
 

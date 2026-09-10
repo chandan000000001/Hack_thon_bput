@@ -3,6 +3,7 @@ import { Flag, Loader2, PlayCircle, Video } from 'lucide-react';
 import * as api from '../services/api';
 import type { AnalysisResult } from '../types';
 import PageHeader from '../components/common/PageHeader';
+import QueuedAnalysisPanel from '../components/common/QueuedAnalysisPanel';
 import FileUpload from '../components/common/FileUpload';
 import RiskGauge from '../components/common/RiskGauge';
 import SeverityBadge from '../components/common/SeverityBadge';
@@ -131,7 +132,8 @@ export default function DeepfakeAnalysis() {
             </div>
           )}
 
-          {!loading && result && (
+          {!loading && result?.queued && <QueuedAnalysisPanel />}
+          {!loading && result && !result.queued && (
             <>
               <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-5 backdrop-blur">
                 <div className="flex flex-wrap items-center justify-around gap-6">

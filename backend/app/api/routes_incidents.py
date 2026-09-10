@@ -104,6 +104,9 @@ async def update_incident_status(
         select(IncidentModel)
         .where(IncidentModel.id == incident_uuid)
         .where(IncidentModel.org_id == uuid.UUID(user.org_id))
+        # Phase D-1: row lock serializes concurrent status transitions so two
+        # simultaneous PATCHes cannot both pass validate_transition.
+        .with_for_update()
         .limit(1)
     )
     incident = result.scalar_one_or_none()

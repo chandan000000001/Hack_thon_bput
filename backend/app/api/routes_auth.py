@@ -21,7 +21,7 @@ async def read_current_user(user: CurrentUser = Depends(get_current_user)) -> di
     permissions list comes from the role_permissions matrix (migration 0005),
     cached 5 minutes per role on the backend.
     """
-    profile = fetch_profile(user.id)
+    profile = await fetch_profile(user.id)
     role = str(profile.get("role") or "viewer")
     if role not in ROLE_LEVELS:
         role = "viewer"

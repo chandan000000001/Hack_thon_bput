@@ -1,69 +1,58 @@
 # CYBERGUARD Demo Script
 
-Step-by-step guide for a judge/evaluator. Each mandatory scenario exercises the full pipeline: **detection → classification → risk score → explanation → alert → recommended response**, with evidence visible in the UI and via the API.
+Step-by-step judge walkthrough. Every scenario exercises the full pipeline: **detection → classification → risk score → explanation → alert → recommended response**, with results visible in the UI and via the API.
 
-Preparation (one-time): backend running on `http://localhost:8000` (`uvicorn app.main:app --reload --port 8000`), frontend on `http://localhost:5173` (`npm run dev`), `frontend/.env` set to `VITE_USE_MOCK=false`, and a Supabase Auth user you can log in with (e.g. `admin@cyberguard.local`). Automated alternative: `python backend/scripts/demo.py http://localhost:8000 <auth_token>`.
+## Preparation (one-time)
 
----
-
-## Scenario 1: Phishing / Social Engineering (Email)
-
-1. Sign in at `http://localhost:5173` — the SOC **Dashboard** loads live from `GET /api/v1/dashboard/summary` (stat cards, risk donut, threat categories, 24-hour attack timeline, incident summary).
-2. Open **Phishing Analysis** in the sidebar.
-3. Click **Load Phishing Sample** (sender `security-alert@micr0soft-verify.xyz`, subject "URGENT: Verify your account immediately", body with an IP-host credential URL). You can also paste any email.
-4. Click **Analyze Email**.
-
-**Expected UI behavior**
-- Loading indicator while the pipeline runs (heuristics → scoring → LLM explanation via the provider chain → alert persisted).
-- Result panel shows: **RiskGauge** with a high/critical score (sample evaluates to risk 100 / critical), severity badge, confidence, event ID.
-- **Indicators** tab: lookalike domain `micr0soft-verify.xyz`, urgency keywords, credential request phrase, insecure/IP link, SMS-layer checks.
-- **Explanation** tab: LLM paragraph starting with the risk level (when all providers in the Groq → OpenRouter chain fail, a rule-based explanation is generated locally from the indicators — heuristics still score).
-- **MITRE ATT&CK** tab: e.g. T1566.001 Spearphishing Attachment / T1656 Impersonation.
-- **Recommended Response** tab: actions mapped from the response catalog (e.g. "Warn the user", "Notify administrator/SOC"), with approval requirements.
-- The new alert now appears on **Security Alerts** (filterable by severity/module/status and full-text search) and on the Dashboard counters.
-
-**Expected API response** (`POST /api/v1/analysis/email`): JSON alert object with `risk_score` (0–100), `severity` (`critical` for the sample), `explanation` (LLM paragraph), `indicators` array, `mitre` array, and `recommended_actions` with `automation_level`/`requires_approval`. An `events` row is created with status `analyzing` and flipped to `completed` when the alert is saved; the action is recorded in `audit_logs`.
-
-**Negative test:** click **Load Benign Sample** and re-run — risk 0–20 (`safe`), no indicators, benign explanation.
+1. Backend on `http://localhost:8000` (`uvicorn app.main:app --reload --port 8000`), frontend on `http://localhost:5173` (`npm run dev`), `frontend/.env` set to `VITE_USE_MOCK=false`.
+2. Redis up and the Arq worker running so the deepfake upload demonstrates the queued flow:
+   ```bash
+   docker compose up -d redis
+   cd backend && arq app.workers.settings.WorkerSettings
+   ```
+   (Without Redis the same upload runs synchronously and answers 200 — say this out loud if demoing without a worker.)
+3. Log in as **`admin@cyberguard.local`** (created in Supabase Auth; role assigned by migration 0003). The SOC **Dashboard** loads live from `GET /api/v1/dashboard/summary` (stat cards, risk donut, threat categories, 24-hour attack timeline, incident summary).
+4. Automated alternative: `python backend/scripts/demo.py http://localhost:8000 <access_token>`.
 
 ---
 
-## Scenario 2: Digital Impersonation / Deepfake / Identity Fraud
+## Scenario 1 — Phishing / Social Engineering (email)
 
-**Option A — Impersonation message**
+1. Open **Phishing Analysis** in the sidebar.
+2. Click **Load Phishing Sample** (sender `security-alert@micr0soft-verify.xyz`, subject "URGENT: Verify your account immediately", body with an IP-host credential URL) — or paste any email.
+3. Click **Analyze Email**.
+
+**Expected result**
+- Risk gauge in the **critical** band — the API regression matrix runs exactly this sample and observes `severity=critical` (evaluation report: hybrid email F1 **0.9842** at n=24,000).
+- **Indicators** tab: lookalike domain `micr0soft-verify.xyz`, urgency keywords, credential-request phrase, insecure/IP link.
+- **Explanation** tab: LLM paragraph starting with the risk level, produced by the provider chain (Groq → OpenRouter → rule-based; the response field `explanation_provider` shows which one answered — if all remote providers fail, a local rule-based explanation is generated and detection still works).
+- **MITRE ATT&CK** tab: e.g. T1566.001 Spearphishing Attachment.
+- **Recommended Response** tab: actions mapped from the 10-entry response catalog, with `automation_level` and `requires_approval`.
+- **Where it appears:** the new alert shows in **Security Alerts** (filter by severity/module/status, full-text search) and increments the Dashboard counters and 24-hour timeline.
+
+**Negative test:** click **Load Benign Sample** and re-run — `safe` band (0–20), no indicators.
+
+## Scenario 2 — Impersonation + deepfake upload (202 queued flow, Realtime toast)
+
+**Part A — Impersonation message**
 
 1. Open **Impersonation Analysis**.
-2. Click the CEO fraud sample (or paste): claimed identity "Chief Executive Officer", message requesting urgent confidential gift-card purchases with secrecy instruction ("don't tell anyone, keep this between us").
+2. Use the CEO-fraud sample: claimed identity "Chief Executive Officer", message demanding urgent, confidential gift-card purchases ("don't tell anyone, keep this between us").
 3. Click **Analyze**.
 
-**Expected UI behavior**
-- Risk score in the high/critical band (sample combination: authority identity + pressure + unusual financial request + secrecy = critical).
-- Indicators include `authority_identity` (chief executive officer), `pressure_language` (urgent, confidential), `unusual_request` (gift card — critical), `secrecy_request`.
-- Explanation and MITRE (T1656 Impersonation) tabs populated; recommended actions such as "Report impersonation" / "Escalate the incident for investigation".
-- A new alert with module `impersonation` appears in **Security Alerts**.
+**Expected result:** critical band (authority identity + pressure + unusual financial request + secrecy); indicators `authority_identity`, `pressure_language`, `unusual_request` (critical), `secrecy_request`; MITRE T1656 Impersonation; alert module `impersonation` in **Security Alerts**.
 
-**Option B — Deepfake / manipulated media**
+**Part B — Deepfake image upload with the queued (202) flow**
 
 1. Open **Deepfake Detection**.
-2. Upload an image, audio or video file (≤ 25 MB) — sample manipulated images exist in `datasets/media/manipulated_00.png` (generated by `backend/scripts/generate_synthetic_datasets.py`).
-3. Click **Analyze Media**.
+2. Upload a manipulated image, e.g. `evidence/media/manipulated.png` (≤ 25 MB; images, videos and audio accepted).
+3. With Redis + the worker running, the backend answers **202 Accepted**: the page immediately shows the **QueuedAnalysisPanel** pending state ("Queued for background analysis", `status: analyzing`, null risk fields) while the heavy ELA/CNN forensics run on the Arq worker.
+4. Moments later the worker persists the alert, Supabase **Realtime** pushes it on the `cyberguard-alerts` channel and a **toast** appears in the open page; the alert then appears in **Security Alerts** and the Dashboard counters.
+5. Result panel (this appears directly if demoed without Redis): three gauges — **Authenticity**, **Manipulation Probability**, **Risk** — plus a badge reading **Real forensic analysis** (ELA image forensics blended 50/50 with the CIFAKE CNN) or **Simulated analysis** (non-WAV audio only). `GET /api/v1/events/{event_id}/media-url` returns the 1-hour signed Storage URL.
 
-**Expected UI behavior**
-- Three gauges: **Authenticity**, **Manipulation Probability**, **Risk**.
-- A prominent badge reading **Real forensic analysis** (ELA image/video forensics or WAV signal statistics) or **Simulated analysis** (non-WAV audio — deterministic, clearly labelled). The badge tooltip shows the exact method string.
-- Indicators such as `high_block_variance` (possible splicing) for the manipulated sample; benign gradients score low/safe.
-- The file is stored in Supabase Storage (`cyberguard-media`, private); `GET /api/v1/events/{event_id}/media-url` returns a 1-hour signed URL.
+## Scenario 3 — Technical threat: account takeover or network C2
 
-**Expected API response** (`POST /api/v1/analysis/impersonation` or `/analysis/media`): alert JSON including `risk_score`, `severity`, `explanation`, `indicators`, `mitre`, `recommended_actions`; media responses additionally include `authenticity_score`, `manipulation_probability`, `method`, and the `simulated` flag.
-
----
-
-## Scenario 3: Technical Threat (Account Takeover or Network)
-
-**Option A — Account takeover**
-
-1. Open **Account Takeover**.
-2. Paste a JSON auth-log array into the analyzer, e.g.:
+**Option A — Account takeover.** Open **Account Takeover**, paste:
 
 ```json
 [
@@ -75,65 +64,49 @@ Preparation (one-time): backend running on `http://localhost:8000` (`uvicorn app
 ]
 ```
 
-3. Click **Analyze**.
+**Expected result:** high band from `failed_login_burst` (high), `impossible_travel` NY → Moscow within minutes (critical), `success_after_failures` (high), new/unknown device (medium); MITRE T1110.003; alert module `account_takeover` in **Security Alerts**.
 
-**Expected UI behavior**
-- High/critical risk from the combination: `failed_login_burst` (high), `impossible_travel` New York → Moscow within minutes (critical), `success_after_failures` (high), new/unknown device (medium).
-- Explanation describes the credential-stuffing-then-success narrative; MITRE T1110 (Brute Force).
-- Alert module `account_takeover` visible in **Security Alerts**.
-
-**Option B — Network / API threats**
-
-1. Open **Response Actions** to review the seeded catalog (10 actions with automation level and approval requirements).
-2. Execute an action against a target (e.g. "Block suspicious IP/device" on `185.220.101.7`): the approval checkbox is required for semi-automatic actions — leaving it unchecked surfaces the approval error ("This action requires explicit approval"), checking it records an execution visible immediately in **Execution History** and in **Audit Logs**.
-3. Alternatively analyze network flows / API logs via `POST /api/v1/analysis/network` (flows with port 4444 or > 10 MB `bytes_out`, API logs with 401 bursts or > 50 requests from one IP) — the alert fires with C2-port (critical) and exfiltration/rate-abuse (high) indicators.
-
-**Expected API response** (`POST /api/v1/analysis/account-takeover`): alert JSON with `risk_score`, `severity` (high/critical), `explanation`, `indicators` (`failed_login_burst`, `impossible_travel`, `success_after_failures`, …), `mitre` (T1110.003), `recommended_actions` (e.g. "Revoke active session", "Require additional authentication").
+**Option B — Network C2.** Use the Network Threats page or `POST /api/v1/analysis/network` with a flow such as `{"source_ip": "10.0.0.5", "dest_ip": "185.220.101.7", "port": 4444, "bytes_out": 25000000, "protocol": "tcp"}` — C2 port (critical) + exfiltration > 10 MB (high). The regression matrix runs the C2-port sample and observes `risk_score=40`.
 
 ---
 
-## Closing the loop (optional, 1 minute)
+## Closing the loop
 
-1. From any alert detail page, click **Create Incident** — the incident is created with the alert linked and a timeline entry; you are redirected to the incident.
-2. Transition the incident (Start Investigation → Mark Contained → Close Incident), assign an analyst, and use **Escalate** (a reason is requested); every step appends to the incident timeline and the audit trail.
-3. Toggle **Live Alerts** in the topbar: new alerts inserted into Supabase stream to the open Dashboard/Alerts page as toasts with automatic refresh (Supabase Realtime).
-4. Ask the **SOC Assistant** (sidebar): "Show critical alerts" or "What should I investigate first?" — answers cite alert IDs from the live database.
-5. Open **Reports** to export the current state as JSON/CSV evidence.
+### Incident lifecycle (NIST/SANS state machine, including an illegal-transition rejection)
 
----
+1. From any alert detail page click **Create Incident** (permission `incident.create`) — the alert is linked, a timeline entry is recorded, and you land on the incident.
+2. Walk the state machine via status changes (`incident.update`): TRIAGE → CONTAINMENT → ERADICATION → RECOVERY → CLOSED.
+3. **Demonstrate the rejection:** while the incident is in CONTAINMENT, attempt to jump straight to CLOSED — the API answers **400** `Cannot transition from CONTAINMENT to CLOSED. Must go through ERADICATION and RECOVERY first.` and nothing is written. (The legitimate escape hatches: TRIAGE → CLOSED is accepted for a false positive, and CONTAINMENT → TRIAGE is accepted when containment failed.)
+4. Note that transitioning to CLOSED additionally requires the `incident.close` permission (`403 Missing permission: incident.close` otherwise).
+5. Assign an analyst (**Assign**, `incident.update`) and use **Escalate** (`incident.escalate`, reason requested — sets severity to critical). Every step appends to the incident timeline and the audit trail; the incident summary panel on the Dashboard updates.
 
-## Enterprise Upgrade addenda (Phases A–C)
+### Destructive response with approval
 
-Behaviors introduced after this script was written — the demo scenarios above
-all still work, with these differences:
+1. Open **Response Actions**; the seeded catalog shows 10 actions with automation level and approval requirements.
+2. Execute **Block suspicious IP/device** against `185.220.101.7` **without** checking the approval box → the API refuses with **403**:
+   - as admin: `"This action requires explicit approval"` (approval is mandatory even for admins);
+   - as analyst/viewer: `"Missing permission: response.execute_destructive"` (and the UI shows the "Requires destructive-response permission" tooltip).
+3. Check the approval box and execute as admin → the execution is recorded (`executed`, with `approved_by`) and appears immediately in **Execution History** and in **Audit Logs**.
 
-- **Multi-tenancy (Phase B):** every event, alert, incident and audit row is
-  scoped to the caller's organization. All pre-existing demo data belongs to
-  the "Default Organization", so nothing disappears after migration
-  `0004_multi_tenancy.sql` runs. Cross-tenant ids simply resolve to 404.
-- **Background analysis (Phase C-1):** with Redis up and the Arq worker
-  running (`docker compose up -d redis`, `arq app.workers.settings.WorkerSettings`),
-  `POST /analysis/media` and the new bulk endpoint
-  `POST /api/v1/events/bulk` (`{"kind": "auth-log" | "network", "rows": [...], ...}`)
-  answer **202 "Queued for background analysis"**; the alert still lands in
-  Supabase moments later and reaches the dashboard via the Live Alerts
-  Realtime toast. Without Redis the same requests answer **200** after
-  running synchronously, exactly as before.
-- **Permission matrix (Phase C-2, migration `0005_permissions.sql`):** roles
-  decide access through granular permission keys. Demo expectations per
-  account:
-  - `admin@cyberguard.local` — everything works, including approval-required
-    (destructive) response execution and **Admin → User Management**.
-  - `analyst@cyberguard.local` — analyses, incidents and safe response
-    execution work; executing an approval-required catalog action and the
-    admin area are refused (`403 Missing permission: ...`; the execute button
-    shows "Requires destructive-response permission" and User Management is
-    hidden in the sidebar).
-  - `viewer@cyberguard.local` — read-only: every analysis/ingestion endpoint
-    returns `403 Missing permission: analysis.run` and mutation controls are
-    disabled in the UI.
-- **Incident lifecycle (Phase A):** the status transition buttons now map onto
-  the strict NIST/SANS machine — an incident cannot jump straight to closed
-  from containment (the API returns 400 naming the required intermediate
-  phases), and transitioning to CLOSED requires the `incident.close`
-  permission.
+### Viewer read-only demonstration
+
+Sign out and sign in as **`viewer@cyberguard.local`** (permission matrix from migration 0005):
+- Dashboards, alerts, incidents and reports are readable (`dashboard.view`, `alerts.view`, `incidents.view`, `reports.view`).
+- Every analysis/ingestion endpoint returns `403 Missing permission: analysis.run`; destructive responses need `response.execute_destructive` and the admin area needs `users.manage` (User Management is hidden in the sidebar) — mutation controls are disabled in the UI.
+
+### SOC assistant
+
+Sign back in as admin and open the **SOC Assistant** (sidebar). Ask *"Show critical alerts"* or *"What should I investigate first?"* — the reply is grounded in recent org alerts and cites the alert IDs used as context (`context_used`).
+
+### Where every result appears
+
+| Result | Where in the dashboard |
+|---|---|
+| New alerts (all scenarios) | **Security Alerts** list + **Alert Detail** (indicators, explanation, MITRE tags, recommended actions) + Dashboard stat cards / risk donut / threat categories / 24-hour timeline |
+| Queued deepfake analysis | QueuedAnalysisPanel → Realtime toast → Alerts |
+| Incidents | **Incidents** list + **Incident Detail** (state machine, timeline, linked alerts) + Dashboard incident summary |
+| Response executions | **Response Actions** execution history + **Audit Logs** |
+| Role changes / mutations | **Admin → User Management** + **Audit Logs** |
+| Reports | **Reports** page — export current state as JSON/CSV evidence |
+
+Toggle **Live Alerts** in the topbar at any point: new alert INSERTs stream to the open Dashboard/Alerts page as toasts with automatic refresh (Supabase Realtime).

@@ -19,6 +19,7 @@ from typing import Any
 
 from fastapi import HTTPException, status
 
+from app.core.asyncbridge import to_thread
 from app.core.supabase_client import get_supabase
 
 logger = logging.getLogger("cyberguard.alerts")
@@ -142,7 +143,7 @@ def fetch_recommended_actions(alert_id: str) -> list[dict[str, Any]]:
         return []
 
 
-def create_alert_in_db(
+async def create_alert_in_db(
     event_id: str,
     module: str,
     raw_data: dict[str, Any],
@@ -171,26 +172,28 @@ def create_alert_in_db(
 
     # 1. The alert itself must exist before recommended actions reference it.
     try:
-        client.table("alerts").insert(
-            {
-                "id": alert_id,
-                "org_id": org_id,
-                "event_id": event_id,
-                "title": title,
-                "module": module,
-                "threat_type": threat_type,
-                "severity": severity,
-                "risk_score": score,
-                "status": "new",
-                "summary": explanation,
-                "indicators": indicators,
-                "explanation": explanation,
-                "mitre": mitre,
-                "target_user": raw_data.get("target_user"),
-                "target_service": raw_data.get("target_service"),
-                "source_ip": raw_data.get("source_ip"),
-            }
-        ).execute()
+        await to_thread(
+            lambda: client.table("alerts").insert(
+                {
+                    "id": alert_id,
+                    "org_id": org_id,
+                    "event_id": event_id,
+                    "title": title,
+                    "module": module,
+                    "threat_type": threat_type,
+                    "severity": severity,
+                    "risk_score": score,
+                    "status": "new",
+                    "summary": explanation,
+                    "indicators": indicators,
+                    "explanation": explanation,
+                    "mitre": mitre,
+                    "target_user": raw_data.get("target_user"),
+                    "target_service": raw_data.get("target_service"),
+                    "source_ip": raw_data.get("source_ip"),
+                }
+            ).execute()
+        )
     except Exception as exc:
         logger.exception("Failed to insert alert for event %s", event_id)
         raise HTTPException(
@@ -201,18 +204,24 @@ def create_alert_in_db(
     # 2. Recommended actions: type-cast rows, best-effort insert. A failure
     #    here must NOT crash alert creation.
     try:
-        rows = _build_action_rows(
-            client, llm_output.get("recommended_actions") or [], alert_id, severity
+        rows = await to_thread(
+            _build_action_rows,
+            client,
+            llm_output.get("recommended_actions") or [],
+            alert_id,
+            severity,
         )
         if rows:
-            client.table("recommended_actions").insert(rows).execute()
+            await to_thread(lambda: client.table("recommended_actions").insert(rows).execute())
     except Exception as e:
         print(f"❌ Supabase recommended_actions insert error: {e}")
         logger.exception("Failed to save recommended actions for alert %s", alert_id)
 
     # 3. Mark the event completed (best-effort; the alert is already saved).
     try:
-        client.table("events").update({"status": "completed"}).eq("id", event_id).execute()
+        await to_thread(
+            lambda: client.table("events").update({"status": "completed"}).eq("id", event_id).execute()
+        )
     except Exception as exc:
         logger.exception("Failed to mark event %s completed", event_id)
         raise HTTPException(

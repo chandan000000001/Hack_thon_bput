@@ -10,7 +10,8 @@ from typing import Any, Literal
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
-from app.core.security import CurrentUser, require_permission
+from app.core.asyncbridge import to_thread
+from app.core.security import CurrentUser, invalidate_user, require_permission
 from app.core.supabase_client import get_supabase
 from app.services import audit_service
 
@@ -22,11 +23,11 @@ class RoleUpdate(BaseModel):
 
 
 @router.get("/users")
-def list_users(_admin: CurrentUser = Depends(require_permission("users.manage"))) -> list[dict[str, Any]]:
+async def list_users(_admin: CurrentUser = Depends(require_permission("users.manage"))) -> list[dict[str, Any]]:
     """List all user profiles, oldest first."""
     try:
-        response = (
-            get_supabase()
+        response = await to_thread(
+            lambda: get_supabase()
             .table("profiles")
             .select("id, email, full_name, role, created_at")
             .order("created_at", desc=False)
@@ -58,8 +59,8 @@ async def update_user_role(
 
     client = get_supabase()
     try:
-        response = (
-            client.table("profiles").update({"role": payload.role}).eq("id", user_id).execute()
+        response = await to_thread(
+            lambda: client.table("profiles").update({"role": payload.role}).eq("id", user_id).execute()
         )
     except Exception as exc:
         raise HTTPException(
@@ -72,6 +73,10 @@ async def update_user_role(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
+
+    # Phase D-2: privilege change takes effect immediately — drop the target
+    # user's cached role, permissions-bearing auth context and org resolution.
+    invalidate_user(user_id)
 
     await audit_service.log_action(
         admin.id,

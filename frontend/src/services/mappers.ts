@@ -215,11 +215,15 @@ export function mapAnalysisResult(row: unknown): AnalysisResult {
       : Number(rawConfidence) <= 1
         ? Math.round(Number(rawConfidence) * 100)
         : Math.round(Number(rawConfidence));
+  // Phase D-2 (item 8): the backend answers 202 with status 'analyzing' and
+  // null risk fields when the analysis is queued on a background worker.
+  const queued = data.status === 'analyzing' || data.risk_score === null;
   return {
     eventId: String(data.event_id ?? data.id ?? ''),
+    queued,
     module: mapModule(data.module),
     threatType: String(data.threat_type ?? data.module ?? ''),
-    riskScore: Number(data.risk_score ?? 0),
+    riskScore: queued ? 0 : Number(data.risk_score ?? 0),
     severity: mapSeverity(data.severity),
     confidence,
     indicators: asArray(data.indicators).map(mapIndicator),

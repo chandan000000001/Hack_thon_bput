@@ -10,6 +10,7 @@ from typing import Any
 
 from fastapi import HTTPException, status
 
+from app.core.asyncbridge import to_thread
 from app.core.supabase_client import get_supabase
 from app.services import audit_service
 
@@ -19,8 +20,8 @@ logger = logging.getLogger("cyberguard.response")
 async def get_response_catalog() -> list[dict[str, Any]]:
     """Fetch the full response action catalog."""
     try:
-        response = (
-            get_supabase().table("response_catalog").select("*").order("action").execute()
+        response = await to_thread(
+            lambda: get_supabase().table("response_catalog").select("*").order("action").execute()
         )
     except Exception as exc:
         logger.exception("Failed to fetch response catalog")
@@ -38,14 +39,14 @@ async def execute_response(
     client = get_supabase()
     try:
         catalog_rows = (
-            client.table("response_catalog")
-            .select("*")
-            .eq("id", catalog_id)
-            .limit(1)
-            .execute()
-            .data
-            or []
-        )
+            await to_thread(
+                lambda: client.table("response_catalog")
+                .select("*")
+                .eq("id", catalog_id)
+                .limit(1)
+                .execute()
+            )
+).data or []
     except Exception as exc:
         logger.exception("Failed to fetch catalog entry %s", catalog_id)
         raise HTTPException(
@@ -73,8 +74,8 @@ async def execute_response(
     execution_status = "executed" if approved or not catalog.get("requires_approval") else "rejected"
 
     try:
-        response = (
-            client.table("response_executions")
+        response = await to_thread(
+            lambda: client.table("response_executions")
             .insert(
                 {
                     "catalog_id": catalog_id,
@@ -114,8 +115,8 @@ async def execute_response(
 async def get_execution_history(limit: int = 50) -> list[dict[str, Any]]:
     """Fetch recent response executions, newest first."""
     try:
-        response = (
-            get_supabase()
+        response = await to_thread(
+            lambda: get_supabase()
             .table("response_executions")
             .select("*")
             .order("created_at", desc=True)

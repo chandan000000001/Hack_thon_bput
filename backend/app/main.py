@@ -32,11 +32,18 @@ from app.api import (
     routes_response,
 )
 from app.core.config import get_settings
+from app.core.rate_limit import RateLimitMiddleware
 
 logger = logging.getLogger("cyberguard")
 logging.basicConfig(level=logging.INFO)
 
 settings = get_settings()
+
+# Phase D-2 (item 5): refuse to boot with a wildcard origin while cookies and
+# Authorization headers are allowed — that combination defeats browser CORS
+# enforcement entirely.
+if "*" in settings.cors_origins_list:
+    raise RuntimeError("CORS_ORIGINS must not contain '*' while allow_credentials is True")
 
 app = FastAPI(
     title=settings.APP_TITLE,
@@ -50,6 +57,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Phase D-1: registered after CORS so CORS headers are applied to 429s too.
+app.add_middleware(RateLimitMiddleware, rpm=settings.RATE_LIMIT_RPM)
 
 app.include_router(routes_health.router, prefix=settings.API_V1_PREFIX)
 app.include_router(routes_auth.router, prefix=settings.API_V1_PREFIX)

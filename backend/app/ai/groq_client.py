@@ -16,8 +16,14 @@ from app.core.config import get_settings
 GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
-async def explain_groq(system_prompt: str, user_prompt: str) -> dict[str, Any]:
-    """Call Groq chat completions and return the parsed strict-JSON dict.
+async def explain_groq(
+    system_prompt: str, user_prompt: str, json_mode: bool = True
+) -> dict[str, Any]:
+    """Call Groq chat completions and return the parsed dict.
+
+    json_mode=True enforces/parses the strict-JSON contract; json_mode=False
+    returns the raw text as {"explanation": <text>, ...} for free-form callers
+    (e.g. the SOC assistant).
 
     Raises ProviderError immediately when GROQ_API_KEY is empty so the
     gateway skips to the rule-based provider without wasting time.
@@ -36,9 +42,10 @@ async def explain_groq(system_prompt: str, user_prompt: str) -> dict[str, Any]:
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
-        "response_format": {"type": "json_object"},
         "temperature": 0.2,
     }
+    if json_mode:
+        payload["response_format"] = {"type": "json_object"}
 
     async with httpx.AsyncClient(timeout=httpx.Timeout(settings.groq_timeout_seconds)) as client:
         response = await client.post(GROQ_CHAT_URL, headers=headers, json=payload)
@@ -46,6 +53,8 @@ async def explain_groq(system_prompt: str, user_prompt: str) -> dict[str, Any]:
         body = response.json()
 
     content = body["choices"][0]["message"]["content"]
+    if not json_mode:
+        return {"explanation": (content or "").strip(), "mitre_techniques": [], "recommended_actions": []}
     parsed = _parse_llm_content(content)
     if parsed is None:
         raise ProviderError("Groq returned unparseable content")

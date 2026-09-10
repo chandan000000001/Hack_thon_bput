@@ -11,6 +11,7 @@ from typing import Any, Optional
 
 from fastapi import HTTPException, status
 
+from app.core.asyncbridge import to_thread
 from app.core.supabase_client import get_supabase
 from app.services import audit_service
 
@@ -30,32 +31,37 @@ def _raise_db_error(exc: Exception, detail: str) -> None:
     ) from exc
 
 
-def _add_timeline_event(incident_id: str, action: str, actor: str, details: str = "") -> None:
+async def _add_timeline_event(incident_id: str, action: str, actor: str, details: str = "") -> None:
     try:
-        get_supabase().table("incident_events").insert(
-            {
-                "incident_id": incident_id,
-                "action": action,
-                "actor": actor,
-                "details": details,
-            }
-        ).execute()
+        await to_thread(
+            lambda: get_supabase()
+            .table("incident_events")
+            .insert(
+                {
+                    "incident_id": incident_id,
+                    "action": action,
+                    "actor": actor,
+                    "details": details,
+                }
+            )
+            .execute()
+        )
     except Exception as exc:
         _raise_db_error(exc, "Failed to add incident timeline event")
 
 
-def _filter_alerts_in_org(client: Any, org_id: str, alert_ids: list[str]) -> list[str]:
+async def _filter_alerts_in_org(client: Any, org_id: str, alert_ids: list[str]) -> list[str]:
     """Return only the requested alert ids that belong to the caller's org."""
     try:
         rows = (
-            client.table("alerts")
-            .select("id")
-            .eq("org_id", org_id)
-            .in_("id", alert_ids)
-            .execute()
-            .data
-            or []
-        )
+            await to_thread(
+                lambda: client.table("alerts")
+                .select("id")
+                .eq("org_id", org_id)
+                .in_("id", alert_ids)
+                .execute()
+            )
+).data or []
     except Exception as exc:
         _raise_db_error(exc, "Failed to validate linked alerts")
     return [row["id"] for row in rows]
@@ -72,8 +78,8 @@ async def create_incident(
     entry, and audit it."""
     client = get_supabase()
     try:
-        response = (
-            client.table("incidents")
+        response = await to_thread(
+            lambda: client.table("incidents")
             .insert({"org_id": org_id, "title": title, "severity": severity, "status": "open"})
             .execute()
         )
@@ -91,16 +97,21 @@ async def create_incident(
 
     if linked_alert_ids:
         # Only link alerts that exist inside the caller's organization.
-        allowed_ids = _filter_alerts_in_org(client, org_id, linked_alert_ids)
+        allowed_ids = await _filter_alerts_in_org(client, org_id, linked_alert_ids)
         if allowed_ids:
             try:
-                client.table("incident_alerts").insert(
-                    [{"incident_id": incident_id, "alert_id": alert_id} for alert_id in allowed_ids]
-                ).execute()
+                await to_thread(
+                    lambda: client.table("incident_alerts").insert(
+                        [
+                            {"incident_id": incident_id, "alert_id": alert_id}
+                            for alert_id in allowed_ids
+                        ]
+                    ).execute()
+                )
             except Exception as exc:
                 _raise_db_error(exc, "Failed to link alerts to incident")
 
-    _add_timeline_event(
+    await _add_timeline_event(
         incident_id,
         "Incident Created",
         created_by,
@@ -121,8 +132,8 @@ async def get_incident(org_id: str, incident_id: str) -> dict[str, Any]:
     """Fetch an org-scoped incident with its linked alert IDs and timeline."""
     client = get_supabase()
     try:
-        response = (
-            client.table("incidents")
+        response = await to_thread(
+            lambda: client.table("incidents")
             .select("*")
             .eq("id", incident_id)
             .eq("org_id", org_id)
@@ -141,22 +152,22 @@ async def get_incident(org_id: str, incident_id: str) -> dict[str, Any]:
 
     try:
         links = (
-            client.table("incident_alerts")
-            .select("alert_id")
-            .eq("incident_id", incident_id)
-            .execute()
-            .data
-            or []
-        )
+            await to_thread(
+                lambda: client.table("incident_alerts")
+                .select("alert_id")
+                .eq("incident_id", incident_id)
+                .execute()
+            )
+).data or []
         timeline = (
-            client.table("incident_events")
-            .select("*")
-            .eq("incident_id", incident_id)
-            .order("created_at", desc=False)
-            .execute()
-            .data
-            or []
-        )
+            await to_thread(
+                lambda: client.table("incident_events")
+                .select("*")
+                .eq("incident_id", incident_id)
+                .order("created_at", desc=False)
+                .execute()
+            )
+).data or []
     except Exception as exc:
         _raise_db_error(exc, "Failed to query incident details")
 
@@ -192,40 +203,10 @@ async def list_incidents(
     if status_filter:
         query = query.eq("status", status_filter)
     try:
-        response = query.execute()
+        response = await to_thread(query.execute)
     except Exception as exc:
         _raise_db_error(exc, "Failed to list incidents")
     return response.data or []
-
-
-async def update_incident_status(
-    org_id: str, incident_id: str, new_status: str, actor: str
-) -> dict[str, Any]:
-    """Change an org-scoped incident's status, record the timeline entry,
-    and audit it. A cross-tenant id resolves to 404, not an update."""
-    client = get_supabase()
-    try:
-        response = (
-            client.table("incidents")
-            .update({"status": new_status, "updated_at": _now_iso()})
-            .eq("id", incident_id)
-            .eq("org_id", org_id)
-            .execute()
-        )
-    except Exception as exc:
-        _raise_db_error(exc, "Failed to update incident status")
-
-    if not (response.data or []):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Incident not found"
-        )
-
-    _add_timeline_event(incident_id, f"Status changed to {new_status}", actor)
-    await audit_service.log_action(
-        actor, actor, f"Incident status changed to {new_status}", f"incident:{incident_id}", "",
-        org_id=org_id,
-    )
-    return await get_incident(org_id, incident_id)
 
 
 async def assign_incident(
@@ -234,8 +215,8 @@ async def assign_incident(
     """Assign an org-scoped incident, record the timeline entry, and audit it."""
     client = get_supabase()
     try:
-        response = (
-            client.table("incidents")
+        response = await to_thread(
+            lambda: client.table("incidents")
             .update({"assigned_to": assigned_to, "updated_at": _now_iso()})
             .eq("id", incident_id)
             .eq("org_id", org_id)
@@ -249,7 +230,7 @@ async def assign_incident(
             status_code=status.HTTP_404_NOT_FOUND, detail="Incident not found"
         )
 
-    _add_timeline_event(incident_id, f"Assigned to {assigned_to}", actor)
+    await _add_timeline_event(incident_id, f"Assigned to {assigned_to}", actor)
     await audit_service.log_action(
         actor, actor, "Incident assigned", f"incident:{incident_id}", f"Assigned to {assigned_to}",
         org_id=org_id,
@@ -264,15 +245,15 @@ async def escalate_incident(
     client = get_supabase()
     try:
         current = (
-            client.table("incidents")
-            .select("severity")
-            .eq("id", incident_id)
-            .eq("org_id", org_id)
-            .limit(1)
-            .execute()
-            .data
-            or []
-        )
+            await to_thread(
+                lambda: client.table("incidents")
+                .select("severity")
+                .eq("id", incident_id)
+                .eq("org_id", org_id)
+                .limit(1)
+                .execute()
+            )
+).data or []
     except Exception as exc:
         _raise_db_error(exc, "Failed to query incident")
 
@@ -286,13 +267,17 @@ async def escalate_incident(
         update_payload["severity"] = "critical"
 
     try:
-        client.table("incidents").update(update_payload).eq("id", incident_id).eq(
-            "org_id", org_id
-        ).execute()
+        await to_thread(
+            lambda: client.table("incidents")
+            .update(update_payload)
+            .eq("id", incident_id)
+            .eq("org_id", org_id)
+            .execute()
+        )
     except Exception as exc:
         _raise_db_error(exc, "Failed to escalate incident")
 
-    _add_timeline_event(incident_id, "Incident Escalated", actor, reason)
+    await _add_timeline_event(incident_id, "Incident Escalated", actor, reason)
     await audit_service.log_action(
         actor, actor, "Incident escalated", f"incident:{incident_id}", reason,
         org_id=org_id,

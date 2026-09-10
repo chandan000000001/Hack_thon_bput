@@ -13,6 +13,7 @@ import * as api from '../services/api';
 import type { AnalysisResult, LoginEvent } from '../types';
 import { useApi } from '../hooks/useApi';
 import PageHeader from '../components/common/PageHeader';
+import QueuedAnalysisPanel from '../components/common/QueuedAnalysisPanel';
 import DataTable, { type Column } from '../components/common/DataTable';
 import SeverityBadge from '../components/common/SeverityBadge';
 import IndicatorList from '../components/common/IndicatorList';
@@ -233,7 +234,8 @@ export default function AccountTakeover() {
               Analysis results appear here — try the pre-filled brute-force sample
             </div>
           )}
-          {!analyzing && result && (
+          {!analyzing && result?.queued && <QueuedAnalysisPanel />}
+          {!analyzing && result && !result.queued && (
             <>
               <div className="flex items-center gap-4 rounded-xl border border-zinc-700/50 bg-zinc-800/60 p-4 backdrop-blur">
                 <span className="text-3xl font-bold" style={{ color: result.severity === 'critical' ? '#ef4444' : result.severity === 'high' ? '#ef4444' : result.severity === 'medium' ? '#a3a3a3' : '#e4e4e7' }}>

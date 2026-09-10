@@ -59,8 +59,9 @@ Full diagram, data flow and the security model (RLS, service role vs anon key, J
 
 ```bash
 # one-time: create the Supabase project, run backend/db/schema.sql plus the
-# idempotent migrations backend/db/migrations/0004_multi_tenancy.sql and
-# 0005_permissions.sql in the SQL editor, create the private bucket
+# idempotent migrations backend/db/migrations/0003_roles_and_seed.sql,
+# 0004_multi_tenancy.sql, 0005_permissions.sql and
+# 0006_org_bootstrap_guard.sql in the SQL editor, create the private bucket
 # "cyberguard-media", and fill backend/.env
 docker compose up --build        # redis + backend + frontend
 # optional background worker (on the host or a dedicated container):
@@ -95,17 +96,17 @@ The step-by-step evaluator guide (UI walkthrough + expected API responses) is in
 
 ## Evaluation Results
 
-Offline accuracy/performance evaluation of all six detection modules (URLhaus, Cisco Umbrella and UCI SMS public data + seeded synthetic sets; no LLM or network calls during measurement):
+Offline evaluation of all six detection modules on held-out data (URLhaus, Cisco Umbrella and UCI SMS public data + seeded synthetic sets; no LLM or network calls during measurement) — heuristics-only vs hybrid (0.45/0.55 monotonic blend):
 
-| Module | Accuracy | Precision | Recall | F1 |
-|---|---|---|---|---|
-| email_phishing | 1.000 | 1.000 | 1.000 | 1.000 |
-| url | 0.891 | 1.000 | 0.782 | 0.878 |
-| message (SMS proxy) | 0.728 | 1.000 | 0.457 | 0.627 |
-| account_takeover | 0.867 | 1.000 | 0.733 | 0.846 |
-| network | 0.867 | 1.000 | 0.733 | 0.846 |
-| deepfake_image | 1.000 | 1.000 | 1.000 | 1.000 |
-| **Macro average** | **0.892** | **1.000** | **0.784** | **0.866** |
+| Module | n | Heuristic F1 | Hybrid F1 |
+|---|---|---|---|
+| email_phishing | 24000 | 0.0268 | **0.9842** |
+| url | 200 | 0.9189 | **1.0000** (held-out; small-sample caveat) |
+| message (SMS proxy) | 600 | 0.6270 | 0.6826 |
+| account_takeover | 60 | 0.8462 | 0.8462 (no trained model) |
+| network | 60 | 0.8462 | 0.8148 |
+| deepfake_image | 1000 | 0.6667 | 0.6667 |
+| **Macro average** | | 0.6553 | **0.8324** |
 
 Full methodology, per-module breakdowns and limitations: **[evidence/reports/evaluation.md](../evidence/reports/evaluation.md)** (machine-readable: `evaluation.json`; regenerate with `python scripts/evaluate.py`).
 
@@ -123,7 +124,7 @@ Full methodology, per-module breakdowns and limitations: **[evidence/reports/eva
 - **Strict incident state machine** (`app/domain/incident_lifecycle.py`): `TRIAGE → CONTAINMENT → ERADICATION → RECOVERY → CLOSED`, plus TRIAGE→CLOSED (false positive) and CONTAINMENT→TRIAGE (escalate back). `PATCH /incidents/{id}/status` validates the transition via SQLAlchemy *before* committing, so an analyst cannot close an incident that is still in containment (400 with an explanatory message). Legacy statuses (`open`/`investigating`/`contained`/`closed`) are accepted and normalized.
 - **Async circuit breaker** (`app/ai/async_circuit_breaker.py`): a custom coroutine-safe breaker (CLOSED/OPEN/HALF_OPEN, threshold 3, 60 s recovery) wraps each remote LLM provider. When a provider is failing, its breaker opens and the gateway skips it instantly — an LLM outage can never hang the API; worst case is an immediate fall-through to the rule-based explanation.
 
-> **One-time DB steps:** run `db/migrations/0004_multi_tenancy.sql` and `0005_permissions.sql`, then widen the `incident_status` enum (`ALTER TYPE incident_status ADD VALUE IF NOT EXISTS 'TRIAGE';` etc. — see `docs/deployment.md`). Until then the API reads legacy rows fine, accepts legacy status values, scopes to the Default Organization and serves the permission matrix from code.
+> **One-time DB steps:** run `db/migrations/0003_roles_and_seed.sql`, `0004_multi_tenancy.sql`, `0005_permissions.sql` and `0006_org_bootstrap_guard.sql` (in that order, after `db/schema.sql`), then widen the `incident_status` enum (`ALTER TYPE incident_status ADD VALUE IF NOT EXISTS 'TRIAGE';` etc. — see `docs/deployment.md`). Until then the API reads legacy rows fine, accepts legacy status values, scopes to the Default Organization and serves the permission matrix from code.
 
 - **Phase B — multi-tenancy:** `organizations` table + `org_id` on profiles/events/alerts/incidents/audit_logs (migration 0004); every service SELECT filters by the caller's org and every INSERT tags it; `get_user_org_id` resolves the tenant with a 5-minute cache and Default Organization fallback so new signups never crash.
 - **Phase C-1 — background workers:** deepfake media and bulk log analysis (`POST /events/bulk`) run on an Arq worker via Redis (202 Accepted immediately); without Redis, or with `BACKGROUND_WORKERS_ENABLED=false`, the identical pipeline runs synchronously (200). Jobs are idempotent and org-scoped.
