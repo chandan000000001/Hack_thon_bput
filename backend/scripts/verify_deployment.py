@@ -170,6 +170,30 @@ def main() -> int:
                     f"severity={result.get('severity')} risk_score={result.get('risk_score')}"
                 )
 
+        # --- audio gates (audio_cnn_v1) -------------------------------------
+        audio_results: dict[str, dict | None] = {}
+        for rel in ("evidence/media/ercv.mp3", "evidence/media/tone.wav", "evidence/media/real_speech.wav"):
+            path = REPO / rel
+            if not path.exists():
+                path = ROOT / rel
+            if not path.exists():
+                audio_results[rel] = None
+                print(f"POST /analysis/media {Path(rel).name} -> missing on disk")
+                continue
+            result = analyze_media(client, token, path)
+            audio_results[rel] = result
+            if result is None:
+                print(f"POST /analysis/media {path.name} -> no finished alert (queued/failed)")
+            elif "http_error" in result:
+                print(f"POST /analysis/media {path.name} -> HTTP {result['http_error']} {result['detail']}")
+            else:
+                ml_values = [i.get("value") for i in result.get("indicators", []) if i.get("type") == "ml_model"]
+                print(
+                    f"POST /analysis/media {path.name} -> ml_model={ml_values} "
+                    f"severity={result.get('severity')} risk_score={result.get('risk_score')} "
+                    f"simulated={result.get('simulated')}"
+                )
+
     # --- 5. assertions -------------------------------------------------------
     check("GET /auth/me role == admin", me.status_code == 200 and me_role == "admin", f"role={me_role}")
 
@@ -196,6 +220,30 @@ def main() -> int:
             f"{Path(rel).name}: ml_model == {expected_artifact} (never deepfake_cnn.pt)",
             neural == [expected_artifact],
             f"ml_model={ml_values}",
+        )
+
+    # --- audio gate assertions (audio_cnn_v1) --------------------------------
+    ercv = audio_results.get("evidence/media/ercv.mp3") or {}
+    ercv_ml = [i.get("value") for i in (ercv.get("indicators") or []) if isinstance(i, dict) and i.get("type") == "ml_model"]
+    check(
+        "ercv.mp3 severity in (medium, high, critical)",
+        ercv.get("severity") in ("medium", "high", "critical"),
+        f"severity={ercv.get('severity')}",
+    )
+    check(
+        "ercv.mp3 ml_model == audio_cnn_v1.pt and simulated false",
+        "audio_cnn_v1.pt" in ercv_ml and ercv.get("simulated") is False,
+        f"ml_model={ercv_ml} simulated={ercv.get('simulated')}",
+    )
+    for rel in ("evidence/media/tone.wav", "evidence/media/real_speech.wav"):
+        result = audio_results.get(rel)
+        if result is None:
+            check(f"{Path(rel).name} severity in (safe, low)", False, "file missing or analysis not finished")
+            continue
+        check(
+            f"{Path(rel).name} severity in (safe, low)",
+            result.get("severity") in ("safe", "low"),
+            f"severity={result.get('severity')}",
         )
 
     # --- 6. PASS/FAIL table --------------------------------------------------

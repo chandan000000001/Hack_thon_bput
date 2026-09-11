@@ -2053,7 +2053,10 @@ resolution/fallback/cache exercised with mocked Supabase clients.
 
 ---
 
-# 43. Phase C-1: Background Workers (DELIVERED)
+# 43. Phase C-1: Background Workers (DELIVERED — superseded 2026-09-11)
+
+> **Superseded 2026-09-11:** the worker queue was removed; media/bulk analysis
+> runs synchronously (200). Kept as a historical delivery record.
 
 Date: 2026-09-10. Scope: backend; detection logic, ML models and worker-facing
 frontend behaviour untouched.

@@ -12,6 +12,11 @@ that category instead. Run from the backend directory:
     python scripts/fetch_datasets.py
 """
 
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))  # backend/ on sys.path for every launch style
+
 import csv
 import hashlib
 import io

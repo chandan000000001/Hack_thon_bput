@@ -626,6 +626,64 @@ def main() -> int:
     else:
         check("POST /analysis/media erew.jpeg exists and tested", False, f"missing {EREW_MEDIA_PATH}")
 
+    # --- audio deepfake gates (audio_cnn_v1) ---------------------------------
+    # ercv.mp3 (user-contributed ElevenLabs clip) must trip the trained audio
+    # model; tone.wav (synthetic tone) and real_speech.wav (bona fide ASVspoof
+    # dev utterance) must stay safe/low. Audio responses carry
+    # simulated=false when the trained model serves the analysis.
+    def upload_media(path: Path, mime: str, boundary: str):
+        file_bytes = path.read_bytes()
+        part = (
+            f"--{boundary}\r\n"
+            f'Content-Disposition: form-data; name="file"; filename="{path.name}"\r\n'
+            f"Content-Type: {mime}\r\n\r\n"
+        ).encode() + file_bytes + f"\r\n--{boundary}--\r\n".encode()
+        return http_req(
+            "POST",
+            f"{BASE_URL}/analysis/media",
+            token=token,
+            raw_body=part,
+            content_type=f"multipart/form-data; boundary={boundary}",
+        )
+
+    audio_cases = [
+        ("ercv.mp3", "audio/mpeg", ("medium", "high", "critical")),
+        ("tone.wav", "audio/wav", ("safe", "low")),
+        ("real_speech.wav", "audio/wav", ("safe", "low")),
+    ]
+    for audio_name, audio_mime, audio_expected in audio_cases:
+        audio_path = REPO_ROOT / "evidence" / "media" / audio_name
+        if not audio_path.exists():
+            check(f"POST /analysis/media {audio_name} exists and tested", False, f"missing {audio_path}")
+            continue
+        code_a, media_a = upload_media(audio_path, audio_mime, f"----cyberguard{audio_name.replace('.', '')}")
+        sev_a = media_a.get("severity") if isinstance(media_a, dict) else None
+        sim_a = media_a.get("simulated") if isinstance(media_a, dict) else None
+        ind_a = [
+            i.get("value")
+            for i in (media_a.get("indicators") or [])
+            if isinstance(i, dict) and i.get("type") == "ml_model"
+        ] if isinstance(media_a, dict) else []
+        base_ok = (code_a == 200) or (code_a == 202)
+        check(
+            f"POST /analysis/media {audio_name} -> 200 sync | 202 queued",
+            base_ok,
+            f"status {code_a}",
+        )
+        if code_a != 200:
+            continue
+        check(
+            f"POST /analysis/media {audio_name} -> severity in {audio_expected}",
+            sev_a in audio_expected,
+            f"severity={sev_a} ml_model={ind_a} simulated={sim_a}",
+        )
+        if audio_name == "ercv.mp3":
+            check(
+                "POST /analysis/media ercv.mp3 -> ml_model audio_cnn_v1.pt and simulated false",
+                "audio_cnn_v1.pt" in ind_a and sim_a is False,
+                f"ml_model={ind_a} simulated={sim_a}",
+            )
+
     # --- alerts ---------------------------------------------------------------
     code, alerts = api("GET", "/alerts", token)
     alert_list = alerts if isinstance(alerts, list) else []

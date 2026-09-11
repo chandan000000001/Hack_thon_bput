@@ -42,7 +42,6 @@ from app.services.account_takeover_detector import analyze_auth_log_heuristics
 from app.services.alert_service import create_alert_in_db
 from app.services.deepfake_detector import analyze_media
 from app.services.impersonation_detector import analyze_impersonation_heuristics
-from app.services.job_queue import enqueue_job
 from app.services.ml_inference import score_with_ml
 from app.services.network_threat_detector import analyze_network_heuristics
 from app.services.phishing_detector import analyze_email_heuristics
@@ -489,33 +488,8 @@ async def analyze_media_upload(
             detail="Failed to store media file metadata",
         ) from exc
 
-    # Phase C-1: hand the heavy forensics to the Arq worker when the queue is
-    # available; otherwise fall through to the synchronous pipeline below.
-    settings = get_settings()
-    if settings.BACKGROUND_WORKERS_ENABLED and await enqueue_job(
-        "job_analyze_media", event_id=event_id
-    ):
-        return JSONResponse(
-            status_code=status.HTTP_202_ACCEPTED,
-            content={
-                "event_id": event_id,
-                "status": "analyzing",
-                "message": "Queued for background analysis",
-                "module": "deepfake",
-                "alert_id": None,
-                "risk_score": None,
-                "severity": None,
-                "indicators": [],
-                "explanation": None,
-                "explanation_provider": None,
-                "explanation_latency_ms": None,
-                "mitre_techniques": [],
-                "recommended_actions": [],
-                "storage_path": media_record["storage_path"],
-                "file_name": media_record["file_name"],
-            },
-        )
-
+    # Heavy forensics runs synchronously on the request thread (the background
+    # worker queue was removed — no Redis/Arq dependency).
     return await _run_deepfake_pipeline(
         event_id=event_id,
         file_bytes=file_bytes,

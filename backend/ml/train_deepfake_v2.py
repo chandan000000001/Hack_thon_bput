@@ -31,6 +31,11 @@ Usage (from the backend directory):
     python ml/train_deepfake_v2.py [--epochs 10] [--batch-size 128] [--max-samples N]
 """
 
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))  # backend/ on sys.path for every launch style
+
 import argparse
 import json
 import time

@@ -4,6 +4,7 @@ import { useAuthStore } from '../store/authStore';
 import PageHeader from '../components/common/PageHeader';
 import { SEVERITY_COLORS } from '../theme';
 import { getSeverityFromScore } from '../services/mockEngine';
+import { getApiBaseUrl } from '../lib/apiConfig';
 
 const BANDS: [number, number, string][] = [
   [0, 20, 'Benign activity; no action required. Monitor-only logging.'],
@@ -15,7 +16,7 @@ const BANDS: [number, number, string][] = [
 
 export default function Settings() {
   const user = useAuthStore((s) => s.user);
-  const [mockMode] = useState(true);
+  const [mockMode] = useState(import.meta.env.VITE_USE_MOCK !== 'false');
 
   return (
     <div className="max-w-3xl space-y-5">
@@ -61,12 +62,12 @@ export default function Settings() {
             <Server className="h-3 w-3" /> Backend URL
           </div>
           <input
-            value={import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'}
+            value={getApiBaseUrl()}
             disabled
             className="w-full rounded-lg border border-zinc-700/60 bg-zinc-900/80 px-3 py-2 font-mono text-sm text-zinc-400"
           />
-          <p className="mt-1.5 flex items-center gap-1 text-[11px] text-zinc-600">
-            <Lock className="h-3 w-3" /> Will be activated in backend phase — set VITE_USE_MOCK=false to switch
+          <p className="mt-1.5 flex items-center gap-1 text-[11px] text-zinc-500">
+            <Lock className="h-3 w-3" /> Auto-resolves based on environment (localhost vs Cloudflare tunnel)
           </p>
         </div>
       </div>

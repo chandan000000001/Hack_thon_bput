@@ -35,6 +35,7 @@ _LOCKS = {
     "url": threading.Lock(),
     "deepfake": threading.Lock(),
     "network": threading.Lock(),
+    "audio": threading.Lock(),
 }
 _CACHE: dict[str, object] = {}
 
@@ -275,8 +276,123 @@ def deepfake_deployment_status(light: bool = True) -> dict[str, object]:
             "version": version,
             "artifact": artifact,
             "heuristics_only": degraded,
-        }
+        },
+        "audio": audio_deployment_status(),
     }
+
+
+# ---------------------------------------------------------------------------
+# Audio anti-spoofing model (audio_cnn_v1) — trained by ml/train_audio_v1.py
+# ---------------------------------------------------------------------------
+
+AUDIO_ARTIFACT = "audio_cnn_v1.pt"
+
+
+def audio_model_version() -> str:
+    """Read the active audio model version from models_dir()/calibration.json.
+
+    Values: "v1" serves the trained LCNN artifact (audio_cnn_v1.pt);
+    "simulated" keeps the pre-model simulated hash-based audio scoring.
+    Missing file or unknown value -> "simulated" (the safe default).
+    """
+    try:
+        import json
+
+        with (models_dir() / "calibration.json").open(encoding="utf-8") as fh:
+            calibration = json.load(fh)
+        version = str(calibration.get("audio_model_version", "simulated"))
+        return version if version in ("v1", "simulated") else "simulated"
+    except Exception:
+        return "simulated"
+
+
+def _load_audio_model():
+    """Load the audio LCNN artifact when calibration selects v1 and it exists."""
+    from ml.audio_model import load_audio_artifact
+
+    if audio_model_version() != "v1":
+        return None
+    base = models_dir()
+    if not (base / AUDIO_ARTIFACT).exists():
+        logger.warning(
+            "audio model v1 selected by calibration but %s is missing — "
+            "audio analysis falls back to the simulated hash path",
+            AUDIO_ARTIFACT,
+        )
+        return None
+    try:
+        model, mean, std = load_audio_artifact(base / AUDIO_ARTIFACT)
+        return model, mean, std
+    except Exception as exc:
+        logger.warning("audio model %s failed to load (%s) — simulated fallback", AUDIO_ARTIFACT, exc)
+        return None
+
+
+def get_audio_model():
+    """Thread-safe lazy loader. Returns (model, handcraft_mean, handcraft_std) or None."""
+    return _cached("audio", _load_audio_model)
+
+
+def audio_model_available() -> bool:
+    """True when the trained audio model is loaded and will serve inference."""
+    return get_audio_model() is not None
+
+
+def audio_deployment_status() -> dict[str, object]:
+    """Deployment info for the startup log and /health/deep."""
+    version = audio_model_version()
+    available = audio_model_available()
+    return {
+        "version": version,
+        "artifact": AUDIO_ARTIFACT if version == "v1" else None,
+        "model_loaded": available,
+        "mode": "trained_model" if available else "simulated_fallback",
+    }
+
+
+def predict_audio(file_bytes: bytes, file_name: str = "") -> dict | None:
+    """Audio anti-spoofing inference over 3s crops.
+
+    Decodes any container to 16 kHz mono, splits into 3-second crops (50%
+    overlap), scores every crop with the LCNN model and returns
+    {"mean_prob", "max_prob", "n_crops"} — callers flag on the max crop
+    probability and keep the mean as context. Returns None when the model is
+    unavailable or decoding/inference fails, so callers keep the pre-model
+    behaviour.
+    """
+    bundle = get_audio_model()
+    if bundle is None:
+        return None
+    try:
+        import torch
+
+        from ml.audio_features import (
+            decode_audio_16k,
+            extract_crop_features,
+            make_crops,
+        )
+
+        model, mean, std = bundle
+        signal = decode_audio_16k(file_bytes, file_name)
+        crops = make_crops(signal)
+        if not crops:
+            return None
+        probabilities: list[float] = []
+        with torch.no_grad():
+            for crop in crops:
+                mel, hand = extract_crop_features(crop)
+                mel_t = torch.from_numpy(mel.astype("float32")).unsqueeze(0).unsqueeze(0)
+                hand_t = torch.from_numpy((hand - mean) / std).float().unsqueeze(0)
+                logit = model(mel_t, hand_t)
+                probabilities.append(float(torch.sigmoid(logit).item()))
+        return {
+            "mean_prob": sum(probabilities) / len(probabilities),
+            "max_prob": max(probabilities),
+            "n_crops": len(probabilities),
+        }
+    except Exception as exc:
+        logger.warning("audio ML inference failed: %s", exc)
+        return None
 
 
 def _load_network_model():

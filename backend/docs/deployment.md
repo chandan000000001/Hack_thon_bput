@@ -2,7 +2,7 @@
 
 ## 1. Local Development Setup
 
-Prerequisites: Python 3.11+, Node 18+, a Supabase project (section 4), and optionally Docker (for Redis).
+Prerequisites: Python 3.11+, Node 18+, a Supabase project (section 4), and optionally Docker.
 
 ```bash
 # --- Backend ---
@@ -25,42 +25,26 @@ npm run dev                        # http://localhost:5173
 Optional (evaluation harness):
 
 ```bash
-cd backend && source .venv/bin/activate
-python scripts/fetch_datasets.py            # downloads URLhaus / Umbrella / UCI SMS
-python scripts/generate_synthetic_datasets.py
-python scripts/evaluate.py                  # writes evidence/reports/evaluation.{md,json}
+cd backend
+uv run python scripts/fetch_datasets.py            # downloads URLhaus / Umbrella / UCI SMS
+uv run python scripts/generate_synthetic_datasets.py
+uv run python scripts/evaluate.py                  # writes evidence/reports/evaluation.{md,json}
+
+ML pipeline scripts launch canonically as modules (both
+`uv run python -m ml.<module>` and `uv run python ml/<module>.py` work —
+every script bootstraps `backend/` onto `sys.path`):
+
+uv run python -m ml.fetch_data              # raw dataset download
+uv run python -m ml.train_models            # email/url/network models
 ```
 
-## 2. Redis & Background Worker (Phase C-1)
+## 2. Analysis execution model (synchronous)
 
-Heavy analysis — deepfake media forensics and bulk log ingestion — runs off the request thread on an Arq worker backed by Redis. The API enqueues the job and answers `202 Accepted` immediately; the alert still lands in Supabase and reaches the dashboard via Realtime.
+The background worker queue (Arq + Redis) and the per-request rate limiter were **removed** from the codebase: heavy analysis — deepfake media forensics and bulk log ingestion — now always runs synchronously on the request thread and the API answers `200` with the finished result (the `202 Accepted` queue path no longer exists).
 
-> **Phase D-1 rule:** blocking IO never runs on the event loop; all supabase-py and media forensics calls execute in the threadpool (`app/core/asyncbridge.to_thread` or plain `def` routes).
+> **Phase D-1 rule (unchanged):** blocking IO never runs on the event loop; all supabase-py and media forensics calls execute in the threadpool (`app/core/asyncbridge.to_thread` or plain `def` routes).
 
-**Start Redis** (one command):
-
-```bash
-docker compose up -d redis          # redis:7-alpine on localhost:6379
-```
-
-**Start the worker** (in a second terminal, from `backend/` with the venv active):
-
-```bash
-arq app.workers.settings.WorkerSettings
-```
-
-The worker registers two jobs (`job_analyze_media`, `job_analyze_bulk_logs`), runs up to 4 jobs concurrently (`max_jobs=4`) with a 300 s per-job timeout (`job_timeout=300`).
-
-**Graceful synchronous fallback** — the system degrades, never breaks:
-
-| Situation | Behaviour |
-|---|---|
-| Redis up, worker running | `202 Accepted`; job executes in the background |
-| Redis up, worker stopped | `202 Accepted`; job waits in the queue until a worker starts |
-| Redis unreachable | API logs `Worker queue unavailable, caller must run synchronously` and processes the request inline, answering `200` exactly as before Phase C-1 |
-| `BACKGROUND_WORKERS_ENABLED=false` | Queue is never consulted; everything runs synchronously (200) |
-
-Environment variables: `REDIS_URL` (default `redis://localhost:6379`) and `BACKGROUND_WORKERS_ENABLED` (default `true`), both documented in section 5.
+The `redis` service remains in `docker-compose.yml` (and the `redis`/`arq` packages in `pyproject.toml`) as standalone infrastructure for local tooling — the application itself no longer depends on them.
 
 ## 3. Docker Compose Setup
 
@@ -68,7 +52,7 @@ Environment variables: `REDIS_URL` (default `redis://localhost:6379`) and `BACKG
 
 ```bash
 docker compose up --build
-# redis    -> localhost:6379   (Arq job queue; the worker itself runs on the host)
+# redis    -> localhost:6379   (standalone local infrastructure; app no longer uses it)
 # backend  -> http://localhost:8000  (FastAPI, uvicorn)
 # frontend -> http://localhost:3000  (Nginx serving the built SPA)
 ```
@@ -118,9 +102,6 @@ Backend (`backend/.env`, loaded by `app/core/config.py`):
 | `SUPABASE_ANON_KEY` | Public anon key — used **only** to verify user JWTs (`app/core/security.py`) | — (required) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Privileged key — all DB/storage writes; **backend-only, never commit** | — (required) |
 | `DATABASE_URL` | Async SQLAlchemy connection for the incident domain layer (`postgresql+asyncpg://…`); a driver-less `postgresql://` value is rewritten automatically. Does **not** replace supabase-py (Auth/Storage/Realtime) | `postgresql+asyncpg://postgres:postgres@localhost:54322/postgres` |
-| `REDIS_URL` | Redis DSN for the Arq queue | `redis://localhost:6379` |
-| `BACKGROUND_WORKERS_ENABLED` | `false` forces the synchronous path for media/bulk analysis | `true` |
-| `RATE_LIMIT_RPM` | Token-bucket budget, requests per minute per user/IP (`app/core/rate_limit.py`) | `300` |
 | `GROQ_API_KEY` | Groq key; empty skips Groq in the provider chain | `""` |
 | `GROQ_MODEL` | Groq model id | `llama-3.1-8b-instant` |
 | `GROQ_TIMEOUT_SECONDS` | Groq call timeout in seconds (first provider in the chain) | `20` |
@@ -144,10 +125,10 @@ Frontend (`frontend/.env`, Vite build-time):
 ## 6. Scalability Approach
 
 **Backend (stateless by design)**
-- The FastAPI app holds no in-process state beyond cached singletons (settings, Supabase clients, the SQLAlchemy engine), the in-memory explanation cache (bounded to 256 entries) and per-provider circuit-breaker state, so it scales horizontally: run multiple uvicorn workers (`--workers 4`) or replicas behind any load balancer. All shared state lives in Supabase (and Redis).
-- **Pool sizes:** the SQLAlchemy engine pools connections (`pool_pre_ping`, `pool_size=10`, `max_overflow=20`) so bursty incident traffic reuses a bounded connection set — pair `--workers N` with the Postgres/Supavisor connection limit when scaling out. The Arq worker runs `max_jobs=4` concurrent jobs with `job_timeout=300`; scale workers by starting more `arq` processes against the same `REDIS_URL` (jobs are idempotent, so redelivery never duplicates alerts).
+- The FastAPI app holds no in-process state beyond cached singletons (settings, Supabase clients, the SQLAlchemy engine), the in-memory explanation cache (bounded to 256 entries) and per-provider circuit-breaker state, so it scales horizontally: run multiple uvicorn workers (`--workers 4`) or replicas behind any load balancer. All shared state lives in Supabase.
+- **Pool sizes:** the SQLAlchemy engine pools connections (`pool_pre_ping`, `pool_size=10`, `max_overflow=20`) so bursty incident traffic reuses a bounded connection set — pair `--workers N` with the Postgres/Supavisor connection limit when scaling out. (The Arq worker was removed; analysis runs in-process — scale by running more uvicorn workers.)
 - Heuristic detectors are pure CPU functions measured at **< 10 ms p95** on the evaluation set (`evidence/reports/evaluation.json`); the dominant latency is the LLM explanation, bounded twice over: per-provider timeouts plus the async circuit breakers. After 3 consecutive provider failures a breaker opens for 60 s and the gateway skips that provider instantly.
-- Long-running media forensics and bulk log analysis already run off the request thread on the Arq worker when Redis is available (section 2), with synchronous fallback otherwise; further CPU-heavy work can follow the same pattern.
+- Long-running media forensics and bulk log analysis run synchronously on the request thread (section 2) with all blocking IO in the threadpool; further CPU-heavy work should follow the same pattern.
 - **Supabase pooler:** when scaling to many backend workers, connect `DATABASE_URL` through Supabase's connection pooler (Supavisor, port 6543 transaction mode / 5432 session mode) instead of the direct Postgres port, and size `pool_size` × workers within the pooler's client limit.
 
 **Supabase (managed, auto-scaled control plane)**
@@ -164,11 +145,9 @@ Frontend (`frontend/.env`, Vite build-time):
 
 ## 7. Hardening Notes (Phase D-2)
 
-- **Rate limiting:** every request except `/health*` passes an in-memory
-  token-bucket middleware (`app/core/rate_limit.py`) keyed by the authenticated
-  user id (unverified JWT `sub`, bucketing only) or client IP. Budget:
-  `RATE_LIMIT_RPM` requests/minute (default 300). Exhaustion answers
-  `429` with a `Retry-After` header.
+- **Rate limiting (removed):** the Phase D-1 token-bucket middleware
+  (`app/core/rate_limit.py`, `RATE_LIMIT_RPM`, `429` + `Retry-After`) was
+  removed — requests are no longer throttled.
 - **CORS boot guard:** the API refuses to boot when `CORS_ORIGINS` contains
   `*` while `allow_credentials` is enabled
   (`RuntimeError: CORS_ORIGINS must not contain '*' while allow_credentials is True`).

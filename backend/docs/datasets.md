@@ -76,6 +76,21 @@ Fetched from Cisco Umbrella static export (`http://s3-us-west-1.amazonaws.com/um
 - **Lookup module:** `backend/app/core/url_reputation.py` provides multi-part ccTLD extraction (`get_registrable_domain`) and high-reputation domain checks (`is_domain_in_top1m`).
 - **Deep-link Augmentation:** `ml/augment_urls.py` generates 3,000 benign deep-links combining sampled high-reputation domains with popular share and resource path patterns (`/c/<uuid>`, `/d/<hex32>`, `/watch?v=<id>`, `/share/<token>`, `/p/<hex16>`, `/file/d/<id>/view`). Added to `ml/data/train_urls.csv` (3,800 total rows) to train `ml/models/url_xgb_v2.pkl`.
 
+## 6. Audio deepfake data (`backend/ml/data/audio/`)
+
+Fetched by `ml/fetch_audio_data.py`; every source is recorded with status/licence in `ml/data/audio/provenance.json` (the table below mirrors it) and the manifest is `ml/data/audio/manifest.csv` (`filepath,label,subclass,partition,source`). Actual run: **13,132 utterances** across 14 subclasses (`--max-utterances 4000`: 2,580/2,548 bona fide train/dev + 667 per attack A01–A06 per partition).
+
+| Source | Path | Origin | Licence / status | Utterances | Labels | Caveats |
+|---|---|---|---|---|---|---|
+| `asvspoof2019_hf_mirror` | `ml/data/audio/asvspoof2019/{train,dev}/…/*.flac` | ASVspoof 2019 **Logical Access** train + dev, via the HuggingFace parquet mirror `Bisher/ASVspoof_2019_LA` of the official asvspoof.org / datashare.ed.ac.uk release (identical utterances; the official 7.6 GB zip throttles to ~180 KB/s ≈ 12 h, the mirror serves ~7 MB/s) | **ODC-By 1.0** — academic/research use (`fetched`) | capped by `--max-utterances` per class (bona fide + each attack A01–A06 — the only attacks present in LA train/dev; A07–A19 are eval-only) | 0 bona fide (`system_id "-"`) / 1 spoof (attack id) | 2019 vocoder/TTS attacks; **modern codec TTS (ElevenLabs) is a domain shift** — see the audio model card in `docs/models.md` §4 |
+| `wavefake_hf_mirror` (fallback) | `ml/data/audio/wavefake/…` | WaveFake HF mirror — neural-vocoder fakes + LJSpeech bona fide | **CC BY-NC-SA 4.0** research use (`fetched`) | capped | 1 fake / 0 real | only used when the ASVspoof chain fails |
+| `espeak_ng_synthetic` (last resort) | `ml/data/audio/espeak_fallback/…` | local espeak-ng synthesis against cached bona fide speech | generated locally (`synthetic_fallback`) | ≤ `--max-utterances` | 1 fake / 0 real | formant synthesis — far easier to detect than neural TTS; metrics on this data overstate real-world performance |
+| `piper_tts_vits` (optional `--augment-piper`) | `ml/data/audio/piper_tts/fake/…` | piper-tts (VITS) synthesis of 200 public-domain sentences, offline | MIT voices; sentences public domain (`fetched`) | ≤ 200 | 1 fake | modern open-source neural TTS; install/synthesis failures warn and skip, never crash (not enabled in the committed run) |
+| `real_world_gate_split` | `datasets/media/real_world_audio/{fake,real}/` | user-contributed ElevenLabs clips (incl. a copy of `ercv.mp3`) + user voice memos | user-contributed, evaluation-only | a handful of clips | fake/real by construction | **NEVER trained on** — used solely for the post-training gate (ElevenLabs recall, real-speech FPR) |
+| `real_speech_sample` | `evidence/media/real_speech.wav` | one bona fide ASVspoof 2019 LA **dev** utterance (16-bit PCM WAV) | ODC-By 1.0 (`fetched`) | 1 | 0 real | regression fixture; dev partition, disjoint from training |
+
+Fetch chain (`--source auto`): `official` (datashare.ed.ac.uk LA.zip) → `hf_mirror` → `wavefake` → `espeak`. Provenance status values mirror the root `datasets/provenance.json` convention: `fetched` for real downloads, `synthetic_fallback` when only local synthesis was possible.
+
 ## Ground truth construction
 
 - **Malicious URLs (URLhaus):** every row carries `label=malicious` directly from the curated abuse.ch feed — authoritative for malware distribution, a superset of phishing.
@@ -101,4 +116,4 @@ python scripts/generate_synthetic_datasets.py
 python scripts/evaluate.py
 ```
 
-ML training data is fetched separately by `python ml/fetch_data.py`, then split with `ml/preprocess.py` and trained with `ml/train_models.py` (artifacts land in `ml/models/`; their SHA-256 hashes are recorded in the evaluation report). Because the synthetic generators are seeded (`random.Random(42)`) and the public downloads are content-addressed (SHA-256 recorded in `provenance.json`), re-running the pipeline reproduces the same evaluation inputs.
+ML training data is fetched separately by `uv run python -m ml.fetch_data`, then split with `ml/preprocess.py` and trained with `uv run python -m ml.train_models` (artifacts land in `ml/models/`; their SHA-256 hashes are recorded in the evaluation report). Because the synthetic generators are seeded (`random.Random(42)`) and the public downloads are content-addressed (SHA-256 recorded in `provenance.json`), re-running the pipeline reproduces the same evaluation inputs.

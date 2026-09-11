@@ -13,7 +13,6 @@ Complete reference for the FastAPI backend (`backend/app/api/`), read directly f
 | 403 | `Missing permission: <key>` (permission matrix) or approval/permission gate |
 | 404 | Resource not found **in the caller's organization** — cross-tenant ids resolve to 404 before any data is touched |
 | 413 | Media upload exceeds 25 MB |
-| 429 | Rate limit exhausted (`{"error": "rate_limited", "message": "Too many requests"}` + `Retry-After`) |
 | 500 | Internal error; raw Supabase/driver error strings never reach the client |
 
 ---
@@ -21,7 +20,7 @@ Complete reference for the FastAPI backend (`backend/app/api/`), read directly f
 ## Health — `routes_health.py`
 
 ### `GET /health`
-*Authenticated: no (exempt from rate limiting).*
+*Authenticated: no.*
 Shallow liveness probe — no Supabase round-trip per call (connectivity served from a 30-second cache).
 ```json
 {"status": "ok", "version": "0.1.0", "timestamp": "…ISO-8601…", "supabase_connected": true}
@@ -77,8 +76,7 @@ Multipart `file` (image/audio/video content type, else **400**). Uploads to the 
 ### `POST /events/bulk`
 *Permission: `analysis.run`.* Body: `{"kind": "auth-log" | "network", "rows": [dict, …]}` (min 1 row; > 1000 rows → **400** `"Bulk batch exceeds 1000 rows"`).
 
-- **202 Accepted** (queued on the Arq worker): `{"event_id": "…", "event_type": "account_takeover" | "network", "status": "analyzing", "message": "Queued for background analysis"}`
-- **200** (Redis unreachable or `BACKGROUND_WORKERS_ENABLED=false`): `{"event_id": "…", "event_type": "…", "status": "completed" | "failed", "message": "Analyzed synchronously"}`
+- **200** (always — the batch is analysed synchronously on the request thread): `{"event_id": "…", "event_type": "…", "status": "completed" | "failed", "message": "Analyzed synchronously"}`
 
 ### `GET /events/{event_id}`
 *Authenticated: yes.* Returns the org-scoped event row; **404** when missing or cross-tenant.
@@ -118,15 +116,7 @@ All `POST /analysis/*` text/flow endpoints require **`analysis.run`**, run the s
 *Permissions: `analysis.run` **and** `media.upload`.*
 Multipart `file` (image/video/audio, else **400**; > 25 MB → **413**). Uploads to Storage, records `media_files`, then:
 
-- **202 Accepted** (Arq queue available): null-safe payload —
-```json
-{"event_id": "…", "status": "analyzing", "message": "Queued for background analysis", "module": "deepfake",
- "alert_id": null, "risk_score": null, "severity": null, "indicators": [], "explanation": null,
- "explanation_provider": null, "explanation_latency_ms": null, "mitre_techniques": [],
- "recommended_actions": [], "storage_path": "…", "file_name": "…"}
-```
-The frontend maps `status === "analyzing"` to the queued pending state; the finished alert arrives via Supabase Realtime.
-- **200** (synchronous fallback): full deepfake result plus `event_id`, `alert_id`, `storage_path`, `explanation`, `explanation_provider`, `explanation_latency_ms`, `mitre_techniques`, `recommended_actions`, and the analyzer fields `media_type`, `method`, `simulated`, `authenticity_score`, `manipulation_probability`.
+- **200** (always — analysis runs synchronously; the Arq/202 queued flow was removed): full deepfake result plus `event_id`, `alert_id`, `storage_path`, `explanation`, `explanation_provider`, `explanation_latency_ms`, `mitre_techniques`, `recommended_actions`, and the analyzer fields `media_type`, `method`, `simulated`, `authenticity_score`, `manipulation_probability`.
 
 ### `POST /analysis/media/event/{event_id}`
 *Permissions: `analysis.run` **and** `media.upload`.*

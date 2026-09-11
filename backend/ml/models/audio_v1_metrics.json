@@ -1,0 +1,75 @@
+{
+  "model": "AudioLCNNV1 (LCNN/MFM log-Mel CNN + 6-dim handcrafted branch)",
+  "artifact": "audio_cnn_v1.pt",
+  "epochs_run": 3,
+  "wall_clock_seconds": 703.6,
+  "wall_clock_human": "11m43s",
+  "device": "cpu",
+  "quick": true,
+  "max_crops_per_utterance": 2,
+  "train_rows": 6582,
+  "dev_rows": 6550,
+  "train_crops": 10559,
+  "dev_crops": 10425,
+  "class_counts_train": {
+    "bonafide": 4174,
+    "spoof": 6385
+  },
+  "pos_weight": 0.6537,
+  "best_dev_f1": 0.851734503209034,
+  "dev_metrics": {
+    "f1": 0.851734503209034,
+    "accuracy": 0.8249400479616307,
+    "auc": 0.9138043696186791
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.3592,
+      "dev_f1": 0.0281,
+      "dev_accuracy": 0.4091
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.1512,
+      "dev_f1": 0.8517,
+      "dev_accuracy": 0.8249
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.0814,
+      "dev_f1": 0.6592,
+      "dev_accuracy": 0.6947
+    }
+  ],
+  "real_world_gate": {
+    "elevenlabs_fake": {
+      "n": 1,
+      "recall_mean_prob>=0.5": 0.0,
+      "recall_max_prob>=0.5": 1.0,
+      "per_file": [
+        {
+          "file": "ercv.mp3",
+          "mean_prob": 0.4872,
+          "max_prob": 0.8549,
+          "n_crops": 3
+        }
+      ]
+    },
+    "real_speech": {
+      "n": 1,
+      "fpr_mean_prob>=0.5": 0.0,
+      "fpr_max_prob>=0.5": 0.0,
+      "per_file": [
+        {
+          "file": "real_speech.wav",
+          "mean_prob": 0.2678,
+          "max_prob": 0.2678,
+          "n_crops": 1
+        }
+      ]
+    }
+  },
+  "real_world_gate_note": "Gate split is NEVER trained on. ElevenLabs recall = fraction of user-contributed clips with probability >= 0.5; real-speech FPR = fraction of bona fide clips (user memos + one ASVspoof dev utterance) flagged >= 0.5. Modern codec TTS (ElevenLabs) is a DOMAIN SHIFT from ASVspoof 2019 vocoder attacks \u2014 read the recall as an honest transfer estimate, not an upper bound.",
+  "generated_at": "2026-09-11T07:57:28.753549+00:00"
+}

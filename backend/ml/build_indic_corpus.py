@@ -20,6 +20,11 @@ CSV is written; the run stays deterministic because paraphrases are cached and
 appended after the seeded slot-fill rows.
 """
 
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))  # backend/ on sys.path for every launch style
+
 import argparse
 import random
 from pathlib import Path

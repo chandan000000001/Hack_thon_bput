@@ -74,7 +74,7 @@ const FALLBACK_ROLE_PERMISSIONS: Record<Role, string[]> = {
   ],
 };
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+import { getApiBaseUrl } from '../lib/apiConfig';
 
 interface AuthState {
   user: User | null;
@@ -130,7 +130,8 @@ async function fetchAuthMe(
 ): Promise<{ role: Role; fullName: string | null; permissions: string[] }> {
   if (!token) return { role: 'viewer', fullName: null, permissions: FALLBACK_ROLE_PERMISSIONS.viewer };
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    const baseUrl = getApiBaseUrl();
+    const response = await fetch(`${baseUrl}/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!response.ok) {

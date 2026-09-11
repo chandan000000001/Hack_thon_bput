@@ -11,7 +11,7 @@ flowchart LR
     end
 
     subgraph Backend["Backend — FastAPI (this repo: backend/)"]
-        API["FastAPI app\napp/main.py — 12 routers under /api/v1\nrate-limit middleware"]
+        API["FastAPI app\napp/main.py — 12 routers under /api/v1"]
         SEC["app/core/security.py\nJWT verification via Supabase Auth\n+ permission matrix"]
         DET["Detection services\napp/services/*_detector.py"]
         SCORE["Risk scoring + hybrid blend\nscoring_service.py / ml_inference.py"]
@@ -28,8 +28,6 @@ flowchart LR
     end
 
     LLM["LLM provider chain\nGroq 20s -> OpenRouter 60s -> rule_based\nper-provider circuit breakers"]
-    REDIS["Redis\nArq job queue"]
-    WORKER["Arq worker\napp/workers/settings.py\njob_analyze_media / job_analyze_bulk_logs"]
 
     FE -- "HTTPS + Bearer JWT\n(src/services/http.ts)" --> API
     FE -- "signInWithPassword / getSession" --> AUTH
@@ -38,9 +36,6 @@ flowchart LR
     API -- "service role key\n(app/core/storage.py)" --> STO
     API -- "anon key + user JWT\n(app/core/security.py)" --> AUTH
     API -- "provider chain, JSON mode\n(app/ai/llm_gateway.py)" --> LLM
-    API -- "enqueue media/bulk jobs\n(app/services/job_queue.py)" --> REDIS
-    WORKER -- "consume jobs" --> REDIS
-    WORKER -- "run heavy analysis,\nwrite alerts via service role" --> DB
     API -- "incident status transitions\n(row-locked)" --> DBL --> DB
     DET --> SCORE --> XAI --> SVC
     RT -- "new alert INSERTs" --> FE
@@ -54,7 +49,7 @@ Two ingestion surfaces write org-scoped rows into the `events` table (`event_sta
 
 1. **Raw ingestion** — `POST /events/{email|url|message|auth-log|network|api-log|media}` stores the validated payload as an event with status `received`; media additionally uploads the file to the private `cyberguard-media` bucket (25 MB cap, sanitized file name) and inserts a `media_files` row.
 2. **Analysis pipeline** — `POST /analysis/{email|url|impersonation|account-takeover|network|media}` stores an event with status `analyzing`, then runs detection → scoring → explanation → alert creation in one request and returns the finished alert.
-3. **Bulk ingestion (Phase C-1)** — `POST /events/bulk` (`kind: "auth-log" | "network"`, max 1000 rows, else 400) stores one event with status `analyzing` and hands it to the Arq worker (202) or the synchronous fallback (200).
+3. **Bulk ingestion** — `POST /events/bulk` (`kind: "auth-log" | "network"`, max 1000 rows, else 400) stores one event and analyses it synchronously (`app/services/bulk_analysis.py`), answering 200 with the final status.
 
 ## Detection engines
 
@@ -132,21 +127,9 @@ Migration 0005 seeds `permissions` (16 keys) + `role_permissions`; `app/core/sec
 
 New signups default to `viewer` (migration 0003 sets the default; the trigger writes `viewer`).
 
-## Workers and the 202 queued flow
+## Analysis execution (synchronous)
 
-Heavy analysis runs off the request thread on an Arq worker (`app/workers/settings.py`, `max_jobs=4`, `job_timeout=300`) when Redis is reachable and `BACKGROUND_WORKERS_ENABLED=true`:
-
-1. `POST /analysis/media` and `POST /events/bulk` insert the event with status `analyzing` and call `enqueue_job(...)` (`app/services/job_queue.py` — never raises; one immediate pool-rebuild retry, then a 30 s Redis re-dial cooldown).
-2. On success the API answers **202 Accepted** with a null-safe payload (`alert_id`, `risk_score`, `severity` = null). The frontend mapper (`mappers.ts`) recognizes `status === 'analyzing'` and renders the `QueuedAnalysisPanel` pending state.
-3. The worker runs the identical `run_media_analysis` / `run_bulk_log_analysis` coroutine the fallback uses (jobs are idempotent: completed events exit immediately; failures mark the event `failed` and are never re-raised).
-4. The finished alert INSERT reaches the dashboard through Supabase Realtime (channel `cyberguard-alerts`).
-
-| Situation | Behaviour |
-|---|---|
-| Redis up, worker running | 202; job executes in the background |
-| Redis up, worker stopped | 202; job waits in the queue until a worker starts |
-| Redis unreachable | API logs `Worker queue unavailable, caller must run synchronously` and runs the pipeline inline, answering 200 |
-| `BACKGROUND_WORKERS_ENABLED=false` | Queue is never consulted; everything runs synchronously (200) |
+The Phase C-1 background worker queue (Arq + Redis, `202 Accepted` flow) was **removed**. `POST /analysis/media` and `POST /events/bulk` run the full pipeline synchronously on the request thread and answer **200** with the finished result; blocking IO still never touches the event loop (threadpool rule below). The bulk-log pipeline lives in `app/services/bulk_analysis.py` (the former worker coroutine, idempotent for completed events); the `redis` compose service and `arq`/`redis` packages remain only as unused standalone infrastructure.
 
 ## Circuit breaker states
 
@@ -158,13 +141,13 @@ Each remote LLM provider is wrapped in its own `AsyncCircuitBreaker` (`app/ai/as
 
 A sustained LLM outage therefore costs zero added latency (instant rule-based fallback) instead of the full 20 s + 60 s timeout chain.
 
-## Rate limiting
+## Rate limiting (removed)
 
-`app/core/rate_limit.py` (Phase D-1) is an in-memory token-bucket middleware registered after CORS (so 429s still carry CORS headers): `RATE_LIMIT_RPM` tokens (default 300) refilled linearly over a minute, one bucket per authenticated user id (the unverified JWT `sub` — bucketing only, never authorization) or client IP. Exhaustion answers `429 {"error": "rate_limited"}` with an accurate `Retry-After` header. `/health*` is exempt so probes can never be throttled; idle buckets are swept after 1 hour to bound memory.
+The Phase D-1 token-bucket middleware (`app/core/rate_limit.py`, `RATE_LIMIT_RPM`, `429` + `Retry-After`) was **removed** — requests are no longer throttled. `/health*` liveness semantics are unchanged.
 
 ## Threadpool rule (Phase D-1)
 
-Blocking IO never runs on the event loop: every supabase-py call, Supabase Auth round-trip, storage upload/download and ELA/CNN inference invoked from an async context goes through `app/core/asyncbridge.to_thread` (Starlette's threadpool) or is a plain `def` route. Examples: JWT verification in `security.py`, media forensics in `routes_analysis.py` and `workers/jobs.py`, file uploads (read exactly once, never re-reading the `SpooledUploadFile`).
+Blocking IO never runs on the event loop: every supabase-py call, Supabase Auth round-trip, storage upload/download and ELA/CNN inference invoked from an async context goes through `app/core/asyncbridge.to_thread` (Starlette's threadpool) or is a plain `def` route. Examples: JWT verification in `security.py`, media forensics in `routes_analysis.py` and `services/bulk_analysis.py`, file uploads (read exactly once, never re-reading the `SpooledUploadFile`).
 
 ## Cache TTLs and invalidation (Phase D-2)
 

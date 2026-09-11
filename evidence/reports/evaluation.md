@@ -121,3 +121,19 @@ Generated: 2026-09-11 · verification test suite: `scripts/regression_api.py`
 2. **Fix 2 (CNN vs ELA Disagreement Policy)**: Introduced disagreement policy when `cnn_prob < 0.10` and `splice_score < 4.0`, capping manipulation probability at 0.35 and risk score at 40 (`low`), relabeling unconfirmed ELA variance as `ela_weak_splice_unconfirmed` with `low` severity.
 3. **Fix 3 (Reserved-TLD Sender Indicator)**: Added detection for RFC 2606 reserved domains (`example.com`, `example.net`, `example.org`, `test`, `invalid`, `localhost`) with `sender_reserved_tld` indicator and calibrated high severity weight to 16, ensuring hybrid score reaches $\ge 41$ (`medium`).
 
+
+
+## Multilingual email model (char n-gram 2-4 TF-IDF + XGBoost, v2)
+
+Generated: 2026-09-11T17:03:55.164093+00:00 · script: `ml/train_email_model.py` · corpus: `ml/data/train_emails_multilang.csv` (synthetic-by-construction, see `backend/docs/datasets.md`) · seed 42, held-out 20% split per language, max_features 50000, scale_pos_weight balancing.
+
+| Language | Held-out n | Accuracy | Precision | Recall | F1 |
+|---|---|---|---|---|---|
+| en | 19200 | 0.9929 | 0.9992 | 0.9933 | 0.9962 |
+| hi | 400 | 0.9950 | 1.0000 | 0.9900 | 0.9950 |
+| te | 400 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+| or | 400 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+| roman | 400 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+| **overall (held-out pool)** | 20800 | 0.9933 | 0.9992 | 0.9934 | 0.9963 |
+
+Artifacts: `ml/models/email_tfidf_v2.pkl` + `ml/models/email_phishing_xgb_v2.pkl` (selected by `ml/models/calibration.json`: `email_model_version`).

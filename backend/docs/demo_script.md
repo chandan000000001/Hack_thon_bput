@@ -5,14 +5,8 @@ Step-by-step judge walkthrough. Every scenario exercises the full pipeline: **de
 ## Preparation (one-time)
 
 1. Backend on `http://localhost:8000` (`uvicorn app.main:app --reload --port 8000`), frontend on `http://localhost:5173` (`npm run dev`), `frontend/.env` set to `VITE_USE_MOCK=false`.
-2. Redis up and the Arq worker running so the deepfake upload demonstrates the queued flow:
-   ```bash
-   docker compose up -d redis
-   cd backend && arq app.workers.settings.WorkerSettings
-   ```
-   (Without Redis the same upload runs synchronously and answers 200 — say this out loud if demoing without a worker.)
-3. Log in as **`admin@cyberguard.local`** (created in Supabase Auth; role assigned by migration 0003). The SOC **Dashboard** loads live from `GET /api/v1/dashboard/summary` (stat cards, risk donut, threat categories, 24-hour attack timeline, incident summary).
-4. Automated alternative: `python backend/scripts/demo.py http://localhost:8000 <access_token>`.
+2. Log in as **`admin@cyberguard.local`** (created in Supabase Auth; role assigned by migration 0003). The SOC **Dashboard** loads live from `GET /api/v1/dashboard/summary` (stat cards, risk donut, threat categories, 24-hour attack timeline, incident summary).
+3. Automated alternative: `python backend/scripts/demo.py http://localhost:8000 <access_token>`.
 
 ---
 
@@ -32,7 +26,7 @@ Step-by-step judge walkthrough. Every scenario exercises the full pipeline: **de
 
 **Negative test:** click **Load Benign Sample** and re-run — `safe` band (0–20), no indicators.
 
-## Scenario 2 — Impersonation + deepfake upload (202 queued flow, Realtime toast)
+## Scenario 2 — Impersonation + deepfake upload (audio + image, Realtime toast)
 
 **Part A — Impersonation message**
 
@@ -42,13 +36,13 @@ Step-by-step judge walkthrough. Every scenario exercises the full pipeline: **de
 
 **Expected result:** critical band (authority identity + pressure + unusual financial request + secrecy); indicators `authority_identity`, `pressure_language`, `unusual_request` (critical), `secrecy_request`; MITRE T1656 Impersonation; alert module `impersonation` in **Security Alerts**.
 
-**Part B — Deepfake image upload with the queued (202) flow**
+**Part B — Deepfake image upload**
 
 1. Open **Deepfake Detection**.
 2. Upload a manipulated image, e.g. `evidence/media/manipulated.png` (≤ 25 MB; images, videos and audio accepted).
-3. With Redis + the worker running, the backend answers **202 Accepted**: the page immediately shows the **QueuedAnalysisPanel** pending state ("Queued for background analysis", `status: analyzing`, null risk fields) while the heavy ELA/CNN forensics run on the Arq worker.
-4. Moments later the worker persists the alert, Supabase **Realtime** pushes it on the `cyberguard-alerts` channel and a **toast** appears in the open page; the alert then appears in **Security Alerts** and the Dashboard counters.
-5. Result panel (this appears directly if demoed without Redis): three gauges — **Authenticity**, **Manipulation Probability**, **Risk** — plus a badge reading **Real forensic analysis** (ELA image forensics blended 50/50 with the CIFAKE CNN) or **Simulated analysis** (non-WAV audio only). `GET /api/v1/events/{event_id}/media-url` returns the 1-hour signed Storage URL.
+3. The backend analyses synchronously and answers **200** with the full result (the old 202 queued flow was removed).
+4. Supabase **Realtime** still pushes the persisted alert on the `cyberguard-alerts` channel — a **toast** appears in the open page; the alert also lands in **Security Alerts** and the Dashboard counters.
+5. Result panel: three gauges — **Authenticity**, **Manipulation Probability**, **Risk** — plus a badge reading **Real forensic analysis** (image: ELA blended with the MobileNetV3 CNN; audio: the LCNN `audio_cnn_v1` model) or **Simulated analysis** (only when no trained audio model is loaded). Try `evidence/media/ercv.mp3` (ElevenLabs clip → critical, `audio_cnn_v1.pt`) and `evidence/media/real_speech.wav` (bona fide → safe). `GET /api/v1/events/{event_id}/media-url` returns the 1-hour signed Storage URL.
 
 ## Scenario 3 — Technical threat: account takeover or network C2
 

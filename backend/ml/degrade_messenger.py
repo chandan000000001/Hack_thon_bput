@@ -25,6 +25,11 @@ Usage (from the backend directory):
     python ml/degrade_messenger.py [--count 10000] [--sharpen]
 """
 
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))  # backend/ on sys.path for every launch style
+
 import argparse
 import csv
 import random

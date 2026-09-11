@@ -215,6 +215,16 @@ def format_deepfake_user_prompt(
         "indicators": result.get("indicators", []),
     }
     risk_inst = format_risk_instruction(final_score, final_sev)
+    caveat = ""
+    if result.get("media_type") == "audio":
+        caveat = (
+            "\n\nDOMAIN-SHIFT CAVEAT (audio): the audio score comes from a CNN "
+            "trained on ASVspoof 2019 vocoder/TTS attacks; modern codec-based "
+            "neural TTS (e.g. ElevenLabs) is OUT of the training distribution, "
+            "so state the probability honestly and never overclaim certainty "
+            "about the specific synthesis tool used. Always recommend human "
+            "verification for high-risk audio."
+        )
     return (
         "Analyze the following media forensics result and write the "
         "explainability output for the alert.\n\n"
@@ -222,5 +232,5 @@ def format_deepfake_user_prompt(
         "Respond with the strict JSON object described in the system prompt. "
         "Remember to include 'Flag multimedia for manual verification' in "
         "'recommended_actions' if manipulation_probability is above 0.5."
-        f"{risk_inst}"
+        f"{risk_inst}{caveat}"
     )

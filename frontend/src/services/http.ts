@@ -1,7 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
 import { useAuthStore } from '../store/authStore';
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+import { getApiBaseUrl } from '../lib/apiConfig';
 
 export class ApiError extends Error {
   status?: number;
@@ -40,8 +39,9 @@ async function parseErrorResponse(res: Response): Promise<ApiError> {
 
 export async function apiFetch(path: string, options: RequestInit = {}): Promise<any> {
   const isFormData = options.body instanceof FormData;
+  const baseUrl = getApiBaseUrl();
   const execute = (token: string | null) =>
-    fetch(`${BASE_URL}${path}`, {
+    fetch(`${baseUrl}${path}`, {
       ...options,
       headers: {
         ...(isFormData ? {} : { 'Content-Type': 'application/json' }),

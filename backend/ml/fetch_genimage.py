@@ -18,6 +18,11 @@ Usage (from the backend directory):
     python ml/fetch_genimage.py [--shards-per-generator 3] [--max-per-class 20000]
 """
 
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))  # backend/ on sys.path for every launch style
+
 import argparse
 import csv
 import hashlib

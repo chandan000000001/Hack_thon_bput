@@ -32,8 +32,7 @@ from app.schemas.events import (
     NetworkFlowEvent,
     UrlEvent,
 )
-from app.services.job_queue import enqueue_job
-from app.workers.jobs import run_bulk_log_analysis
+from app.services.bulk_analysis import run_bulk_log_analysis
 
 router = APIRouter(prefix="/events", tags=["Events"])
 
@@ -225,20 +224,6 @@ async def ingest_bulk_events(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to store bulk event",
         ) from exc
-
-    settings = get_settings()
-    if settings.BACKGROUND_WORKERS_ENABLED and await enqueue_job(
-        "job_analyze_bulk_logs", event_id=event_id
-    ):
-        return JSONResponse(
-            status_code=status.HTTP_202_ACCEPTED,
-            content={
-                "event_id": event_id,
-                "event_type": event_type,
-                "status": "analyzing",
-                "message": "Queued for background analysis",
-            },
-        )
 
     final_status = await run_bulk_log_analysis(event_id)
     return {

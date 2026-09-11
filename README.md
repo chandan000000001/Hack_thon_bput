@@ -11,14 +11,13 @@ CYBERGUARD is a full-stack SOC (Security Operations Center) platform built to de
 ## ✨ Features
 
 - **Six detection modules** — phishing (email + SMS text), malicious URL, digital impersonation, account takeover, network/API abuse, and deepfake/media forensics.
-- **Hybrid detection: heuristics + four trained models** — TF-IDF + XGBoost for emails, feature-based XGBoost for URLs, a PyTorch CNN (CIFAKE) for deepfake images, and scaler + XGBoost for KDD99 network flows. Monotonic blending: `hybrid = max(heuristic, round(0.45 × heuristic + 0.55 × ml × 100))` — a trained model may raise a score but never lower the heuristic verdict below it.
+- **Hybrid detection: heuristics + five trained models** — TF-IDF + XGBoost for emails, feature-based XGBoost for URLs, a MobileNetV3 CNN for deepfake images, an LCNN audio anti-spoofing model (ASVspoof 2019), and scaler + XGBoost for KDD99 network flows. Monotonic blending: `hybrid = max(heuristic, round(0.45 × heuristic + 0.55 × ml × 100))` — a trained model may raise a score but never lower the heuristic verdict below it.
 - **Explainable AI with provenance** — every alert carries a human-readable explanation, MITRE ATT&CK techniques and recommended actions; each response includes `explanation_provider` (`groq` | `openrouter` | `rule_based` | `cache:<provider>`) and `explanation_latency_ms`.
 - **LLM gateway chain with circuit breakers** — Groq (`GROQ_TIMEOUT_SECONDS`, default 20 s) → OpenRouter (`OPENROUTER_TIMEOUT_SECONDS`, default 60 s) → local rule-based template, each remote provider behind its own async circuit breaker (3 failures → OPEN for 60 s), with a bounded explanation cache (TTL 3600 s, 256 entries).
 - **Risk bands Safe → Critical** — deterministic indicator scoring (critical 25 / high 15 / medium 5, capped at 100) mapped to bands safe 0–20, low 21–40, medium 41–60, high 61–80, critical 81–100.
 - **RBAC viewer / analyst / admin with a database-backed permission matrix** — 16 granular permission keys in `role_permissions` (migration 0005), enforced by `require_permission(key)` (403 `Missing permission: <key>`); new signups default to `viewer`.
 - **Multi-tenancy via `org_id`** — every user, event, alert, incident and audit row is organization-scoped and filtered at the service layer (migration 0004); RLS is defence in depth.
-- **Arq background workers with Redis** — heavy media forensics and bulk log ingestion answer `202 Accepted` and run on the worker (`max_jobs=4`, `job_timeout=300`); without Redis the identical pipeline runs synchronously (200 fallback).
-- **Rate limiting** — in-memory token bucket, `RATE_LIMIT_RPM` requests/minute per user (or IP), `429` + `Retry-After`; `/health` is exempt.
+- **Synchronous heavy analysis** — media forensics and bulk log ingestion run on the request thread (the background worker queue and rate limiter were removed); blocking IO stays off the event loop via the threadpool.
 - **Supabase Auth, Storage and Realtime** — JWT authentication, private `cyberguard-media` bucket (25 MB cap, 1-hour signed URLs), and Realtime streaming of new alerts to the dashboard.
 - **React SOC dashboard and editorial landing page** — black/white/red SOC console (dashboard, six analysis pages, alerts, incidents, response actions, audit logs, user management, SOC assistant) plus a public editorial landing page at `/`.
 
@@ -42,9 +41,8 @@ Ingestion → Heuristic Engine → Risk Scoring → XAI Gateway (Groq → OpenRo
 | Backend | Python 3.11+, FastAPI, pydantic-settings, supabase-py (Auth/Storage/Realtime) + SQLAlchemy 2.0 async domain layer (asyncpg), httpx |
 | Detection / ML | Heuristic detectors (pure Python), XGBoost, scikit-learn, PyTorch + torchvision, Pillow ELA, OpenCV |
 | Explainability | LLM gateway: Groq + OpenRouter (OpenAI-compatible) with async circuit breakers, local rule-based fallback |
-| Background jobs | Arq + Redis (deepfake media, bulk log batches) |
 | Data platform | Supabase (PostgreSQL + RLS, Auth, Storage, Realtime) |
-| Deployment | Docker Compose (backend, frontend, redis), uvicorn, Nginx |
+| Deployment | Docker Compose (backend, frontend), uvicorn, Nginx |
 
 ## 📁 Project Structure
 
@@ -54,15 +52,16 @@ Ingestion → Heuristic Engine → Risk Scoring → XAI Gateway (Groq → OpenRo
 │   │   ├── api/          12 routers under /api/v1 (health, auth, db, events, analysis,
 │   │   │                 alerts, incidents, response, dashboard, audit, assistant, admin)
 │   │   ├── core/         config, security (JWT + permission matrix), supabase client,
-│   │   │                 storage, database (async SQLAlchemy), rate_limit, asyncbridge
+│   │   │                 storage, database (async SQLAlchemy), asyncbridge
 │   │   ├── ai/           llm_gateway, groq_client, openrouter_client, async circuit
 │   │   │                 breaker, explanation cache, prompt templates
 │   │   ├── domain/       ORM models + NIST/SANS incident lifecycle state machine
 │   │   ├── services/     6 detectors, scoring, ml_inference, alert/incident/response/
-│   │   │                 dashboard/audit/assistant services, job_queue, media_forensics/
+│   │   │                 dashboard/audit/assistant services, bulk_analysis, media_forensics/
 │   │   ├── schemas/      Pydantic request/response models
-│   │   └── workers/      Arq jobs (media, bulk logs) + WorkerSettings
-│   ├── ml/               fetch_data.py, preprocess.py, train_models.py, data/, models/
+│   │   └── workers/      (removed — analysis runs synchronously)
+│   ├── ml/               fetch_data.py, preprocess.py, train_models.py, train_audio_v1.py,
+│   │                     fetch_audio_data.py, audio_features.py, audio_model.py, data/, models/, cache/
 │   ├── db/               schema.sql + migrations/ (0003 roles, 0004 multi-tenancy,
 │   │                     0005 permissions, 0006 org bootstrap guard)
 │   ├── docs/             architecture, api, models, datasets, deployment, demo_script
@@ -101,18 +100,14 @@ pip install -r requirements.txt
 cp .env.example .env                      # fill in Supabase keys; Groq/OpenRouter keys optional (explanations)
 uvicorn app.main:app --reload --port 8000 # http://localhost:8000/docs
 
-# 3. Redis + background worker (optional; without them media/bulk analysis runs synchronously)
-docker compose up -d redis
-cd backend && arq app.workers.settings.WorkerSettings
-
-# 4. Frontend (second terminal)
+# 3. Frontend (second terminal)
 cd frontend
 npm install
 cp .env.example .env                      # fill in VITE_SUPABASE_* + VITE_API_BASE_URL
 npm run dev                               # http://localhost:5173
 ```
 
-Docker alternative: `docker compose up --build` → backend on :8000, frontend on :3000, redis on :6379 (the Arq worker still runs on the host: `arq app.workers.settings.WorkerSettings`).
+Docker alternative: `docker compose up --build` → backend on :8000, frontend on :3000 (redis remains available on :6379 as standalone infrastructure — the app no longer uses it).
 
 Automated end-to-end demo: `python backend/scripts/demo.py http://localhost:8000 <supabase_access_token>`
 
@@ -132,9 +127,6 @@ Backend (`backend/.env`, loaded by `app/core/config.py`):
 | `GROQ_API_KEY` | Groq key; empty skips the provider | `""` |
 | `GROQ_MODEL` | Groq model id | `llama-3.1-8b-instant` |
 | `GROQ_TIMEOUT_SECONDS` | Groq call timeout (s) | `20` |
-| `REDIS_URL` | Redis DSN for the Arq queue | `redis://localhost:6379` |
-| `BACKGROUND_WORKERS_ENABLED` | `false` forces the synchronous path for media/bulk analysis | `true` |
-| `RATE_LIMIT_RPM` | Token-bucket budget, requests per minute per user/IP | `300` |
 | `CORS_ORIGINS` | Comma-separated allowed browser origins (`*` is rejected at boot while credentials are allowed) | `http://localhost:5173,http://localhost:3000` |
 | `API_V1_PREFIX` | Route prefix | `/api/v1` |
 | `ML_ENABLED` | Toggles trained-model inference (heuristics-only when false) | `true` |
@@ -179,7 +171,7 @@ Offline evaluation of all six modules (heuristics-only vs hybrid) on held-out da
 - [`backend/docs/api.md`](backend/docs/api.md) — complete endpoint reference
 - [`backend/docs/models.md`](backend/docs/models.md) — model cards, blending rule, provider chain, limitations
 - [`backend/docs/datasets.md`](backend/docs/datasets.md) — dataset provenance and caveats
-- [`backend/docs/deployment.md`](backend/docs/deployment.md) — deployment, workers, scalability, hardening notes
+- [`backend/docs/deployment.md`](backend/docs/deployment.md) — deployment, scalability, hardening notes
 - [`backend/docs/demo_script.md`](backend/docs/demo_script.md) — judge walkthrough
 - [`evidence/reports/evaluation.md`](evidence/reports/evaluation.md) — detection metrics + artifact hashes
 - [`evidence/reports/regression_api.md`](evidence/reports/regression_api.md) — 24/24 API regression matrix

@@ -24,16 +24,6 @@ class Settings(BaseSettings):
     # the transport for Auth, Storage, and Realtime.
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:54322/postgres"
 
-    # Phase C-1 background workers: Redis-backed Arq queue for heavy analysis
-    # (deepfake media, bulk log ingestion). When Redis is unreachable or
-    # BACKGROUND_WORKERS_ENABLED is false, callers fall back to synchronous
-    # processing on the request thread.
-    REDIS_URL: str = "redis://localhost:6379"
-    BACKGROUND_WORKERS_ENABLED: bool = True
-
-    # Phase D-1: per-user (or per-IP) request budget, in requests per minute.
-    RATE_LIMIT_RPM: int = 300
-
     API_V1_PREFIX: str = "/api/v1"
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
 
