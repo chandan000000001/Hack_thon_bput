@@ -54,7 +54,7 @@ _BREAKERS: dict[str, AsyncCircuitBreaker] = {
 }
 
 LEADING_BAND_PATTERN = re.compile(
-    r"^(?:\*{1,2}|#+\s*)?([A-Za-z]+)\s+Risk\s*:(?:\*{1,2})?\s*", re.IGNORECASE
+    r"^(?:\*{1,2}|#+\s*)?[<\[]?([A-Za-z]+)[>\]]?\s+Risk\s*:(?:\*{1,2})?\s*", re.IGNORECASE
 )
 
 

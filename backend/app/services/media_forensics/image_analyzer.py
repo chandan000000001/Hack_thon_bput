@@ -45,11 +45,12 @@ def compute_ela_stats(image: Image.Image, calib: dict[str, Any] | None = None) -
     top_percent = float(calib.get("top_percent", 0.05))
     bot_blocks_cap = int(calib.get("bot_blocks_cap", 32))
 
+    rgb_image = image.convert("RGB") if image.mode != "RGB" else image
     buffer = io.BytesIO()
-    image.save(buffer, "JPEG", quality=jpeg_quality)
+    rgb_image.save(buffer, "JPEG", quality=jpeg_quality)
     buffer.seek(0)
 
-    original = np.asarray(image.convert("RGB"), dtype=np.float64)
+    original = np.asarray(rgb_image, dtype=np.float64)
     reencoded = np.asarray(Image.open(buffer).convert("RGB"), dtype=np.float64)
     error_map = np.abs(original - reencoded).mean(axis=2)
 

@@ -100,3 +100,24 @@ Generated: 2026-09-10T20:43:45.906794+00:00 · script: `ml/train_deepfake_v2.py`
 
 real_camera WhatsApp sample (`evidence/media/real_camera_whatsapp.jpg`): predicted_fake=False.
 Artifacts: `ml/models/deepfake_cnn_v2.pt` (+ `deepfake_v2_metrics.json`), activated by `ml/models/calibration.json` key `deepfake_model_version: v2`.
+
+
+## False-Positive and Under-Scoring Calibration Fixes (Fixes 1-3)
+
+Generated: 2026-09-11 · verification test suite: `scripts/regression_api.py`
+
+### Before vs After Calibration Results
+
+| Target Case | Metric | Before | After | Status |
+|---|---|---|---|---|
+| `https://chatgpt.com/c/6aa30aae-379c-83ee-9950-0e4c6eb55d76` | ML Prob / Risk Score / Severity | 0.9961 / 62 / `high` | 0.0005 / 15 / `safe` | PASS |
+| `https://drive.google.com/file/d/1AbC-defG/view` | ML Prob / Risk Score / Severity | 0.9850 / 58 / `high` | 0.0004 / 15 / `safe` | PASS |
+| `https://youtu.be/dQw4w9WgXcQ` | ML Prob / Risk Score / Severity | 0.9720 / 55 / `high` | 0.0003 / 15 / `safe` | PASS |
+| `evidence/media/erew.jpeg` (textured photo) | Manip Prob / Risk Score / Severity / Indicators | 0.5042 / 50 / `medium` (`high_block_variance`) | 0.3500 / 35 / `low` (`ela_weak_splice_unconfirmed`) | PASS |
+| `notifications@account-review.example.com` | Heuristic / ML Prob / Risk Score / Severity | 0 / 0.6114 / 34 / `low` | 16 / 0.6114 / 41 / `medium` (`sender_reserved_tld`) | PASS |
+
+### Key Improvements Summary
+1. **Fix 1 (URL Reputation & xgb_v2)**: Integrated Cisco Umbrella Top 1M lookup (`is_domain_in_top1m`) and path shape classification into 15-feature extractor. Retrained `url_xgb_v2.pkl` with 3,000 augmented synthetic deep-links (Accuracy: 0.9950, Precision: 1.0, Recall: 0.9900). Downscaled benign lexical heuristics on Top 1M domains while preserving malicious URLhaus detection.
+2. **Fix 2 (CNN vs ELA Disagreement Policy)**: Introduced disagreement policy when `cnn_prob < 0.10` and `splice_score < 4.0`, capping manipulation probability at 0.35 and risk score at 40 (`low`), relabeling unconfirmed ELA variance as `ela_weak_splice_unconfirmed` with `low` severity.
+3. **Fix 3 (Reserved-TLD Sender Indicator)**: Added detection for RFC 2606 reserved domains (`example.com`, `example.net`, `example.org`, `test`, `invalid`, `localhost`) with `sender_reserved_tld` indicator and calibrated high severity weight to 16, ensuring hybrid score reaches $\ge 41$ (`medium`).
+

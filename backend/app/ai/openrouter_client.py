@@ -7,6 +7,7 @@ unparseable output) so the gateway can fall through to the next provider.
 never-raise behaviour: any failure returns the fallback explanation instead.
 """
 
+import asyncio
 import json
 import logging
 import re
@@ -40,6 +41,8 @@ class ProviderError(RuntimeError):
 
 def _parse_llm_content(content: str) -> dict[str, Any] | None:
     """Parse strict JSON, tolerating markdown fences around the JSON block."""
+    if not content or not isinstance(content, str):
+        return None
     try:
         parsed = json.loads(content)
         if isinstance(parsed, dict):
@@ -108,16 +111,26 @@ async def explain_openrouter(
     if json_mode:
         payload["response_format"] = {"type": "json_object"}
 
-    async with httpx.AsyncClient(
-        timeout=httpx.Timeout(settings.openrouter_timeout_seconds)
-    ) as client:
-        response = await client.post(OPENROUTER_CHAT_URL, headers=headers, json=payload)
-        response.raise_for_status()
-        body = response.json()
-    content = body["choices"][0]["message"]["content"]
+    timeout_sec = min(settings.openrouter_timeout_seconds, 12.0)
+    try:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(timeout_sec)) as client:
+            response = await asyncio.wait_for(
+                client.post(OPENROUTER_CHAT_URL, headers=headers, json=payload),
+                timeout=timeout_sec,
+            )
+            response.raise_for_status()
+            body = response.json()
+    except Exception as exc:
+        raise ProviderError(f"OpenRouter request failed: {exc}") from exc
+    choices = body.get("choices")
+    if not choices:
+        raise ProviderError("OpenRouter response contained no choices")
+    content = choices[0].get("message", {}).get("content")
+    if content is None:
+        raise ProviderError("OpenRouter message content is None")
 
     if not json_mode:
-        return {"explanation": (content or "").strip(), "mitre_techniques": [], "recommended_actions": []}
+        return {"explanation": content.strip(), "mitre_techniques": [], "recommended_actions": []}
     parsed = _parse_llm_content(content)
     if parsed is None:
         raise ProviderError("OpenRouter returned unparseable content")

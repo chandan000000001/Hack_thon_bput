@@ -6,5 +6,6 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
+    allowedHosts: ['glad-bowl-investor-rebates.trycloudflare.com'],
   },
 });
