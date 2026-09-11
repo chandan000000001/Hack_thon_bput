@@ -64,3 +64,39 @@ account_takeover has no trained model yet; its hybrid row equals the heuristics-
 - The deepfake evaluation uses a deterministic sample (max 1000 images) of the held-out CIFAKE test split; the CNN was trained on 32x32 CIFAKE images, so metrics do not transfer to high-resolution photos.
 - The network model is trained on **KDD99 (1998 DARPA IDS evaluation)** — decades-old traffic patterns; the hybrid flow mapping uses documented constants for duration and response bytes (flows carry neither).
 - Latency covers only local detector + ML inference in a single process; no network, storage or LLM time is included.
+
+
+## Multilingual email model (char n-gram 2-4 TF-IDF + XGBoost, v2)
+
+Generated: 2026-09-10T17:32:19.520114+00:00 · script: `ml/train_email_model.py` · corpus: `ml/data/train_emails_multilang.csv` (synthetic-by-construction, see `backend/docs/datasets.md`) · seed 42, held-out 20% split per language, max_features 50000, scale_pos_weight balancing.
+
+| Language | Held-out n | Accuracy | Precision | Recall | F1 |
+|---|---|---|---|---|---|
+| en | 19200 | 0.9929 | 0.9992 | 0.9933 | 0.9962 |
+| hi | 400 | 0.9950 | 1.0000 | 0.9900 | 0.9950 |
+| te | 400 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+| or | 400 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+| roman | 400 | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+| **overall (held-out pool)** | 20800 | 0.9933 | 0.9992 | 0.9934 | 0.9963 |
+
+Artifacts: `ml/models/email_tfidf_v2.pkl` + `ml/models/email_phishing_xgb_v2.pkl` (selected by `ml/models/calibration.json`: `email_model_version`).
+
+
+
+## Deepfake v2 model gates (MobileNetV3-Small, 128px)
+
+Generated: 2026-09-10T20:43:45.906794+00:00 · script: `ml/train_deepfake_v2.py` · device: cpu · epochs run: 10 · **training wall-clock: 18m03s** · best validation F1 (fake class): 0.9052
+
+| Real subclass | n | FPR |
+|---|---|---|
+| real_clean | 479 | 0.0376 |
+| real_messenger | 1000 | 0.0220 |
+| real_camera | 0 | n/a |
+
+| Generator | n | Recall |
+|---|---|---|
+| midjourney | 136 | 0.7426 |
+| stablediffusion | 347 | 0.9193 |
+
+real_camera WhatsApp sample (`evidence/media/real_camera_whatsapp.jpg`): predicted_fake=False.
+Artifacts: `ml/models/deepfake_cnn_v2.pt` (+ `deepfake_v2_metrics.json`), activated by `ml/models/calibration.json` key `deepfake_model_version: v2`.

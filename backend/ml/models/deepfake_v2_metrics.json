@@ -1,0 +1,101 @@
+{
+  "model": "mobilenet_v3_small (ImageNet pretrained, binary head)",
+  "input_size": 128,
+  "frozen_backbone": false,
+  "epochs_run": 10,
+  "wall_clock_seconds": 1083.2,
+  "wall_clock_human": "18m03s",
+  "device": "cpu",
+  "train_rows": 15700,
+  "best_val_f1": 0.9051546391752577,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.4703,
+      "val_f1": 0.775
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.2761,
+      "val_f1": 0.8149606299212598
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.1784,
+      "val_f1": 0.8145454545454546
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.1155,
+      "val_f1": 0.8463114754098361
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.0806,
+      "val_f1": 0.8758029978586723
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.0535,
+      "val_f1": 0.8962655601659751
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.0495,
+      "val_f1": 0.8742393509127789
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.0389,
+      "val_f1": 0.9051546391752577
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.0317,
+      "val_f1": 0.8797595190380761
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.0304,
+      "val_f1": 0.8945147679324894
+    }
+  ],
+  "class_weights": [
+    0.6635,
+    2.0295
+  ],
+  "gates": {
+    "real_clean": {
+      "n": 479,
+      "predicted_fake": 18,
+      "rate": 0.037578288100208766
+    },
+    "real_messenger": {
+      "n": 1000,
+      "predicted_fake": 22,
+      "rate": 0.022
+    },
+    "real_camera": {
+      "n": 0,
+      "predicted_fake": 0,
+      "rate": null
+    },
+    "real_camera_whatsapp_sample": {
+      "path": "/home/chandan/Desktop/hackathon_01/evidence/media/real_camera_whatsapp.jpg",
+      "predicted_fake": false
+    }
+  },
+  "per_generator_recall": {
+    "midjourney": {
+      "n": 136,
+      "predicted_fake": 101,
+      "rate": 0.7426470588235294
+    },
+    "stablediffusion": {
+      "n": 347,
+      "predicted_fake": 319,
+      "rate": 0.9193083573487032
+    }
+  },
+  "generated_at": "2026-09-10T20:43:45.906384+00:00"
+}

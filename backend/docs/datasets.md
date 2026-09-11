@@ -34,6 +34,48 @@ Produced by `ml/fetch_data.py` (download) and `ml/preprocess.py` (dedupe, sampli
 
 The evaluation report computes **URL metrics on the held-out test split** to avoid train/test overlap; email and network ML metrics likewise use held-out splits; the deepfake module uses a deterministic sample (max 1000 images) of the held-out test split.
 
+## 3. Multilingual Indic corpus (`backend/ml/data/train_emails_multilang.csv`)
+
+**Synthetic-by-construction.** No large public Indic phishing corpus exists (Hinglish/Telugu/Odia phishing text is not available as a labelled public dataset in the scale of the English corpora above), so the multilingual training corpus is generated entirely by `ml/build_indic_corpus.py` from templates and the keyword resource — it contains no real personal data and no scraped messages.
+
+| Property | Value |
+|---|---|
+| Generator | `ml/build_indic_corpus.py` (deterministic, seed 42) |
+| Keyword resource | `ml/indic_keywords.json` — urgency / credential / payment / OTP / KYC phrases, ≥ 25 entries per language |
+| Languages | `en` (all 95,996 existing rows from `train_emails.csv`), `hi` (Devanagari), `te` (Telugu), `or` (Odia), `roman` (romanised Hinglish/Tenglish) |
+| Rows per Indic language | 1,000 phishing + 1,000 benign (slot-filled from 10 phishing + 10 benign templates per language) |
+| Variations | synonym swap, name/amount/date/OTP randomisation, script mixing (Indic script with Latin digits, brand names and URLs) |
+| Optional augmentation | `--llm-augment` paraphrases a seeded subset of phishing rows offline through the LLM gateway (batched, cached via `explanation_cache`; no request-time LLM usage) |
+| Output columns | `clean_text`, `label` (1 phishing / 0 benign), `lang` |
+
+The v2 email model (`ml/models/email_tfidf_v2.pkl` + `email_phishing_xgb_v2.pkl`, character n-gram 2–4 TF-IDF + XGBoost, selected by `ml/models/calibration.json`) trains on this corpus; its per-language held-out metrics are appended to [`evidence/reports/evaluation.md`](../../../evidence/reports/evaluation.md). Caveat: templates come from fixed pools, so measured per-language metrics reflect detector performance on this synthetic distribution, not on real-world Indic phishing campaigns; benign templates are transactional/service mail, so domain shift on other benign genres is expected.
+
+## 4. Deepfake v2 data (`backend/ml/data/genimage/`)
+
+Built by `ml/fetch_genimage.py` (download) and `ml/degrade_messenger.py` (messenger subclass); recorded in `ml/data/genimage/provenance.json` + `manifest.csv`. Per-class download is capped at 20000 images; the counts below are what the mirror yielded within the shard budget actually fetched.
+
+| Subclass | Source / generator | Licence / status | Rows | Label semantics | Caveats |
+|---|---|---|---|---|---|
+| `real_clean` | GenImage benchmark (HF mirror `nebula/GenImage-arrow`) — the ImageNet-derived **real** subset bundled with every generator shard | **CC BY-NC-SA 4.0** (`fetched`) | 4,790 | 0 (real) | Real photographs; research-only licence. |
+| `stablediffusion` | GenImage — Stable Diffusion v1.4 generator subset (same mirror) | **CC BY-NC-SA 4.0** (`fetched`) | 3,474 | 1 (fake) | AI-generated images. |
+| `midjourney` | GenImage — Midjourney generator subset (same mirror) | **CC BY-NC-SA 4.0** (`fetched`) | 1,360 | 1 (fake) | AI-generated images. |
+| `real_messenger` | `ml/degrade_messenger.py` from `real_clean` (seed 42) | **Simulated** — messenger degradation of real photos | 10,000 | 0 (real) | Longest side ≤ 1600 px, JPEG quality 70–85 random, EXIF stripped, optional mild sharpening — the encoding WhatsApp/Telegram apply to genuine photos. |
+| `real_camera` | User-contributed files in `datasets/media/real_camera/` | Contributor-provided | 0 at last build | 0 (real) | Evaluation-only split; contributors must use **non-sensitive personal images** (see `datasets/media/real_camera/README.txt`). |
+| WhatsApp sample | `evidence/media/real_camera_whatsapp.jpg` — one genuine photo in messenger encoding (500×421, q78, EXIF stripped) | Derived from `real_clean` | 1 | 0 (real) | Used by the API regression suite and always included in the real_camera gate. |
+
+**Fallback:** if the GenImage download fails entirely, `fetch_genimage.py` records the failure in `provenance.json` and builds the manifest from the existing **CIFAKE** split (`ml/data/images/`), which is kept untouched as the fallback and as v1's training data. Per-generator failures are tolerated individually (a failed generator is recorded and skipped; CIFAKE fallback only triggers when no generator yielded images).
+
+**Synthetic-by-construction note:** the real_messenger subclass is produced by programmatic degradation (resize/JPEG/EXIF strip), not by actually sending photos through messenger apps — it models their encoding pipeline rather than being collected from one. Provenance file: `ml/data/genimage/provenance.json` (HF repo, per-generator status, row counts, cap, timestamps).
+
+The v2 deepfake model (`ml/models/deepfake_cnn_v2.pt`, MobileNetV3-Small at 128 px, selected by `ml/models/calibration.json` key `deepfake_model_version`) trains on real = real_clean + real_messenger vs fake = all generator subclasses; its per-subclass FPR / per-generator recall tables are appended to [`evidence/reports/evaluation.md`](../../../evidence/reports/evaluation.md).
+
+## 5. URL Whitelist & Deep-link Augmentation (`backend/ml/data/url_whitelist/top1m.txt`)
+
+Fetched from Cisco Umbrella static export (`http://s3-us-west-1.amazonaws.com/umbrella-static/top-1m.csv.zip`) containing 1,000,000 top-queried internet domains:
+- **Location on disk:** `backend/ml/data/url_whitelist/top1m.txt` (1,000,000 domain names, one per line, lowercase).
+- **Lookup module:** `backend/app/core/url_reputation.py` provides multi-part ccTLD extraction (`get_registrable_domain`) and high-reputation domain checks (`is_domain_in_top1m`).
+- **Deep-link Augmentation:** `ml/augment_urls.py` generates 3,000 benign deep-links combining sampled high-reputation domains with popular share and resource path patterns (`/c/<uuid>`, `/d/<hex32>`, `/watch?v=<id>`, `/share/<token>`, `/p/<hex16>`, `/file/d/<id>/view`). Added to `ml/data/train_urls.csv` (3,800 total rows) to train `ml/models/url_xgb_v2.pkl`.
+
 ## Ground truth construction
 
 - **Malicious URLs (URLhaus):** every row carries `label=malicious` directly from the curated abuse.ch feed — authoritative for malware distribution, a superset of phishing.

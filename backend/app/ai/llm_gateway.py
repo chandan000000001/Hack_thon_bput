@@ -21,6 +21,7 @@ the remote chain entirely.
 import hashlib
 import json
 import logging
+import re
 import time
 from collections.abc import Awaitable, Callable
 from typing import Any
@@ -29,6 +30,7 @@ from app.ai import explanation_cache as cache
 from app.ai.async_circuit_breaker import AsyncCircuitBreaker, CircuitBreakerOpenError
 from app.ai.groq_client import explain_groq
 from app.ai.openrouter_client import explain_openrouter, rule_based_explanation
+from app.core.calibration import get_explanation_calibration
 
 logger = logging.getLogger("cyberguard.llm_gateway")
 
@@ -50,6 +52,67 @@ _BREAKERS: dict[str, AsyncCircuitBreaker] = {
     )
     for name, _ in PROVIDERS
 }
+
+LEADING_BAND_PATTERN = re.compile(
+    r"^(?:\*{1,2}|#+\s*)?([A-Za-z]+)\s+Risk\s*:(?:\*{1,2})?\s*", re.IGNORECASE
+)
+
+
+def parse_leading_band(text: str) -> str | None:
+    """Extract leading band from '<Band> Risk:' if present."""
+    if not text:
+        return None
+    match = LEADING_BAND_PATTERN.match(text.strip())
+    if match:
+        return match.group(1).lower()
+    return None
+
+
+def enforce_leading_band(text: str, expected_band: str) -> str:
+    """Server-side replace or prepend '<Band> Risk:' on the explanation text."""
+    expected_token = f"{expected_band.capitalize()} Risk:"
+    stripped = text.strip()
+    match = LEADING_BAND_PATTERN.match(stripped)
+    if match:
+        return LEADING_BAND_PATTERN.sub(f"{expected_token} ", stripped, count=1)
+    return f"{expected_token} {stripped}"
+
+
+def _validate_explanation_band(
+    output: Any, expected_band: str | None
+) -> tuple[bool, Any]:
+    """Check if output has matching leading band. Returns (is_valid, cleaned_output)."""
+    if not expected_band:
+        return True, output
+
+    if isinstance(output, dict):
+        exp = str(output.get("explanation") or "")
+        parsed = parse_leading_band(exp)
+        if parsed == expected_band.lower():
+            cleaned = LEADING_BAND_PATTERN.sub(f"{expected_band.capitalize()} Risk: ", exp.strip(), count=1)
+            updated = dict(output)
+            updated["explanation"] = cleaned
+            return True, updated
+        return False, output
+
+    exp = str(output or "")
+    parsed = parse_leading_band(exp)
+    if parsed == expected_band.lower():
+        cleaned = LEADING_BAND_PATTERN.sub(f"{expected_band.capitalize()} Risk: ", exp.strip(), count=1)
+        return True, cleaned
+    return False, output
+
+
+def _apply_server_side_fix(output: Any, expected_band: str | None) -> Any:
+    """Enforce the leading band token on output."""
+    if not expected_band:
+        return output
+    if isinstance(output, dict):
+        updated = dict(output)
+        exp = str(output.get("explanation") or "")
+        updated["explanation"] = enforce_leading_band(exp, expected_band)
+        return updated
+    return enforce_leading_band(str(output or ""), expected_band)
 
 
 def _normalize(value: Any) -> Any:
@@ -81,23 +144,35 @@ async def explain(
     user_prompt: str,
     cache_key: str,
     json_mode: bool = True,
+    expected_band: str | None = None,
+    risk_score: int | None = None,
 ) -> dict[str, Any]:
-    """Explain a detection through the provider chain.
+    """Explain a detection through the provider chain with band consistency.
 
     json_mode=True enforces the strict-JSON analysis contract; json_mode=False
     (used by the SOC assistant) returns the raw model text wrapped as
     {"explanation": <text>, ...} while still inheriting the chain order,
     circuit breakers and cache.
 
+    If expected_band is provided:
+        1. Validates that output starts with '<Band> Risk:'.
+        2. On mismatch, retries once with a correction note.
+        3. If still mismatched, server-side replaces the leading band token.
+
     Returns {"explanation": <parsed contract dict or raw text>,
              "provider": "groq" | "openrouter" | "rule_based" | "cache:<orig>",
              "latency_ms": <int>}.
     """
-    cache_key = f"{cache_key}|json={json_mode}"
-    cached = cache.get(cache_key)
+    full_cache_key = f"{cache_key}|band={expected_band}|score={risk_score}|json={json_mode}"
+    cached = cache.get(full_cache_key)
     if cached is not None:
+        cached_output = cached["output"]
+        if expected_band:
+            valid, cached_output = _validate_explanation_band(cached_output, expected_band)
+            if not valid:
+                cached_output = _apply_server_side_fix(cached_output, expected_band)
         return {
-            "explanation": cached["output"],
+            "explanation": cached_output,
             "provider": f"cache:{cached['provider']}",
             "latency_ms": 0,
         }
@@ -118,13 +193,60 @@ async def explain(
                 "LLM provider %s failed after %d ms: %s", provider_name, latency_ms, exc
             )
             continue
+
         latency_ms = int((time.perf_counter() - started) * 1000)
-        cache.set(cache_key, {"output": output, "provider": provider_name})
+
+        # Validator: check leading band if expected_band is specified
+        if expected_band:
+            valid, norm_output = _validate_explanation_band(output, expected_band)
+            if valid:
+                cache.set(full_cache_key, {"output": norm_output, "provider": provider_name})
+                return {"explanation": norm_output, "provider": provider_name, "latency_ms": latency_ms}
+
+            # On mismatch: retry once with a correction note
+            logger.warning(
+                "Leading band mismatch for %s from %s (expected %s); retrying once with correction note",
+                module,
+                provider_name,
+                expected_band,
+            )
+            score_str = f" ({risk_score}/100)" if risk_score is not None else ""
+            correction_note = (
+                f"\n\nCORRECTION NOTE: Your previous explanation did not begin with '{expected_band.capitalize()} Risk:' "
+                f"or contradicted the final assessed severity of {expected_band.capitalize()} Risk{score_str}. "
+                f"You MUST begin your explanation's first sentence with exactly '{expected_band.capitalize()} Risk:' "
+                f"and ensure the narrative aligns with this severity level."
+            )
+            try:
+                retry_output = await breaker.call(
+                    provider, system_prompt, user_prompt + correction_note, json_mode=json_mode
+                )
+                valid_retry, norm_retry = _validate_explanation_band(retry_output, expected_band)
+                if valid_retry:
+                    cache.set(full_cache_key, {"output": norm_retry, "provider": provider_name})
+                    return {"explanation": norm_retry, "provider": provider_name, "latency_ms": latency_ms}
+
+                # Still mismatched after retry: server-side replace the leading band token
+                logger.info("Explanation still mismatched after retry; applying server-side token replacement")
+                fixed_output = _apply_server_side_fix(retry_output, expected_band)
+                cache.set(full_cache_key, {"output": fixed_output, "provider": provider_name})
+                return {"explanation": fixed_output, "provider": provider_name, "latency_ms": latency_ms}
+            except Exception as retry_exc:
+                logger.warning("Retry with correction note failed (%s); applying server-side fix to initial output", retry_exc)
+                fixed_output = _apply_server_side_fix(output, expected_band)
+                cache.set(full_cache_key, {"output": fixed_output, "provider": provider_name})
+                return {"explanation": fixed_output, "provider": provider_name, "latency_ms": latency_ms}
+
+        cache.set(full_cache_key, {"output": output, "provider": provider_name})
         return {"explanation": output, "provider": provider_name, "latency_ms": latency_ms}
 
     started = time.perf_counter()
-    output = rule_based_explanation(system_prompt, user_prompt)
+    output = rule_based_explanation(system_prompt, user_prompt, expected_band=expected_band)
+    if expected_band:
+        valid, output = _validate_explanation_band(output, expected_band)
+        if not valid:
+            output = _apply_server_side_fix(output, expected_band)
     latency_ms = int((time.perf_counter() - started) * 1000)
     logger.warning("LLM providers exhausted; using rule_based explanation")
-    cache.set(cache_key, {"output": output, "provider": "rule_based"})
+    cache.set(full_cache_key, {"output": output, "provider": "rule_based"})
     return {"explanation": output, "provider": "rule_based", "latency_ms": latency_ms}

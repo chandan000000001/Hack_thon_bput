@@ -67,7 +67,7 @@ Six heuristic detectors under `app/services/` produce typed indicators with seve
 | impersonation | `impersonation_detector.py` (BEC/authority heuristics) | — (heuristics only) |
 | account_takeover | `account_takeover_detector.py` (bursts, impossible travel) | — (no trained model yet) |
 | network / api_abuse | `network_threat_detector.py` (exfiltration, C2 ports, API abuse) | scaler + XGBoost on KDD99 SF features (`network_scaler.pkl`, `network_xgb.pkl`) |
-| deepfake | `deepfake_detector.py` + `media_forensics/` (ELA images/videos, WAV audio) | PyTorch CNN on CIFAKE (`deepfake_cnn.pt`) |
+| deepfake | `deepfake_detector.py` + `media_forensics/` (ELA images/videos, WAV audio) | MobileNetV3-Small 128px on GenImage (`deepfake_cnn_v2.pt`, the single neural artifact) |
 
 Model cards and metrics: [`docs/models.md`](models.md).
 

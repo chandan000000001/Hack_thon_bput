@@ -187,8 +187,19 @@ async def _run_analysis_pipeline(
     _heuristic_score, hybrid_score, _ml_probability = score_with_ml(indicators)
     severity = get_severity(hybrid_score)
 
+    from app.ai.prompt_templates import format_risk_instruction
+    risk_inst = format_risk_instruction(hybrid_score, severity)
+    if risk_inst and risk_inst not in user_prompt:
+        user_prompt = f"{user_prompt}{risk_inst}"
+
     explained = await explain(
-        module, system_prompt, user_prompt, make_cache_key(module, raw_data)
+        module=module,
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        cache_key=make_cache_key(module, raw_data),
+        json_mode=True,
+        expected_band=severity,
+        risk_score=hybrid_score,
     )
     llm_output = explained["explanation"]
 
@@ -202,7 +213,7 @@ async def _run_analysis_pipeline(
         llm_output=llm_output,
         org_id=org_id,
     )
-    alert = _fetch_alert_with_actions(alert_id, org_id)
+    alert = await _fetch_alert_with_actions(alert_id, org_id)
     alert["explanation_provider"] = explained["provider"]
     alert["explanation_latency_ms"] = explained["latency_ms"]
     return alert
@@ -343,7 +354,7 @@ async def _finalize_deepfake_response(
         llm_output=llm_output,
         org_id=org_id,
     )
-    alert = _fetch_alert_with_actions(alert_id, org_id)
+    alert = await _fetch_alert_with_actions(alert_id, org_id)
     return {
         **result,
         "event_id": event_id,
@@ -384,10 +395,15 @@ async def _run_deepfake_pipeline(
         ) from exc
 
     explained = await explain(
-        "deepfake",
-        DEEPFAKE_SYSTEM_PROMPT,
-        format_deepfake_user_prompt(result),
-        make_cache_key_from_bytes("deepfake", file_bytes),
+        module="deepfake",
+        system_prompt=DEEPFAKE_SYSTEM_PROMPT,
+        user_prompt=format_deepfake_user_prompt(
+            result, risk_score=result["risk_score"], severity=result["severity"]
+        ),
+        cache_key=make_cache_key_from_bytes("deepfake", file_bytes),
+        json_mode=True,
+        expected_band=result["severity"],
+        risk_score=result["risk_score"],
     )
     return await _finalize_deepfake_response(
         event_id=event_id,

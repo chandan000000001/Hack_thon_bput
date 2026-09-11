@@ -83,7 +83,7 @@ ML_ARTIFACTS = [
     "email_tfidf.pkl",
     "email_phishing_xgb.pkl",
     "url_xgb.pkl",
-    "deepfake_cnn.pt",
+    "deepfake_cnn_v2.pt",
     "network_xgb.pkl",
     "network_scaler.pkl",
 ]

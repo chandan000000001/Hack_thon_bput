@@ -107,7 +107,8 @@ async def get_current_user(
     if cached is not None:
         user_id, email = cached
         org_id = await get_user_org_id(user_id)
-        return CurrentUser(id=user_id, email=email, org_id=org_id)
+        role = await _profile_role(user_id)
+        return CurrentUser(id=user_id, email=email, role=role, org_id=org_id)
 
     try:
         # Phase D-1: the Auth network call must not block the event loop.
@@ -123,7 +124,8 @@ async def get_current_user(
     email = getattr(user, "email", None)
     _auth_context_put(token, user_id, email)
     org_id = await get_user_org_id(user_id)
-    return CurrentUser(id=user_id, email=email, org_id=org_id)
+    role = await _profile_role(user_id)
+    return CurrentUser(id=user_id, email=email, role=role, org_id=org_id)
 
 
 async def fetch_profile(user_id: str) -> dict:

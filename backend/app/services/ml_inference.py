@@ -15,6 +15,7 @@ heuristic score (calculate_score over non-ML indicators) stays well-defined.
 
 import logging
 import math
+import re
 import threading
 from io import BytesIO
 from pathlib import Path
@@ -36,10 +37,6 @@ _LOCKS = {
     "network": threading.Lock(),
 }
 _CACHE: dict[str, object] = {}
-
-# ImageFolder class ordering used at training time (alphabetical):
-# index 0 = 'fake', index 1 = 'real'. predict_image returns P(fake).
-FAKE_CLASS_INDEX = 0
 
 
 def models_dir() -> Path:
@@ -72,31 +69,214 @@ def _cached(key: str, loader):
 # ---------------------------------------------------------------------------
 
 def _load_email_model():
+    """Load the email phishing model selected by ml/models/calibration.json.
+
+    Version "v2" is the multilingual char-n-gram (2-4) TF-IDF + XGBoost pair
+    (email_tfidf_v2.pkl / email_phishing_xgb_v2.pkl) trained on en + hi + te +
+    or + romanised rows — it scores every language without translation.
+    Version "v1" is the original word-TF-IDF pair. If the calibrated version's
+    artifacts are missing, the loader falls back to v1 (logged) so inference
+    never breaks after an incomplete deploy.
+    """
     base = models_dir()
+    try:
+        if email_model_version() == "v2":
+            vectorizer = joblib.load(base / "email_tfidf_v2.pkl")
+            model = joblib.load(base / "email_phishing_xgb_v2.pkl")
+            return vectorizer, model, "email_phishing_xgb_v2.pkl"
+    except Exception as exc:
+        logger.warning("email model v2 unavailable — falling back to v1: %s", exc)
     vectorizer = joblib.load(base / "email_tfidf.pkl")
     model = joblib.load(base / "email_phishing_xgb.pkl")
-    return vectorizer, model
+    return vectorizer, model, "email_phishing_xgb.pkl"
+
+
+def email_model_version() -> str:
+    """Read the active email model version from models_dir()/calibration.json.
+
+    Missing file or unknown value -> "v1" (the pre-Indic default).
+    """
+    try:
+        import json
+
+        with (models_dir() / "calibration.json").open(encoding="utf-8") as fh:
+            calibration = json.load(fh)
+        version = str(calibration.get("email_model_version", "v1"))
+        return version if version in ("v1", "v2") else "v1"
+    except Exception:
+        return "v1"
+
+
+def email_model_artifact() -> str:
+    """Return the XGBoost artifact filename backing the active version.
+
+    Resolved from the cached bundle once loaded; falls back to the
+    version-derived name so the ml_model indicator is accurate even before
+    the first inference.
+    """
+    bundle = get_email_model()
+    if bundle is not None:
+        return bundle[2]
+    return "email_phishing_xgb_v2.pkl" if email_model_version() == "v2" else "email_phishing_xgb.pkl"
+
+
+def url_model_version() -> str:
+    """Read active URL model version from models_dir()/calibration.json or calibration config."""
+    try:
+        import json
+
+        with (models_dir() / "calibration.json").open(encoding="utf-8") as fh:
+            calibration = json.load(fh)
+        version = str(calibration.get("url_model_version", "v2"))
+        return version if version in ("v1", "v2") else "v2"
+    except Exception:
+        try:
+            from app.core.calibration import get_calibration
+
+            version = str(get_calibration().get("url_model_version", "v2"))
+            return version if version in ("v1", "v2") else "v2"
+        except Exception:
+            return "v2"
+
+
+def url_model_artifact() -> str:
+    """Return the active URL XGBoost model artifact filename."""
+    bundle = get_url_model()
+    if bundle is not None:
+        return bundle[1]
+    return "url_xgb_v2.pkl" if url_model_version() == "v2" else "url_xgb.pkl"
 
 
 def _load_url_model():
-    return joblib.load(models_dir() / "url_xgb.pkl")
+    base = models_dir()
+    if url_model_version() == "v2":
+        try:
+            model = joblib.load(base / "url_xgb_v2.pkl")
+            return model, "url_xgb_v2.pkl"
+        except Exception as exc:
+            logger.warning("url model v2 unavailable — falling back to v1: %s", exc)
+    model = joblib.load(base / "url_xgb.pkl")
+    return model, "url_xgb.pkl"
+
+
+_DEEPFAKE_LOADED_ARTIFACT: str | None = None
 
 
 def _load_deepfake_model():
+    """Load the 128px deepfake artifact selected by ml/models/calibration.json.
+
+    ``deepfake_model_version`` selects the artifact filename
+    (``deepfake_cnn_<version>.pt`` — currently v2: MobileNetV3-Small trained on
+    GenImage real + messenger-degraded reals vs StableDiffusion/Midjourney
+    fakes, ml/train_deepfake_v2.py). There is exactly ONE neural artifact: the
+    old 32x32 v1 CNN was deleted, so a missing selected file is NOT a neural
+    fallback — get_deepfake_model() returns None and the detector degrades to
+    heuristics-only (ELA splice + metadata) with an explicit
+    "heuristics-only-fallback" ml_model indicator and a logged warning.
+    """
     import torch
     import torch.nn as nn
+    from torchvision import models as tv_models
 
-    model = nn.Sequential(
-        nn.Conv2d(3, 16, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
-        nn.Conv2d(16, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
-        nn.Flatten(),
-        nn.Linear(32 * 8 * 8, 64), nn.ReLU(),
-        nn.Linear(64, 2),
+    global _DEEPFAKE_LOADED_ARTIFACT
+    version = deepfake_model_version()
+    artifact = deepfake_artifact_for_version(version)
+    base = models_dir()
+    if not (base / artifact).exists():
+        logger.warning(
+            "deepfake model %s selected by calibration but %s is missing — "
+            "heuristics-only fallback (no neural inference)",
+            version,
+            artifact,
+        )
+        _DEEPFAKE_LOADED_ARTIFACT = None
+        return None
+    try:
+        model = tv_models.mobilenet_v3_small(weights=None)
+        model.classifier[-1] = nn.Linear(model.classifier[-1].in_features, 2)
+        state_dict = torch.load(base / artifact, map_location="cpu")
+        model.load_state_dict(state_dict)
+        model.eval()
+        _DEEPFAKE_LOADED_ARTIFACT = artifact
+        return model
+    except Exception as exc:
+        logger.warning(
+            "deepfake model %s failed to load (%s) — heuristics-only fallback",
+            artifact,
+            exc,
+        )
+        _DEEPFAKE_LOADED_ARTIFACT = None
+        return None
+
+
+def deepfake_artifact_for_version(version: str) -> str:
+    """Map a calibration version (v2, v3, ...) to its artifact filename."""
+    return f"deepfake_cnn_{version}.pt"
+
+
+def deepfake_model_version() -> str:
+    """Read the active deepfake model version from models_dir()/calibration.json.
+
+    Missing file or unknown value -> "v2" (the current neural artifact).
+    """
+    try:
+        import json
+
+        with (models_dir() / "calibration.json").open(encoding="utf-8") as fh:
+            calibration = json.load(fh)
+        version = str(calibration.get("deepfake_model_version", "v2"))
+        return version if re.fullmatch(r"v\d+", version) else "v2"
+    except Exception:
+        return "v2"
+
+
+def deepfake_model_artifact() -> str:
+    """Return the artifact filename for the selected deepfake version.
+
+    After the first inference this reflects what the loader actually loaded —
+    which is always the selected artifact or nothing (heuristics-only).
+    Callers use this to label ml_model indicators and to detect the degraded
+    mode (deepfake_degraded()).
+    """
+    get_deepfake_model()
+    return _DEEPFAKE_LOADED_ARTIFACT or deepfake_artifact_for_version(
+        deepfake_model_version()
     )
-    state_dict = torch.load(models_dir() / "deepfake_cnn.pt", map_location="cpu")
-    model.load_state_dict(state_dict)
-    model.eval()
-    return model
+
+
+def deepfake_degraded() -> bool:
+    """True when the selected deepfake artifact is unavailable.
+
+    In this mode deepfake detection runs on the ELA/metadata heuristics alone
+    and every media response carries an ml_model indicator with value
+    "heuristics-only-fallback" (no neural inference, no silent old-model
+    fallback).
+    """
+    get_deepfake_model()
+    return _DEEPFAKE_LOADED_ARTIFACT is None
+
+
+def deepfake_deployment_status(light: bool = True) -> dict[str, object]:
+    """Deployment info for the startup log and /health/deep.
+
+    light=True (startup log) only checks artifact existence on disk — no
+    weight loading; light=False (authenticated diagnostics) resolves the
+    actually-loaded state, including a load failure at request time.
+    """
+    version = deepfake_model_version()
+    artifact = deepfake_artifact_for_version(version)
+    if light:
+        degraded = not (models_dir() / artifact).exists()
+    else:
+        get_deepfake_model()
+        degraded = _DEEPFAKE_LOADED_ARTIFACT is None
+    return {
+        "deepfake": {
+            "version": version,
+            "artifact": artifact,
+            "heuristics_only": degraded,
+        }
+    }
 
 
 def _load_network_model():
@@ -155,10 +335,13 @@ def shannon_entropy(value: str) -> float:
 SUSPICIOUS_URL_TLDS = {"xyz", "top", "zip", "ru", "cn", "tk", "click", "link", "work", "loan", "cam", "rest"}
 
 
-def extract_url_features(url: str) -> np.ndarray:
-    """MUST remain identical to training (ml/train_models.py): identical
-    feature order [length, entropy, digit_ratio, has_ip, has_at_symbol,
-    suspicious_tld, http_only, num_subdomains] and identical logic."""
+def extract_url_features(url: str, version: str = "v2") -> np.ndarray:
+    """MUST remain identical to training (ml/train_models.py):
+    Base (8): [length, entropy, digit_ratio, has_ip, has_at_symbol,
+               suspicious_tld, http_only, num_subdomains].
+    v2 additions (7): domain_in_top1m, path_shape_cat, is_uuid_like,
+                      is_hex32_like, is_short_id, is_homepage, is_other.
+    """
     from urllib.parse import urlparse
 
     try:
@@ -176,32 +359,42 @@ def extract_url_features(url: str) -> np.ndarray:
     tld = host.rsplit(".", 1)[-1].lower() if "." in host else ""
     subdomains = max(0, len([part for part in host.split(".") if part]) - 2)
 
-    return np.array(
-        [
-            len(url),
-            shannon_entropy(url),
-            digit_ratio,
-            1.0 if is_ip else 0.0,
-            1.0 if "@" in url else 0.0,
-            1.0 if tld in SUSPICIOUS_URL_TLDS else 0.0,
-            1.0 if scheme == "http" else 0.0,
-            float(subdomains),
-        ],
-        dtype=np.float64,
-    )
+    base = [
+        len(url),
+        shannon_entropy(url),
+        digit_ratio,
+        1.0 if is_ip else 0.0,
+        1.0 if "@" in url else 0.0,
+        1.0 if tld in SUSPICIOUS_URL_TLDS else 0.0,
+        1.0 if scheme == "http" else 0.0,
+        float(subdomains),
+    ]
+    if version == "v1":
+        return np.array(base, dtype=np.float64)
+
+    from app.core.url_reputation import is_domain_in_top1m, classify_path_shape, path_shape_to_vector
+    in_top1m = 1.0 if is_domain_in_top1m(host) else 0.0
+    shape = classify_path_shape(parsed.path, parsed.query)
+    shape_vec = path_shape_to_vector(shape)
+
+    return np.array(base + [in_top1m] + shape_vec, dtype=np.float64)
 
 
 def _image_tensor(image_bytes: bytes):
-    """PIL-decode bytes -> resize 32x32 -> ToTensor -> Normalize(0.5)."""
+    """PIL-decode bytes -> resize 128x128 -> ToTensor -> ImageNet Normalize.
+
+    All deepfake artifacts are 128px MobileNetV3 models (v2 onward) trained by
+    ml/train_deepfake_v2.py; there is no 32px branch any more.
+    """
     import torch
     from PIL import Image
     from torchvision import transforms
 
     transform = transforms.Compose(
         [
-            transforms.Resize((32, 32)),
+            transforms.Resize((128, 128)),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]
     )
     image = Image.open(BytesIO(image_bytes)).convert("RGB")
@@ -218,7 +411,7 @@ def predict_email(text: str) -> float | None:
     if bundle is None:
         return None
     try:
-        vectorizer, model = bundle
+        vectorizer, model, _artifact = bundle
         proba = model.predict_proba(vectorizer.transform([text]))
         return float(proba[0][1])
     except Exception as exc:
@@ -228,11 +421,13 @@ def predict_email(text: str) -> float | None:
 
 def predict_url(url: str) -> float | None:
     """Probability (0-1) that the URL is malicious."""
-    model = get_url_model()
-    if model is None:
+    bundle = get_url_model()
+    if bundle is None:
         return None
     try:
-        features = extract_url_features(url).reshape(1, -1)
+        model, artifact = bundle
+        ver = "v2" if "v2" in artifact else "v1"
+        features = extract_url_features(url, version=ver).reshape(1, -1)
         return float(model.predict_proba(features)[0][1])
     except Exception as exc:
         logger.warning("url ML inference failed: %s", exc)
@@ -250,7 +445,9 @@ def predict_image(image_bytes: bytes) -> float | None:
         with torch.no_grad():
             tensor = _image_tensor(image_bytes)
             logits = model(tensor)
-            probability = torch.softmax(logits, dim=1)[0][FAKE_CLASS_INDEX]
+            # Binary head class order: 0=real, 1=fake (all artifacts).
+            fake_index = 1
+            probability = torch.softmax(logits, dim=1)[0][fake_index]
             return float(probability)
     except Exception as exc:
         logger.warning("image ML inference failed: %s", exc)

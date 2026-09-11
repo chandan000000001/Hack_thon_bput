@@ -85,11 +85,17 @@ def http_req(
 
 
 def password_grant() -> str | None:
-    """Exchange the env credentials for a Supabase access token."""
-    email = os.environ.get("CYBERGUARD_TEST_EMAIL", "")
-    password = os.environ.get("CYBERGUARD_TEST_PASS", "")
+    """Exchange the credentials for a Supabase access token.
+
+    Credentials come from the environment or ../.env.test (same convention as
+    scripts/verify_deployment.py) — no manual shell exports required.
+    """
+    env_test = load_env_file(REPO_ROOT / ".env.test")
+    email = os.environ.get("CYBERGUARD_TEST_EMAIL", env_test.get("CYBERGUARD_TEST_EMAIL", ""))
+    password = os.environ.get("CYBERGUARD_TEST_PASS", env_test.get("CYBERGUARD_TEST_PASS", ""))
     if not email or not password:
         print("FAIL  credentials: CYBERGUARD_TEST_EMAIL / CYBERGUARD_TEST_PASS not set")
+        print("      provide them via the environment or ../.env.test (see scripts/verify_deployment.py)")
         sys.exit(2)
 
     env = {**load_env_file(REPO_ROOT / "frontend" / ".env"),
@@ -269,6 +275,117 @@ def main() -> int:
     sev = benign_email.get("severity") if isinstance(benign_email, dict) else None
     check("POST /analysis/email benign -> severity safe|low", code == 200 and sev in ("safe", "low"), f"status {code} severity={sev}")
 
+    # Preset test case: RFC 2606 reserved domain sender
+    code, rev_email = api(
+        "POST",
+        "/analysis/email",
+        token,
+        payload={
+            "source": "regression",
+            "sender": "notifications@account-review.example.com",
+            "subject": "Account Review Notice",
+            "body": "Please review your account details at your earliest convenience.",
+        },
+    )
+    r_sev = rev_email.get("severity") if isinstance(rev_email, dict) else None
+    r_exp = (rev_email.get("explanation") or "") if isinstance(rev_email, dict) else ""
+    check(
+        "POST /analysis/email account-review.example.com -> severity >= medium",
+        code == 200 and r_sev in ("medium", "high", "critical"),
+        f"status {code} severity={r_sev}",
+    )
+    if code == 200 and r_exp:
+        check(
+            "POST /analysis/email account-review.example.com explanation leading band matches final band",
+            r_exp.startswith(f"{str(r_sev).capitalize()} Risk:"),
+            f"explanation={r_exp[:40]!r}",
+        )
+
+    code, benign_preset = api(
+        "POST",
+        "/analysis/email",
+        token,
+        payload={
+            "source": "regression",
+            "sender": "notices@university.edu",
+            "subject": "Library hours update",
+            "body": "The central library will remain open until 10 PM during examination week. No action is required from students.",
+        },
+    )
+    bp_sev = benign_preset.get("severity") if isinstance(benign_preset, dict) else None
+    check(
+        "POST /analysis/email benign preset -> severity safe|low",
+        code == 200 and bp_sev in ("safe", "low"),
+        f"status {code} severity={bp_sev}",
+    )
+
+    # --- Indic-language phishing (hi / te / or) + benign Hindi ---------------
+    # Script detection must tag a `language` indicator; keyword hits drive the
+    # heuristic score and the v2 char-n-gram model scores all languages.
+    indic_samples = [
+        (
+            "hi",
+            "security-alert@sbi-kyc-verify.xyz",
+            "तुरंत कार्रवाई करें: खाता बंद हो जाएगा",
+            "आपका SBI खाता 24 घंटे में बंद हो जाएगा। KYC अपडेट के लिए "
+            "http://185.220.101.7/kyc पर जाएं और OTP भेजें।",
+        ),
+        (
+            "te",
+            "security-alert@hdfc-secure.top",
+            "తక్షణం: ఖాతా మూసివేయబడుతుంది",
+            "మీ HDFC Bank ఖాతా ధృవీకరించబడలేదు. KYC అప్‌డేట్ కోసం "
+            "http://185.220.101.7/kyc సందర్శించండి మరియు OTP పంపండి.",
+        ),
+        (
+            "or",
+            "security-alert@icici-alerts.work",
+            "ତୁରନ୍ତ: ଖାତା ବନ୍ଦ ହୋଇଯିବ",
+            "ଆପଣଙ୍କ ICICI Bank ଖାତା ଯାଞ୍ଚ ହୋଇନାହିଁ। KYC ଅପଡେଟ୍ ପାଇଁ "
+            "http://185.220.101.7/kyc ପରିଦର୍ଶନ କରନ୍ତୁ ଏବଂ OTP ପଠାନ୍ତୁ।",
+        ),
+    ]
+    for lang_code, sender, subject, body in indic_samples:
+        code, resp = api(
+            "POST",
+            "/analysis/email",
+            token,
+            payload={"source": "regression", "sender": sender, "subject": subject, "body": body},
+        )
+        sev = resp.get("severity") if isinstance(resp, dict) else None
+        indicators = resp.get("indicators") if isinstance(resp, dict) else []
+        lang_present = any(
+            i.get("type") == "language" and i.get("value") == lang_code for i in indicators
+        )
+        check(
+            f"POST /analysis/email {lang_code} phishing -> severity high|critical + lang indicator",
+            code == 200 and sev in ("high", "critical") and lang_present,
+            f"status {code} severity={sev} lang_present={lang_present}",
+        )
+
+    code, benign_hi = api(
+        "POST",
+        "/analysis/email",
+        token,
+        payload={
+            "source": "regression",
+            "sender": "newsletter@updates.wikipedia.org",
+            "subject": "आपकी साप्ताहिक विकिपीडिया डाइजेस्ट",
+            "body": "इस सप्ताह की चुनी हुई कहानियां पढ़ें। आप कभी भी अपनी खाता "
+            "प्राथमिकताओं से सदस्यता रद्द कर सकते हैं।",
+        },
+    )
+    sev = benign_hi.get("severity") if isinstance(benign_hi, dict) else None
+    hi_indicators = benign_hi.get("indicators") if isinstance(benign_hi, dict) else []
+    hi_lang_present = any(
+        i.get("type") == "language" and i.get("value") == "hi" for i in hi_indicators
+    )
+    check(
+        "POST /analysis/email benign Hindi -> severity safe|low + lang indicator",
+        code == 200 and sev in ("safe", "low") and hi_lang_present,
+        f"status {code} severity={sev} lang_present={hi_lang_present}",
+    )
+
     # --- url analysis -------------------------------------------------------
     code, mal_url = api("POST", "/analysis/url", token, payload={"source": "regression", "url": "http://185.220.101.7/paypal-login/verify"})
     sev = mal_url.get("severity") if isinstance(mal_url, dict) else None
@@ -277,6 +394,71 @@ def main() -> int:
     code, benign_url = api("POST", "/analysis/url", token, payload={"source": "regression", "url": "https://www.wikipedia.org/"})
     sev = benign_url.get("severity") if isinstance(benign_url, dict) else None
     check("POST /analysis/url benign -> severity safe|low", code == 200 and sev in ("safe", "low"), f"status {code} severity={sev}")
+
+    # High-reputation URL deep links (Fix 1)
+    code, chatgpt_url = api(
+        "POST",
+        "/analysis/url",
+        token,
+        payload={
+            "source": "regression",
+            "url": "https://chatgpt.com/c/6aa30aae-379c-83ee-9950-0e4c6eb55d76",
+        },
+    )
+    cg_sev = chatgpt_url.get("severity") if isinstance(chatgpt_url, dict) else None
+    check(
+        "POST /analysis/url chatgpt conversation link -> severity safe|low",
+        code == 200 and cg_sev in ("safe", "low"),
+        f"status {code} severity={cg_sev}",
+    )
+
+    code, drive_url = api(
+        "POST",
+        "/analysis/url",
+        token,
+        payload={
+            "source": "regression",
+            "url": "https://drive.google.com/file/d/1AbC-defG/view",
+        },
+    )
+    dr_sev = drive_url.get("severity") if isinstance(drive_url, dict) else None
+    check(
+        "POST /analysis/url drive share link -> severity safe|low",
+        code == 200 and dr_sev in ("safe", "low"),
+        f"status {code} severity={dr_sev}",
+    )
+
+    code, yt_url = api(
+        "POST",
+        "/analysis/url",
+        token,
+        payload={
+            "source": "regression",
+            "url": "https://youtu.be/dQw4w9WgXcQ",
+        },
+    )
+    yt_sev = yt_url.get("severity") if isinstance(yt_url, dict) else None
+    check(
+        "POST /analysis/url youtube link -> severity safe|low",
+        code == 200 and yt_sev in ("safe", "low"),
+        f"status {code} severity={yt_sev}",
+    )
+
+    code, mal_url2 = api(
+        "POST",
+        "/analysis/url",
+        token,
+        payload={
+            "source": "regression",
+            "url": "http://176.65.139.206/ppc",
+        },
+    )
+    m2_sev = mal_url2.get("severity") if isinstance(mal_url2, dict) else None
+    check(
+        "POST /analysis/url malicious URLhaus 2 -> severity high|critical",
+        code == 200 and m2_sev in ("high", "critical"),
+        f"status {code} severity={m2_sev}",
+    )
 
     # --- impersonation ------------------------------------------------------
     code, imp = api(
@@ -292,6 +474,31 @@ def main() -> int:
     )
     sev = imp.get("severity") if isinstance(imp, dict) else None
     check("POST /analysis/impersonation fake-CEO -> severity high|critical", code == 200 and sev in ("high", "critical"), f"status {code} severity={sev}")
+
+    # Calibration check: Benign CFO vendor-payment message returns severity <= medium
+    code, benign_imp = api(
+        "POST",
+        "/analysis/impersonation",
+        token,
+        payload={
+            "source": "regression",
+            "message": "Please review the attached vendor payment schedule and confirm status for this week.",
+            "claimed_identity": "CFO",
+        },
+    )
+    b_sev = benign_imp.get("severity") if isinstance(benign_imp, dict) else None
+    b_exp = (benign_imp.get("explanation") or "") if isinstance(benign_imp, dict) else ""
+    check(
+        "POST /analysis/impersonation benign-CFO -> severity <= medium",
+        code == 200 and b_sev in ("safe", "low", "medium"),
+        f"status {code} severity={b_sev}",
+    )
+    expected_cfo_lead = f"{str(b_sev).capitalize()} Risk:"
+    check(
+        "POST /analysis/impersonation benign-CFO explanation leading band matches final band",
+        code == 200 and b_exp.startswith(expected_cfo_lead),
+        f"explanation={b_exp[:40]!r}",
+    )
 
     # --- account takeover: six-event impossible travel ----------------------
     # Detector parses ISO-8601 timestamp strings only, so emit strings.
@@ -347,8 +554,77 @@ def main() -> int:
         sync_ok = isinstance(media, dict) and "manipulation_probability" in media
         queued_ok = isinstance(media, dict) and media.get("status") == "analyzing" and media.get("event_id")
         check("POST /analysis/media upload -> 200 sync | 202 queued", code == 200 and sync_ok or code == 202 and queued_ok, f"status {code}")
+
+        # Calibration check: manipulated.png returns high or critical
+        sev_manip = media.get("severity") if isinstance(media, dict) else None
+        check(
+            "POST /analysis/media manipulated.png -> severity high|critical",
+            (code == 200 and sev_manip in ("high", "critical")) or (code == 202),
+            f"status {code} severity={sev_manip}",
+        )
     else:
         check("POST /analysis/media upload -> 200 with manipulation_probability", False, f"missing file {MEDIA_PATH}")
+
+    # Calibration check: real_camera_whatsapp.jpg returns severity <= medium
+    WHATSAPP_MEDIA_PATH = REPO_ROOT / "evidence" / "media" / "real_camera_whatsapp.jpg"
+    if WHATSAPP_MEDIA_PATH.exists():
+        boundary_wa = "----cyberguardwhatsapp"
+        wa_bytes = WHATSAPP_MEDIA_PATH.read_bytes()
+        part_wa = (
+            f"--{boundary_wa}\r\n"
+            f'Content-Disposition: form-data; name="file"; filename="{WHATSAPP_MEDIA_PATH.name}"\r\n'
+            f"Content-Type: image/jpeg\r\n\r\n"
+        ).encode() + wa_bytes + f"\r\n--{boundary_wa}--\r\n".encode()
+        code_wa, media_wa = http_req(
+            "POST",
+            f"{BASE_URL}/analysis/media",
+            token=token,
+            raw_body=part_wa,
+            content_type=f"multipart/form-data; boundary={boundary_wa}",
+        )
+        sev_wa = media_wa.get("severity") if isinstance(media_wa, dict) else None
+        exp_wa = (media_wa.get("explanation") or "") if isinstance(media_wa, dict) else ""
+        # Deepfake v2 gate: the messenger-encoded genuine photo must be
+        # safe/low (the v1 cap no longer masks ELA false positives).
+        check(
+            "POST /analysis/media real_camera_whatsapp.jpg -> severity safe|low",
+            (code_wa == 200 and sev_wa in ("safe", "low")) or (code_wa == 202),
+            f"status {code_wa} severity={sev_wa}",
+        )
+        if code_wa == 200 and exp_wa:
+            check(
+                "POST /analysis/media real_camera_whatsapp.jpg explanation leading band matches final band",
+                exp_wa.startswith(f"{str(sev_wa).capitalize()} Risk:"),
+                f"explanation={exp_wa[:40]!r}",
+            )
+    else:
+        check("POST /analysis/media real_camera_whatsapp.jpg exists and tested", False, f"missing {WHATSAPP_MEDIA_PATH}")
+
+    # Calibration check: erew.jpeg returns safe or low (Fix 2 CNN vs ELA disagreement policy)
+    EREW_MEDIA_PATH = REPO_ROOT / "evidence" / "media" / "erew.jpeg"
+    if EREW_MEDIA_PATH.exists():
+        boundary_er = "----cyberguarderew"
+        er_bytes = EREW_MEDIA_PATH.read_bytes()
+        part_er = (
+            f"--{boundary_er}\r\n"
+            f'Content-Disposition: form-data; name="file"; filename="{EREW_MEDIA_PATH.name}"\r\n'
+            f"Content-Type: image/jpeg\r\n\r\n"
+        ).encode() + er_bytes + f"\r\n--{boundary_er}--\r\n".encode()
+        code_er, media_er = http_req(
+            "POST",
+            f"{BASE_URL}/analysis/media",
+            token=token,
+            raw_body=part_er,
+            content_type=f"multipart/form-data; boundary={boundary_er}",
+        )
+        sev_er = media_er.get("severity") if isinstance(media_er, dict) else None
+        check(
+            "POST /analysis/media erew.jpeg -> severity safe|low",
+            (code_er == 200 and sev_er in ("safe", "low")) or (code_er == 202),
+            f"status {code_er} severity={sev_er}",
+        )
+    else:
+        check("POST /analysis/media erew.jpeg exists and tested", False, f"missing {EREW_MEDIA_PATH}")
 
     # --- alerts ---------------------------------------------------------------
     code, alerts = api("GET", "/alerts", token)
@@ -473,7 +749,9 @@ def main() -> int:
 
     # --- admin users --------------------------------------------------------------
     code, users = api("GET", "/admin/users", token)
-    admin_email = os.environ.get("CYBERGUARD_TEST_EMAIL", "").lower()
+    admin_email = os.environ.get(
+        "CYBERGUARD_TEST_EMAIL", load_env_file(REPO_ROOT / ".env.test").get("CYBERGUARD_TEST_EMAIL", "")
+    ).lower()
     listed = isinstance(users, list) and any(
         (u.get("email") or "").lower() == admin_email for u in users if isinstance(u, dict)
     )

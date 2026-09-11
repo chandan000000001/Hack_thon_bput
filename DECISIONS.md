@@ -61,3 +61,8 @@ Consolidated architecture decision records. Each entry states the decision, the 
 **Decision:** `/` is a public editorial landing page (no authentication) presenting the platform's modules, severity bands and auth entry points; the SOC console lives behind login.
 **Rationale:** judges and visitors see the product story before authenticating; the dashboard stays gated.
 **Code:** `frontend/src/pages/Landing.tsx`; commit 400bea1 "P6/P30: public editorial landing page at / with prmodule spreads and auth entry points".
+
+## DR-13 — Single neural deepfake artifact; heuristics-only degraded mode
+**Decision:** the v1 deepfake artifact (`deepfake_cnn.pt`, 32x32 CIFAKE CNN) and all of its code paths — the dual-version loader branch, the 32px preprocessing, the manipulation cap and the medium severity clamp, and the v1-only calibration keys — were deleted; there is no inference-time ensemble of v1 and v2, and the loader serves exactly one 128px artifact selected by `ml/models/calibration.json` (`deepfake_model_version`, currently v2, future v3). If the selected artifact file is missing, detection degrades to heuristics-only (localised ELA splice plus metadata) and every response carries an `ml_model` indicator valued `heuristics-only-fallback` with a logged warning — never a silent neural fallback.
+**Rationale:** one artifact means one evaluation story; a hidden fallback to an obsolete model silently changes detection behaviour and invalidates the measured gates.
+**Code:** `backend/app/services/ml_inference.py` (single-artifact loader, `deepfake_degraded()`), `backend/app/services/deepfake_detector.py`, `backend/ml/models/calibration.json`; verified by `backend/scripts/verify_deployment.py`.

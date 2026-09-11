@@ -1,0 +1,194 @@
+{
+  "version": 1,
+  "description": "Indic phishing keyword resource for CYBERGUARD. Categories map onto the existing indicator severity matrix: urgency=high, credential=critical, payment=critical, otp=critical, kyc=high. Each language list must contain at least 25 entries across the five categories.",
+  "category_severity": {
+    "urgency": "high",
+    "credential": "critical",
+    "payment": "critical",
+    "otp": "critical",
+    "kyc": "high"
+  },
+  "languages": {
+    "hi": {
+      "script": "Devanagari",
+      "urgency": [
+        "तुरंत",
+        "तुरंत कार्रवाई करें",
+        "तत्काल",
+        "अंतिम चेतावनी",
+        "24 घंटे में खाता बंद",
+        "जल्दी करें",
+        "खाता बंद हो जाएगा",
+        "खाता निलंबित कर दिया जाएगा"
+      ],
+      "credential": [
+        "सत्यापित करें",
+        "पासवर्ड रीसेट करें",
+        "लॉगिन क्रेडेंशियल दर्ज करें",
+        "पहचान सत्यापित करें",
+        "यूज़र आईडी और पासवर्ड भेजें",
+        "अपना खाता सत्यापित करें"
+      ],
+      "payment": [
+        "तुरंत भुगतान करें",
+        "पैसे ट्रांसफर करें",
+        "प्रोसेसिंग शुल्क जमा करें",
+        "रुपये भेजें",
+        "UPI से भुगतान करें",
+        "बकाया राशि का भुगतान करें"
+      ],
+      "otp": [
+        "OTP भेजें",
+        "OTP साझा करें",
+        "ओटीपी दर्ज करें",
+        "OTP की पुष्टि करें",
+        "वन टाइम पासवर्ड बताएं",
+        "OTP कोड कन्फर्म करें"
+      ],
+      "kyc": [
+        "KYC अपडेट",
+        "KYC सत्यापित करें",
+        "केवाईसी अपडेट करें",
+        "KYC समाप्त हो जाएगा",
+        "ई-KYC पूरा करें",
+        "KYC दस्तावेज़ अपलोड करें"
+      ]
+    },
+    "te": {
+      "script": "Telugu",
+      "urgency": [
+        "తక్షణం",
+        "వెంటనే చర్య తీసుకోండి",
+        "చివరి హెచ్చరిక",
+        "24 గంటల్లో ఖాతా మూసివేయబడుతుంది",
+        "వెంటనే ప్రతిస్పందించండి",
+        "ఆలస్యం చేయవద్దు",
+        "ఖాతా మూసివేయబడుతుంది",
+        "ఖాతా నిలిపివేయబడుతుంది"
+      ],
+      "credential": [
+        "ధృవీకరించండి",
+        "పాస్‌వర్డ్ రీసెట్ చేయండి",
+        "లాగిన్ వివరాలు నమోదు చేయండి",
+        "మీ ఖాతాను ధృవీకరించండి",
+        "యూజర్ ఐడీ మరియు పాస్‌వర్డ్ పంపండి",
+        "గుర్తింపు ధృవీకరించండి"
+      ],
+      "payment": [
+        "వెంటనే చెల్లించండి",
+        "డబ్బు బదిలీ చేయండి",
+        "ప్రాసెసింగ్ రుసుము జమ చేయండి",
+        "రూపాయలు పంపండి",
+        "UPI ద్వారా చెల్లించండి",
+        "బకాయి మొత్తాన్ని చెల్లించండి"
+      ],
+      "otp": [
+        "OTP పంపండి",
+        "OTP పంచండి",
+        "OTP నమోదు చేయండి",
+        "OTP ను ధృవీకరించండి",
+        "వన్ టైమ్ పాస్‌వర్డ్ చెప్పండి",
+        "OTP కోడ్ కన్ఫర్మ్ చేయండి"
+      ],
+      "kyc": [
+        "KYC అప్‌డేట్",
+        "KYC ధృవీకరించండి",
+        "కెవైసీ అప్‌డేట్ చేయండి",
+        "KYC గడువు ముగుస్తుంది",
+        "ఇ-కెవైసీ పూర్తి చేయండి",
+        "KYC పత్రాలు అప్‌లోడ్ చేయండి"
+      ]
+    },
+    "or": {
+      "script": "Odia",
+      "urgency": [
+        "ତୁରନ୍ତ",
+        "ଏବେ ଠାରୁ କାର୍ଯ୍ୟାନୁଷ୍ଠାନ କରନ୍ତୁ",
+        "ଶେଷ ଚେତାବନୀ",
+        "24 ଘଣ୍ଟା ମଧ୍ୟରେ ଖାତା ବନ୍ଦ",
+        "ଶୀଘ୍ର ଉତ୍ତର ଦିଅନ୍ତୁ",
+        "ବିଳମ୍ବ କରନ୍ତୁ ନାହିଁ",
+        "ଖାତା ବନ୍ଦ ହୋଇଯିବ",
+        "ଖାତା ସ୍ଥଗିତ କରାଯିବ"
+      ],
+      "credential": [
+        "ଯାଞ୍ଚ କରନ୍ତୁ",
+        "ପାସୱାର୍ଡ ରିସେଟ୍ କରନ୍ତୁ",
+        "ଲଗଇନ୍ ବିବରଣୀ ଦିଅନ୍ତୁ",
+        "ନିଜ ଖାତା ଯାଞ୍ଚ କରନ୍ତୁ",
+        "ୟୁଜର ଆଇଡି ଓ ପାସୱାର୍ଡ ପଠାନ୍ତୁ",
+        "ପରିଚୟ ଯାଞ୍ଚ କରନ୍ତୁ"
+      ],
+      "payment": [
+        "ତୁରନ୍ତ ଦେୟ ଦିଅନ୍ତୁ",
+        "ଟଙ୍କା ସ୍ଥାନାନ୍ତର କରନ୍ତୁ",
+        "ପ୍ରକ୍ରିୟାକରଣ ଫି ଜମା କରନ୍ତୁ",
+        "ଟଙ୍କା ପଠାନ୍ତୁ",
+        "UPI ଦ୍ୱାରା ପେମେଣ୍ଟ କରନ୍ତୁ",
+        "ବକେୟା ଦେୟ ପରିଶୋଧ କରନ୍ତୁ"
+      ],
+      "otp": [
+        "OTP ପଠାନ୍ତୁ",
+        "OTP ସହଭାଗ କରନ୍ତୁ",
+        "OTP ଦିଅନ୍ତୁ",
+        "OTP ଯାଞ୍ଚ କରନ୍ତୁ",
+        "ୱାନ୍ ଟାଇମ୍ ପାସୱାର୍ଡ କୁହନ୍ତୁ",
+        "OTP କୋଡ୍ କନଫର୍ମ କରନ୍ତୁ"
+      ],
+      "kyc": [
+        "KYC ଅପଡେଟ୍",
+        "KYC ଯାଞ୍ଚ କରନ୍ତୁ",
+        "କେୱାଇସି ଅପଡେଟ୍ କରନ୍ତୁ",
+        "KYC ଅଚଳ ହୋଇଯିବ",
+        "ଇ-କେୱାଇସି ସମ୍ପୂର୍ଣ୍ଣ କରନ୍ତୁ",
+        "KYC ଦଲିଲ ଅପଲୋଡ୍ କରନ୍ତୁ"
+      ]
+    },
+    "romanised": {
+      "script": "Latin",
+      "description": "Romanised Hinglish / Tenglish variants as written in real SMS and chat.",
+      "urgency": [
+        "turant",
+        "turant action lein",
+        "foran jawab dein",
+        "last warning",
+        "24 ghante mein account band",
+        "jaldi karein",
+        "account band ho jayega",
+        "account suspend ho jayega"
+      ],
+      "credential": [
+        "verify karein",
+        "password reset karein",
+        "login details bhejein",
+        "apna khata verify karein",
+        "user id aur password bhejein",
+        "identity confirm karein"
+      ],
+      "payment": [
+        "turant payment karein",
+        "paise transfer karein",
+        "processing fees jama karein",
+        "rupaye bhejein",
+        "UPI se payment karein",
+        "bakaya raashi bhugtan karein"
+      ],
+      "otp": [
+        "otp bheje",
+        "otp share karein",
+        "otp daaliye",
+        "otp confirm karein",
+        "one time password batayein",
+        "otp code batao"
+      ],
+      "kyc": [
+        "kyc update",
+        "kyc verify karein",
+        "kyc pending hai",
+        "kyc expire ho jayega",
+        "e-kyc karein",
+        "kyc documents upload karein"
+      ]
+    }
+  }
+}

@@ -12,9 +12,21 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text, Uuid, func
+from sqlalchemy import DateTime, Enum as SAEnum, ForeignKey, Integer, Numeric, String, Text, Uuid, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+# Mirrors the incident_status enum created by db/schema.sql (legacy values)
+# plus the NIST/SANS lifecycle values added by the one-time ALTER TYPE step in
+# backend/docs/deployment.md. create_type=False: the type already exists in
+# Postgres; declaring it here only makes asyncpg bind UPDATE parameters as the
+# enum instead of varchar (DatatypeMismatchError otherwise).
+incident_status_enum = SAEnum(
+    "open", "investigating", "contained", "closed",
+    "TRIAGE", "CONTAINMENT", "ERADICATION", "RECOVERY", "CLOSED",
+    name="incident_status",
+    create_type=False,
+)
 
 
 class Base(DeclarativeBase):
@@ -28,11 +40,14 @@ class IncidentModel(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     # Tenant scope (migration 0004); the service layer filters on it because
-    # the service-role client bypasses RLS.
-    org_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("organizations.id"))
+    # the service-role client bypasses RLS. Plain column on purpose: the
+    # organizations FK lives in the Postgres migrations, and declaring it in
+    # ORM metadata would require mapping the (unmapped) organizations table
+    # (NoReferencedTableError at mapper configuration time).
+    org_id: Mapped[uuid.UUID] = mapped_column(Uuid)
     title: Mapped[str] = mapped_column(Text)
     severity: Mapped[str] = mapped_column(String(32))
-    status: Mapped[str] = mapped_column(String(32))
+    status: Mapped[str] = mapped_column(incident_status_enum)
     assigned_to: Mapped[Optional[str]] = mapped_column(Text)
     created_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -76,7 +91,7 @@ class AlertModel(Base):
     __tablename__ = "alerts"
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
-    org_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey("organizations.id"))
+    org_id: Mapped[uuid.UUID] = mapped_column(Uuid)  # FK in migrations 0004, not ORM metadata
     event_id: Mapped[Optional[uuid.UUID]] = mapped_column(Uuid)
     title: Mapped[str] = mapped_column(Text)
     module: Mapped[str] = mapped_column(String(32))

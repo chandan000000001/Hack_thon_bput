@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { supabase } from '../lib/supabaseClient';
 import * as mockApi from '../services/mockApi';
 import type { User } from '../types';
+import { useUiStore } from './uiStore';
 
 // Mock mode stays fully available behind VITE_USE_MOCK so the demo keeps
 // working without a Supabase project or backend. Mock users are admins so
@@ -96,13 +97,13 @@ interface AuthState {
   can: (permission: PermissionKey) => boolean;
 }
 
-function toUser(supabaseUser: { id: string; email?: string | null }): User {
+function toUser(supabaseUser: { id: string; email?: string | null }, role: Role = 'viewer'): User {
   const email = supabaseUser.email ?? '';
   return {
     id: supabaseUser.id,
     name: email.split('@')[0] || 'SOC Analyst',
     email,
-    role: 'viewer',
+    role,
   };
 }
 
@@ -132,8 +133,11 @@ async function fetchAuthMe(
     const response = await fetch(`${API_BASE_URL}/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (!response.ok)
+    if (!response.ok) {
+      console.error('Failed to fetch /auth/me:', response.status, response.statusText);
+      useUiStore.getState().addToast('Role service unavailable - read-only mode', 'high');
       return { role: 'viewer', fullName: null, permissions: FALLBACK_ROLE_PERMISSIONS.viewer };
+    }
     const body = (await response.json()) as {
       role?: string;
       full_name?: string | null;
@@ -145,7 +149,9 @@ async function fetchAuthMe(
       fullName: body.full_name ?? null,
       permissions: normalizePermissions(body.permissions, role),
     };
-  } catch {
+  } catch (err) {
+    console.error('Failed to fetch /auth/me:', err);
+    useUiStore.getState().addToast('Role service unavailable - read-only mode', 'high');
     return { role: 'viewer', fullName: null, permissions: FALLBACK_ROLE_PERMISSIONS.viewer };
   }
 }
@@ -182,7 +188,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
     const { role, fullName, permissions } = await fetchAuthMe(data.session.access_token);
     set({
-      user: toUser(data.session.user),
+      user: toUser(data.session.user, role),
       accessToken: data.session.access_token,
       isAuthenticated: true,
       hydrated: true,
@@ -230,7 +236,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       data.session.access_token
     );
     set({
-      user: toUser(data.session.user),
+      user: toUser(data.session.user, role),
       accessToken: data.session.access_token,
       isAuthenticated: true,
       hydrated: true,
@@ -306,7 +312,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (session) {
         const { role, fullName, permissions } = await fetchAuthMe(session.access_token);
         set({
-          user: toUser(session.user),
+          user: toUser(session.user, role),
           accessToken: session.access_token,
           isAuthenticated: true,
           role,

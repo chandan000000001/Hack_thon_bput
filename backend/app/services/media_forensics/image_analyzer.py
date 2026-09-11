@@ -13,32 +13,8 @@ from typing import Any
 import numpy as np
 from PIL import Image
 
+from app.core.calibration import get_deepfake_calibration
 from app.services.media_forensics.base import MediaAnalyzer
-
-# --- ELA parameters and thresholds (heuristic values, not ML outputs) ---
-# JPEG quality used for the reference re-encoding; lower quality amplifies
-# the residual in edited regions more strongly.
-ELA_JPEG_QUALITY = 90
-# Variance of the per-8x8-block mean error above this value suggests a
-# locally spliced/recompressed region sitting inside a cleaner image.
-# Calibrated against scripts/make_test_media.py output (benign gradient
-# ~0.006, spliced gradient ~0.014); real photos need per-dataset tuning.
-HIGH_BLOCK_VARIANCE_THRESHOLD = 0.010
-# An error map that is almost flat everywhere (very low mean AND variance)
-# suggests the image was regenerated wholesale (e.g. AI-generated) rather
-# than edited.
-UNIFORM_ERROR_MEAN_MAX = 0.2
-UNIFORM_ERROR_VARIANCE_MAX = 0.005
-# Baseline contribution to manipulation_probability before indicators.
-BASE_MANIPULATION_PROBABILITY = 0.05
-# How strongly block variance pushes the probability, capped.
-BLOCK_VARIANCE_PROBABILITY_CAP = 0.55
-# Extra probability weight for a container mismatch (strong tamper signal).
-CONTAINER_MISMATCH_PROBABILITY = 0.20
-# Extra probability weight for a fully uniform error map.
-UNIFORM_ERROR_PROBABILITY = 0.10
-# Maximum probability any analyzer may emit.
-MAX_MANIPULATION_PROBABILITY = 0.95
 
 # Recognized image file extensions mapped to the format Pillow reports.
 EXTENSION_TO_FORMAT = {
@@ -52,18 +28,25 @@ EXTENSION_TO_FORMAT = {
     "tif": "TIFF",
 }
 
-BLOCK_SIZE = 8
 
+def compute_ela_stats(image: Image.Image, calib: dict[str, Any] | None = None) -> dict[str, float]:
+    """Compute ELA statistics for a PIL image using calibration thresholds.
 
-def compute_ela_stats(image: Image.Image) -> dict[str, float]:
-    """Compute ELA statistics for a PIL image.
-
-    Re-encodes the image as JPEG at ELA_JPEG_QUALITY, takes the per-pixel
-    absolute difference and returns the mean error, max error and the
-    variance of the per-8x8-block mean error.
+    Re-encodes the image as JPEG at calibrated quality, takes the per-pixel
+    absolute difference, computes block errors, and evaluates median block
+    error m, top-5% mean t, and splice_score = t/m.
     """
+    if calib is None:
+        calib = get_deepfake_calibration()
+
+    jpeg_quality = int(calib.get("jpeg_quality", 90))
+    block_size = int(calib.get("block_size", 8))
+    noise_floor = float(calib.get("noise_floor", 0.55))
+    top_percent = float(calib.get("top_percent", 0.05))
+    bot_blocks_cap = int(calib.get("bot_blocks_cap", 32))
+
     buffer = io.BytesIO()
-    image.save(buffer, "JPEG", quality=ELA_JPEG_QUALITY)
+    image.save(buffer, "JPEG", quality=jpeg_quality)
     buffer.seek(0)
 
     original = np.asarray(image.convert("RGB"), dtype=np.float64)
@@ -71,22 +54,50 @@ def compute_ela_stats(image: Image.Image) -> dict[str, float]:
     error_map = np.abs(original - reencoded).mean(axis=2)
 
     height, width = error_map.shape
-    cropped_h = height - (height % BLOCK_SIZE)
-    cropped_w = width - (width % BLOCK_SIZE)
+    cropped_h = height - (height % block_size)
+    cropped_w = width - (width % block_size)
     if cropped_h == 0 or cropped_w == 0:
-        block_variance = 0.0
-    else:
-        blocks = (
-            error_map[:cropped_h, :cropped_w]
-            .reshape(cropped_h // BLOCK_SIZE, BLOCK_SIZE, cropped_w // BLOCK_SIZE, BLOCK_SIZE)
-            .mean(axis=(1, 3))
-        )
-        block_variance = float(blocks.var())
+        return {
+            "mean_error": float(error_map.mean()) if error_map.size > 0 else 0.0,
+            "max_error": float(error_map.max()) if error_map.size > 0 else 0.0,
+            "block_variance": 0.0,
+            "splice_score": 0.0,
+            "median_block_error": 0.0,
+            "top5_mean_error": 0.0,
+        }
+
+    blocks = (
+        error_map[:cropped_h, :cropped_w]
+        .reshape(cropped_h // block_size, block_size, cropped_w // block_size, block_size)
+        .mean(axis=(1, 3))
+    ).flatten()
+    block_variance = float(blocks.var())
+    m = float(np.median(blocks))
+    eff_m = max(m, noise_floor)
+    k = max(1, int(len(blocks) * top_percent))
+    sorted_blocks = np.sort(blocks)
+    t = float(np.mean(sorted_blocks[-k:]))
+    top_ratio = t / eff_m
+
+    actual_format = (getattr(image, "format", "") or "").upper()
+    bot_ratio = 0.0
+    if actual_format != "JPEG":
+        k_bot = max(1, min(k, bot_blocks_cap))
+        nz = sorted_blocks[sorted_blocks > 0.02]
+        if len(nz) >= k_bot:
+            b = float(np.mean(nz[:k_bot]))
+            if b > 0.01:
+                bot_ratio = eff_m / b
+
+    splice_score = float(max(top_ratio, bot_ratio))
 
     return {
         "mean_error": float(error_map.mean()),
         "max_error": float(error_map.max()),
         "block_variance": block_variance,
+        "splice_score": splice_score,
+        "median_block_error": m,
+        "top5_mean_error": t,
     }
 
 
@@ -97,6 +108,7 @@ class ImageAnalyzer(MediaAnalyzer):
     simulated = False
 
     def analyze(self, file_bytes: bytes, file_name: str) -> dict[str, Any]:
+        calib = get_deepfake_calibration()
         indicators: list[dict] = []
 
         try:
@@ -128,21 +140,26 @@ class ImageAnalyzer(MediaAnalyzer):
                 {
                     "type": "missing_exif",
                     "value": "no EXIF metadata present",
-                    "severity": "low",
+                    "severity": calib.get("missing_exif_severity", "low"),
                     "description": (
-                        "Image carries no EXIF metadata; original camera or "
-                        "software provenance information is absent (common in "
-                        "processed or generated images)."
+                        "Image carries no EXIF metadata; expected after messenger recompression "
+                        "or synthetic generation."
                     ),
                 }
             )
 
-        stats = compute_ela_stats(image)
+        stats = compute_ela_stats(image, calib)
+
+        uniform_mean_max = float(calib.get("uniform_error_mean_max", 0.2))
+        uniform_var_max = float(calib.get("uniform_error_variance_max", 0.005))
+        splice_score_threshold = float(calib.get("splice_score_threshold", 3.0))
+        global_recomp_threshold = float(calib.get("global_recompression_mean_threshold", 0.2))
 
         uniform_error_map = (
-            stats["mean_error"] < UNIFORM_ERROR_MEAN_MAX
-            and stats["block_variance"] < UNIFORM_ERROR_VARIANCE_MAX
+            stats["mean_error"] < uniform_mean_max
+            and stats["block_variance"] < uniform_var_max
         )
+
         if uniform_error_map:
             indicators.append(
                 {
@@ -155,11 +172,12 @@ class ImageAnalyzer(MediaAnalyzer):
                     ),
                 }
             )
-        elif stats["block_variance"] > HIGH_BLOCK_VARIANCE_THRESHOLD:
+        elif stats["splice_score"] > splice_score_threshold:
+            # Emit high_block_variance ONLY when splice_score > 3.0
             indicators.append(
                 {
                     "type": "high_block_variance",
-                    "value": f"block_var={stats['block_variance']:.3f}",
+                    "value": f"splice_score={stats['splice_score']:.2f}, block_var={stats['block_variance']:.3f}",
                     "severity": "high",
                     "description": (
                         "ELA block error variance is high; part of the image was "
@@ -167,19 +185,34 @@ class ImageAnalyzer(MediaAnalyzer):
                     ),
                 }
             )
+        elif stats["mean_error"] >= global_recomp_threshold:
+            # Otherwise, if mean error is uniformly elevated, emit global_recompression
+            indicators.append(
+                {
+                    "type": "global_recompression",
+                    "value": f"mean={stats['mean_error']:.3f}, splice_score={stats['splice_score']:.2f}",
+                    "severity": calib.get("global_recompression_severity", "low"),
+                    "description": (
+                        "Uniformly elevated ELA residual consistent with WhatsApp/JPEG "
+                        "messenger recompression without localised tampering."
+                    ),
+                }
+            )
 
-        probability = BASE_MANIPULATION_PROBABILITY
-        # Cubic scaling keeps sub-threshold variance (clean images) near the
-        # baseline while pushing clear splices towards the cap.
-        probability += min(
-            BLOCK_VARIANCE_PROBABILITY_CAP,
-            (stats["block_variance"] / HIGH_BLOCK_VARIANCE_THRESHOLD) ** 3
-            * BLOCK_VARIANCE_PROBABILITY_CAP,
-        )
+        probability = float(calib.get("base_manipulation_probability", 0.05))
+        if stats["splice_score"] > splice_score_threshold:
+            probability_cap = float(calib.get("block_variance_probability_cap", 0.55))
+            ratio = stats["splice_score"] / splice_score_threshold
+            probability += min(probability_cap, (ratio ** 2) * 0.40)
+
         if container_mismatch:
-            probability += CONTAINER_MISMATCH_PROBABILITY
+            probability += float(calib.get("container_mismatch_probability", 0.20))
         if uniform_error_map:
-            probability += UNIFORM_ERROR_PROBABILITY
-        probability = min(MAX_MANIPULATION_PROBABILITY, probability)
+            probability += float(calib.get("uniform_error_probability", 0.10))
 
-        return self._result(1.0 - probability, probability, indicators)
+        max_prob = float(calib.get("max_manipulation_probability", 0.95))
+        probability = min(max_prob, probability)
+
+        res = self._result(1.0 - probability, probability, indicators)
+        res["splice_score"] = stats["splice_score"]
+        return res

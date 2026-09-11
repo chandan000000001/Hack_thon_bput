@@ -1,0 +1,119 @@
+{
+ "impersonation": {
+  "authority_alone_severity": "low",
+  "authority_escalated_severity": "high",
+  "benign_cfo_max_severity": "medium",
+  "request_indicators": {
+   "payment_request": [
+    "payment",
+    "invoice",
+    "vendor payment",
+    "wire transfer",
+    "remittance",
+    "ach",
+    "direct deposit",
+    "billing",
+    "settle balance"
+   ],
+   "status_confirmation": [
+    "confirm status",
+    "status confirmation",
+    "confirm payment",
+    "verify status",
+    "status update",
+    "let me know once done",
+    "verify receipt",
+    "has this been processed"
+   ],
+   "urgency": [
+    "urgent",
+    "immediately",
+    "right now",
+    "asap",
+    "emergency",
+    "time-sensitive",
+    "do not question"
+   ],
+   "secrecy": [
+    "confidential",
+    "keep this confidential",
+    "strictly confidential",
+    "don't tell anyone",
+    "dont tell anyone",
+    "keep this between us",
+    "don't inform finance",
+    "dont inform finance",
+    "private matter"
+   ],
+   "channel_change": [
+    "text me",
+    "whatsapp me",
+    "call my personal",
+    "personal email",
+    "signal",
+    "telegram",
+    "reach me on",
+    "switch to signal",
+    "message me on"
+   ]
+  }
+ },
+ "url_model_version": "v2",
+ "deepfake": {
+  "splice_score_threshold": 3.0,
+  "noise_floor": 0.55,
+  "top_percent": 0.05,
+  "bot_blocks_cap": 32,
+  "block_size": 8,
+  "jpeg_quality": 90,
+  "uniform_error_mean_max": 0.2,
+  "uniform_error_variance_max": 0.005,
+  "global_recompression_mean_threshold": 0.2,
+  "missing_exif_severity": "low",
+  "global_recompression_severity": "low",
+  "base_manipulation_probability": 0.05,
+  "block_variance_probability_cap": 0.55,
+  "container_mismatch_probability": 0.2,
+  "uniform_error_probability": 0.1,
+  "max_manipulation_probability": 0.95,
+  "cnn_real_threshold": 0.1,
+  "strong_splice_threshold": 4.0,
+  "weak_splice_manipulation_cap": 0.35,
+  "manipulation_cap_without_splice": 0.35
+ },
+ "scoring": {
+  "weights": {
+   "critical": 25,
+   "high": 16,
+   "medium": 5,
+   "low": 5,
+   "safe": 0
+  },
+  "bands": {
+   "safe": [
+    0,
+    20
+   ],
+   "low": [
+    21,
+    40
+   ],
+   "medium": [
+    41,
+    60
+   ],
+   "high": [
+    61,
+    80
+   ],
+   "critical": [
+    81,
+    100
+   ]
+  }
+ },
+ "explanation": {
+  "band_prefix_template": "{band} Risk:",
+  "max_retries": 1
+ }
+}

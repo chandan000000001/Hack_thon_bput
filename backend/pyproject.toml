@@ -1,0 +1,39 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "chandan0000001", email = "kumardalaichanhdan803@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "arq==0.28.0",
+    "asyncpg==0.31.0",
+    "fastapi==0.141.1",
+    "httpx==0.28.1",
+    "joblib==1.6.0",
+    "numpy==2.5.3",
+    "opencv-python-headless==5.0.0.93",
+    "pandas==3.0.5",
+    "pillow==12.3.0",
+    "pydantic==2.13.5",
+    "pydantic-settings==2.15.0",
+    "python-multipart==0.0.32",
+    "redis==5.3.1",
+    "scikit-learn==1.9.0",
+    "sqlalchemy==2.0.52",
+    "starlette==1.6.0",
+    "supabase==2.31.0",
+    "torch==2.14.0",
+    "torchvision==0.29.0",
+    "uvicorn==0.52.4",
+    "xgboost==3.4.1",
+]
+
+[project.scripts]
+backend = "backend:main"
+
+[build-system]
+requires = ["uv_build>=0.12.10,<0.13.0"]
+build-backend = "uv_build"

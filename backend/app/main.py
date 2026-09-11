@@ -37,7 +37,10 @@ from app.core.rate_limit import RateLimitMiddleware
 logger = logging.getLogger("cyberguard")
 logging.basicConfig(level=logging.INFO)
 
+from app.core.calibration import load_calibration
+
 settings = get_settings()
+load_calibration()
 
 # Phase D-2 (item 5): refuse to boot with a wildcard origin while cookies and
 # Authorization headers are allowed — that combination defeats browser CORS
@@ -73,6 +76,27 @@ app.include_router(routes_dashboard.router, prefix=settings.API_V1_PREFIX)
 app.include_router(routes_audit.router, prefix=settings.API_V1_PREFIX)
 app.include_router(routes_assistant.router, prefix=settings.API_V1_PREFIX)
 app.include_router(routes_admin.router, prefix=settings.API_V1_PREFIX)
+
+
+@app.on_event("startup")
+def log_model_deployment() -> None:
+    """One-line visibility of the active deepfake model at startup."""
+    from app.services.ml_inference import deepfake_deployment_status
+
+    status = deepfake_deployment_status(light=True)["deepfake"]
+    if status["heuristics_only"]:
+        logger.warning(
+            "deepfake model active: %s (128px, artifact %s) — artifact MISSING, "
+            "heuristics-only degraded mode",
+            status["version"],
+            status["artifact"],
+        )
+    else:
+        logger.info(
+            "deepfake model active: %s (128px, artifact %s)",
+            status["version"],
+            status["artifact"],
+        )
 
 
 @app.exception_handler(RequestValidationError)

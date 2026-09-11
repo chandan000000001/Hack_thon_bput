@@ -2,12 +2,34 @@
 
 Rule-based only: extracts indicators from the sender address, subject and
 body. No ML or LLM logic lives here — the LLM only writes the explanation.
+
+Multilingual extension: script detection (Unicode ranges) tags the email with
+a `language` indicator (hi/te/or/roman/en, zero scoring weight), and Indic
+keyword hits from ml/indic_keywords.json become indicators with the same
+severity mapping as the English rules. The v2 char-n-gram model
+(email_tfidf_v2.pkl / email_phishing_xgb_v2.pkl, selected by
+ml/models/calibration.json) scores all languages without translation.
 """
 
+import json
 import re
+from pathlib import Path
 from urllib.parse import urlparse
 
-from app.services.ml_inference import ml_indicator, predict_email
+from app.services.ml_inference import email_model_artifact, ml_indicator, predict_email
+
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+INDIC_KEYWORDS_PATH = BACKEND_DIR / "ml" / "indic_keywords.json"
+
+# Unicode script blocks for language detection (no translation at request
+# time — detection is a per-character range count, O(len(text))).
+SCRIPT_RANGES = {
+    "hi": (0x0900, 0x097F),  # Devanagari
+    "te": (0x0C00, 0x0C7F),  # Telugu
+    "or": (0x0B00, 0x0B7F),  # Odia
+}
+
+LANG_NAMES = {"hi": "Hindi", "te": "Telugu", "or": "Odia", "roman": "Romanised Indic", "en": "English"}
 
 # Known brands and their official registrable domains, used to catch
 # look-alike sender domains (e.g. paypa1.com, micr0soft-support.com).
@@ -126,6 +148,29 @@ def _check_lookalike_domain(sender: str) -> list[dict]:
                     "description": (
                         f"Sender domain '{registrable}' appears to imitate the "
                         f"official domain '{official}'."
+                    ),
+                }
+            ]
+    return []
+
+
+RESERVED_SENDER_DOMAINS = ("example.com", "example.net", "example.org", "test", "invalid", "localhost")
+
+
+def _check_reserved_domain(sender: str) -> list[dict]:
+    domain = _extract_sender_domain(sender)
+    if not domain:
+        return []
+    for reserved in RESERVED_SENDER_DOMAINS:
+        if domain == reserved or domain.endswith("." + reserved):
+            return [
+                {
+                    "type": "sender_reserved_tld",
+                    "value": domain,
+                    "severity": "high",
+                    "description": (
+                        f"Sender domain '{domain}' uses RFC 2606 reserved names never "
+                        "used by legitimate commercial mailers."
                     ),
                 }
             ]
@@ -301,6 +346,108 @@ def _check_sms_patterns(text: str) -> list[dict]:
     return indicators
 
 
+def detect_language(text: str) -> str:
+    """Detect the dominant script/language of the text.
+
+    Unicode-range counting for the Indic scripts (Devanagari, Telugu, Odia);
+    Latin text resolves to 'roman' when a romanised Hinglish/Tenglish keyword
+    matches, else 'en'. Pure character counting — no translation, no network.
+    """
+    counts = {lang: 0 for lang in SCRIPT_RANGES}
+    for char in text:
+        code = ord(char)
+        for lang, (low, high) in SCRIPT_RANGES.items():
+            if low <= code <= high:
+                counts[lang] += 1
+    best = max(counts, key=lambda lang: counts[lang])
+    if counts[best] > 0:
+        return best
+    lowered = text.lower()
+    roman_bank = _load_indic_keywords().get("romanised", {})
+    for phrases in roman_bank.values():
+        if not isinstance(phrases, list):
+            continue  # metadata keys (script/description) are not phrase lists
+        for phrase in phrases:
+            if phrase in lowered:
+                return "roman"
+    return "en"
+
+
+def _load_indic_keywords() -> dict[str, dict[str, list[str]]]:
+    """Load ml/indic_keywords.json once (lang -> category -> phrases)."""
+    global _INDIC_KEYWORDS
+    if _INDIC_KEYWORDS is None:
+        try:
+            with INDIC_KEYWORDS_PATH.open(encoding="utf-8") as fh:
+                resource = json.load(fh)
+            _INDIC_KEYWORDS = resource["languages"]
+            _INDIC_CATEGORY_SEVERITY = dict(resource.get("category_severity", {}))
+        except Exception:
+            _INDIC_KEYWORDS = {}
+    return _INDIC_KEYWORDS
+
+
+_INDIC_CATEGORY_SEVERITY: dict[str, str] = {}
+_INDIC_KEYWORDS: dict[str, dict[str, list[str]]] | None = None
+
+
+def _check_indic_keywords(subject: str, body: str) -> tuple[list[dict], str]:
+    """Match Indic keyword phrases against subject+body.
+
+    Hits become indicators with the severity mapped from the existing matrix
+    (category_severity in indic_keywords.json). Romanised variants match
+    case-insensitively; script phrases match as exact substrings.
+    Returns (indicators, detected_lang).
+    """
+    bank = _load_indic_keywords()
+    lang = "en"
+    for text in (subject, body):
+        detected = detect_language(text)
+        if detected != "en":
+            lang = detected
+            break
+
+    indicators: list[dict] = []
+    combined_text = f"{subject}\n{body}"
+    for lang_key, categories in bank.items():
+        # Script phrases cannot false-match across scripts (different Unicode
+        # blocks), and romanised variants are matched case-insensitively, so a
+        # single combined haystack is safe for every language bank.
+        needle_text = combined_text.lower() if lang_key == "romanised" else combined_text
+        for category, phrases in categories.items():
+            if not isinstance(phrases, list):
+                continue  # metadata keys (script/description) are not phrase lists
+            severity = _INDIC_CATEGORY_SEVERITY.get(category, "high")
+            for phrase in phrases:
+                needle = phrase.lower() if lang_key == "romanised" else phrase
+                if needle in needle_text:
+                    indicators.append(
+                        {
+                            "type": f"indic_{category}",
+                            "value": phrase,
+                            "severity": severity,
+                            "description": (
+                                f"Indic phishing keyword ({LANG_NAMES.get(lang_key, lang_key)}, "
+                                f"{category}) found: '{phrase}'."
+                            ),
+                        }
+                    )
+    return indicators, lang
+
+
+def _language_indicator(lang: str) -> dict:
+    """Zero-weight provenance indicator for the detected language."""
+    return {
+        "type": "language",
+        "value": lang,
+        "severity": "info",
+        "description": (
+            f"Detected language/script: {LANG_NAMES.get(lang, lang)} "
+            "(Unicode script detection; the v2 char-n-gram model scores it natively)."
+        ),
+    }
+
+
 def analyze_email_heuristics(sender: str, subject: str, body: str) -> list[dict]:
     """Run all phishing heuristics and return the indicator list.
 
@@ -308,9 +455,14 @@ def analyze_email_heuristics(sender: str, subject: str, body: str) -> list[dict]
     email model scores the combined sender/subject/body; when available the
     ml_model indicator is appended and callers obtain the blended score via
     ml_inference.score_with_ml (0.45 * heuristic + 0.55 * ML).
+
+    Multilingual: the v2 char-n-gram model (calibration.json) scores every
+    language — hi/te/or/romanised text is never translated; the Indic keyword
+    checks and script detection above carry the heuristic signal instead.
     """
     indicators: list[dict] = []
     indicators.extend(_check_lookalike_domain(sender))
+    indicators.extend(_check_reserved_domain(sender))
     indicators.extend(_check_urgency(subject))
     indicators.extend(_check_urgency(body))
     indicators.extend(_check_credential_requests(subject))
@@ -320,9 +472,13 @@ def analyze_email_heuristics(sender: str, subject: str, body: str) -> list[dict]
     indicators.extend(_check_body_urls(body))
     indicators.extend(_check_sms_patterns(body))
 
+    indic_indicators, lang = _check_indic_keywords(subject, body)
+    indicators.extend(indic_indicators)
+    indicators.append(_language_indicator(lang))
+
     probability = predict_email("\n".join([sender, subject, body]))
     if probability is not None:
         # Safety principle: ML may raise but never lower the heuristic
         # verdict (monotonic blending — see ml_inference.blend_scores).
-        indicators.append(ml_indicator("email_phishing_xgb.pkl", probability))
+        indicators.append(ml_indicator(email_model_artifact(), probability))
     return indicators

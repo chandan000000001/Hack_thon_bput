@@ -58,13 +58,19 @@ def _parse_llm_content(content: str) -> dict[str, Any] | None:
     return None
 
 
-def rule_based_explanation(system_prompt: str, user_prompt: str) -> dict[str, Any]:
+def rule_based_explanation(
+    system_prompt: str, user_prompt: str, expected_band: str | None = None
+) -> dict[str, Any]:
     """Local, instant explanation generator (final chain fallback).
 
     Template-generated from the indicator context already present in the
     user prompt — nothing is invented. Reuses the existing fallback text.
     """
-    return dict(FALLBACK_LLM_OUTPUT)
+    output = dict(FALLBACK_LLM_OUTPUT)
+    if expected_band:
+        prefix = f"{expected_band.capitalize()} Risk:"
+        output["explanation"] = f"{prefix} {output['explanation']}"
+    return output
 
 
 async def explain_openrouter(

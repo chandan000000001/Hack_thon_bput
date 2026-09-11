@@ -7,7 +7,8 @@ import math
 from collections import Counter
 from urllib.parse import urlparse
 
-from app.services.ml_inference import ml_indicator, predict_url
+from app.core.url_reputation import is_domain_in_top1m
+from app.services.ml_inference import ml_indicator, predict_url, url_model_artifact
 
 BRAND_NAMES = (
     "microsoft",
@@ -290,9 +291,31 @@ def analyze_url_heuristics(url: str) -> list[dict]:
     indicators.extend(_check_excessive_digits(host, parsed.path))
     indicators.extend(_check_urlhaus_pattern(host, parsed.path))
 
+    if is_domain_in_top1m(host):
+        for ind in indicators:
+            ind_type = ind.get("type")
+            if ind_type == "url_entropy":
+                ind["severity"] = "low"
+                ind["description"] = (
+                    f"URL character entropy is high ({ind.get('value')}), but the domain is in "
+                    "the top-1M reputation whitelist; consistent with legitimate conversation/share ID patterns."
+                )
+            elif ind_type == "random_path_segment":
+                ind["severity"] = "low"
+                ind["description"] = (
+                    f"Path segment '{ind.get('value')}' appears randomized, but the domain is in "
+                    "the top-1M reputation whitelist; consistent with legitimate share-link tokens."
+                )
+            elif ind_type == "excessive_digits":
+                ind["severity"] = "low"
+                ind["description"] = (
+                    "The URL host/path contains an elevated proportion of digits, but the domain is in "
+                    "the top-1M reputation whitelist; consistent with legitimate resource IDs."
+                )
+
     probability = predict_url(url)
     if probability is not None:
         # Safety principle: ML may raise but never lower the heuristic
         # verdict (monotonic blending — see ml_inference.blend_scores).
-        indicators.append(ml_indicator("url_xgb.pkl", probability))
+        indicators.append(ml_indicator(url_model_artifact(), probability))
     return indicators

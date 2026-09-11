@@ -74,19 +74,31 @@ async def chat_with_assistant(
     context_summary = _build_context_summary(alerts)
     context_used = [alert["id"] for alert in alerts]
 
+    SEV_WEIGHTS = {"critical": 4, "high": 3, "medium": 2, "low": 1, "safe": 0}
+    highest_sev = "safe"
+    for a in alerts:
+        sev = (a.get("severity") or "safe").lower()
+        if SEV_WEIGHTS.get(sev, 0) > SEV_WEIGHTS.get(highest_sev, 0):
+            highest_sev = sev
+
+    from app.ai.prompt_templates import format_risk_instruction
+    risk_inst = format_risk_instruction(None, highest_sev)
+
     user_prompt = (
         f"Current threat context:\n{context_summary}\n\n"
         f"Analyst question: {user_message}\n\n"
         "Answer in plain text (no JSON, no markdown headings). Be concise and "
         "cite alert IDs from the context where relevant."
+        f"{risk_inst}"
     )
 
     explained = await explain(
-        "assistant",
-        SOC_ASSISTANT_SYSTEM_PROMPT,
-        user_prompt,
-        make_cache_key("assistant", {"message": user_message, "context": context_summary}),
+        module="assistant",
+        system_prompt=SOC_ASSISTANT_SYSTEM_PROMPT,
+        user_prompt=user_prompt,
+        cache_key=make_cache_key("assistant", {"message": user_message, "context": context_summary}),
         json_mode=False,
+        expected_band=highest_sev,
     )
     raw = explained["explanation"]
     # json_mode=False providers return {"explanation": <text>, ...}; unwrap the

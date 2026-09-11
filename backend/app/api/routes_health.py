@@ -51,6 +51,8 @@ def read_health() -> dict:
 @router.get("/health/deep")
 async def read_deep_health(_user: CurrentUser = Depends(get_current_user)) -> dict:
     """Authenticated diagnostics probe with a live Supabase round-trip."""
+    from app.services.ml_inference import deepfake_deployment_status
+
     settings = get_settings()
     return {
         "status": "ok",
@@ -58,4 +60,5 @@ async def read_deep_health(_user: CurrentUser = Depends(get_current_user)) -> di
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "supabase_connected": check_connection(),
         "checked_by": _user.id,
+        "models": deepfake_deployment_status(light=False),
     }

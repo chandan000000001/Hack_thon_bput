@@ -1,15 +1,15 @@
 """Train the CYBERGUARD ML models (ML Step 2).
 
-Trains four models from the preprocessed splits in ml/data/ (produced by
+Trains the text/flow models from the preprocessed splits in ml/data/ (produced by
 ml/preprocess.py) and saves the weights to ml/models/:
 
   1. email_phishing_xgb.pkl + email_tfidf.pkl  (TF-IDF + XGBoost, imbalance-aware)
   2. url_xgb.pkl                               (handcrafted URL features + XGBoost)
-  3. deepfake_cnn.pt                           (small CNN on 32x32 images, PyTorch)
+  3. (deepfake retired — see ml/train_deepfake_v2.py for the served model)
   4. network_xgb.pkl                           (scaled KDD features + XGBoost, binary)
 
 Usage (from the backend directory):
-    python ml/train_models.py [--epochs 2] [--max-emails 50000]
+    python ml/train_models.py [--max-emails 50000]
 """
 
 import argparse
@@ -108,9 +108,13 @@ def shannon_entropy(value: str) -> float:
     return -sum((count / total) * math.log2(count / total) for count in counts.values())
 
 
-def extract_url_features(url: str) -> np.ndarray:
-    """Feature vector: [length, entropy, digit_ratio, has_ip, has_at_symbol,
-    suspicious_tld, http_only, num_subdomains]."""
+def extract_url_features(url: str, version: str = "v2") -> np.ndarray:
+    """Feature vector:
+    Base (8): [length, entropy, digit_ratio, has_ip, has_at_symbol,
+               suspicious_tld, http_only, num_subdomains].
+    v2 additions (7): domain_in_top1m, path_shape_cat, is_uuid_like,
+                      is_hex32_like, is_short_id, is_homepage, is_other.
+    """
     try:
         parsed = urlparse(url)
     except ValueError:
@@ -126,19 +130,25 @@ def extract_url_features(url: str) -> np.ndarray:
     tld = host.rsplit(".", 1)[-1].lower() if "." in host else ""
     subdomains = max(0, len([part for part in host.split(".") if part]) - 2)
 
-    return np.array(
-        [
-            len(url),
-            shannon_entropy(url),
-            digit_ratio,
-            1.0 if is_ip else 0.0,
-            1.0 if "@" in url else 0.0,
-            1.0 if tld in SUSPICIOUS_URL_TLDS else 0.0,
-            1.0 if scheme == "http" else 0.0,
-            float(subdomains),
-        ],
-        dtype=np.float64,
-    )
+    base = [
+        len(url),
+        shannon_entropy(url),
+        digit_ratio,
+        1.0 if is_ip else 0.0,
+        1.0 if "@" in url else 0.0,
+        1.0 if tld in SUSPICIOUS_URL_TLDS else 0.0,
+        1.0 if scheme == "http" else 0.0,
+        float(subdomains),
+    ]
+    if version == "v1":
+        return np.array(base, dtype=np.float64)
+
+    from app.core.url_reputation import is_domain_in_top1m, classify_path_shape, path_shape_to_vector
+    in_top1m = 1.0 if is_domain_in_top1m(host) else 0.0
+    shape = classify_path_shape(parsed.path, parsed.query)
+    shape_vec = path_shape_to_vector(shape)
+
+    return np.array(base + [in_top1m] + shape_vec, dtype=np.float64)
 
 
 def train_url_model() -> dict:
@@ -148,9 +158,9 @@ def train_url_model() -> dict:
     test = pd.read_csv(DATA_DIR / "test_urls.csv").dropna()
     print(f"  urls: training on {len(train)} rows")
 
-    X_train = np.vstack(train["url"].map(extract_url_features))
+    X_train = np.vstack(train["url"].map(lambda u: extract_url_features(u, version="v2")))
     y_train = (train["label"] == "malicious").astype(int)
-    X_test = np.vstack(test["url"].map(extract_url_features))
+    X_test = np.vstack(test["url"].map(lambda u: extract_url_features(u, version="v2")))
     y_test = (test["label"] == "malicious").astype(int)
 
     model = XGBClassifier(
@@ -165,72 +175,16 @@ def train_url_model() -> dict:
     model.fit(X_train, y_train)
     metrics = evaluate_predictions(y_test, model.predict(X_test))
 
-    joblib.dump(model, MODELS_DIR / "url_xgb.pkl")
+    joblib.dump(model, MODELS_DIR / "url_xgb_v2.pkl")
     return metrics
 
 
 # ---------------------------------------------------------------------------
-# 3. Deepfake image model (small CNN, PyTorch)
+# 3. Deepfake image model — REMOVED
 # ---------------------------------------------------------------------------
-
-def train_image_model(epochs: int) -> dict:
-    import torch
-    import torch.nn as nn
-    from torch.utils.data import DataLoader
-    from torchvision import datasets as tv_datasets
-    from torchvision import transforms
-
-    transform = transforms.Compose(
-        [
-            transforms.Resize((32, 32)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
-        ]
-    )
-    train_set = tv_datasets.ImageFolder(str(DATA_DIR / "images" / "train"), transform=transform)
-    test_set = tv_datasets.ImageFolder(str(DATA_DIR / "images" / "test"), transform=transform)
-    print(f"  images: {len(train_set)} train / {len(test_set)} test (classes: {test_set.classes})")
-
-    train_loader = DataLoader(train_set, batch_size=256, shuffle=True, num_workers=2)
-    test_loader = DataLoader(test_set, batch_size=512, shuffle=False, num_workers=2)
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"  device: {device}")
-    model = nn.Sequential(
-        nn.Conv2d(3, 16, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
-        nn.Conv2d(16, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
-        nn.Flatten(),
-        nn.Linear(32 * 8 * 8, 64), nn.ReLU(),
-        nn.Linear(64, 2),
-    ).to(device)
-
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-    loss_fn = nn.CrossEntropyLoss()
-
-    for epoch in range(epochs):
-        model.train()
-        running_loss = 0.0
-        started = time.time()
-        for images, labels in train_loader:
-            images, labels = images.to(device), labels.to(device)
-            optimizer.zero_grad()
-            loss = loss_fn(model(images), labels)
-            loss.backward()
-            optimizer.step()
-            running_loss += loss.item()
-        print(f"  epoch {epoch + 1}/{epochs}: loss={running_loss / len(train_loader):.4f} ({time.time() - started:.1f}s)")
-
-    model.eval()
-    predictions, truths = [], []
-    with torch.no_grad():
-        for images, labels in test_loader:
-            outputs = model(images.to(device))
-            predictions.extend(torch.argmax(outputs, dim=1).cpu().tolist())
-            truths.extend(labels.tolist())
-    metrics = evaluate_predictions(truths, predictions)  # positive class = fake (index 1)
-
-    torch.save(model.state_dict(), MODELS_DIR / "deepfake_cnn.pt")
-    return metrics
+# The 32x32 CIFAKE CNN (deepfake_cnn.pt) is retired: the served deepfake model
+# is the 128px MobileNetV3-Small trained by ml/train_deepfake_v2.py on the
+# GenImage + messenger-degraded corpus (ml/models/deepfake_cnn_v2.pt).
 
 
 # ---------------------------------------------------------------------------
@@ -274,7 +228,6 @@ def train_network_model() -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Train CYBERGUARD ML models")
-    parser.add_argument("--epochs", type=int, default=2, help="training epochs for the image CNN (default: 2)")
     parser.add_argument("--max-emails", type=int, default=50000, help="max email rows to train on (default: 50000)")
     args = parser.parse_args()
 
@@ -282,7 +235,6 @@ def main() -> int:
     jobs = [
         ("email_phishing", lambda: train_email_model(args.max_emails), "email_phishing_xgb.pkl + email_tfidf.pkl"),
         ("url_malicious", train_url_model, "url_xgb.pkl"),
-        ("deepfake_image", lambda: train_image_model(args.epochs), "deepfake_cnn.pt"),
         ("network_anomaly", train_network_model, "network_xgb.pkl"),
     ]
 

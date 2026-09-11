@@ -87,23 +87,45 @@ Artifacts live in `backend/ml/models/`; SHA-256 hashes are recorded in [`evidenc
 - **Blending:** 0.45 heuristic / 0.55 ML (`predict_email` on sender + subject + body).
 - **Limitations:** one public email distribution — marketing-style ham and non-English phishing under-represented.
 
-### 2. URL malicious — `url_xgb.pkl`
+### 2. URL malicious — `url_xgb_v2.pkl` (active) / `url_xgb.pkl` (v1 fallback)
 
-- **Algorithm:** XGBoost over 8 handcrafted features (`extract_url_features` — MUST stay identical to training: length, Shannon entropy, digit ratio, has_ip, has_at_symbol, suspicious TLD, http-only, subdomain count).
-- **Dataset:** 500 URLhaus malicious + 500 Umbrella benign, 80/20 split → **800 train / 200 held-out test**.
-- **Training metrics:** accuracy 1.0000, precision 1.0000, recall 1.0000, F1 1.0000.
-- **Detection metrics (evaluation report, hybrid, n=200):** accuracy 1.0, precision 1.0, recall 1.0, **F1 1.0** (heuristics-only F1: 0.9189). Mean 0.972 ms / P95 3.735 ms.
+- **Status:** active — `ml/models/calibration.json` key `url_model_version: "v2"`. When missing or on error, seamlessly falls back to v1 `url_xgb.pkl`.
+- **Algorithm:** XGBoost over 15 features (`extract_url_features`):
+  - Base 8 handcrafted features: length, Shannon entropy, digit ratio, has_ip, has_at_symbol, suspicious TLD, http-only, subdomain count.
+  - Reputation feature: `domain_in_top1m` (0.0/1.0 via Cisco Umbrella Top-1M registrable domain lookup).
+  - Path shape classification: `path_shape_cat` (0..4), `is_uuid_like`, `is_hex32_like`, `is_short_id`, `is_homepage`, `is_other`.
+- **Dataset:** 800 base URL rows (400 URLhaus malicious / 400 Umbrella homepages) augmented with **3,000 synthetic benign deep-links** (`ml/augment_urls.py`) combining sampled Umbrella top-1M domains with path templates (`/c/<uuid>`, `/d/<hex32>`, `/watch?v=<id>`, `/share/<token>`, `/p/<hex16>`, `/file/d/<id>/view`). Total training set: **3,800 rows**.
+- **Training metrics (v2):** accuracy 0.9950, precision 1.0000, recall 0.9900, F1 0.9950.
 - **Blending:** 0.45 heuristic / 0.55 ML (`predict_url`).
-- **Limitations:** ⚠️ **small-sample caveat** — a perfect F1 on 200 held-out rows reflects a narrow, easily separable feature set and does not predict real-world performance; expect degradation on novel phishing infrastructure.
+- **Heuristic Reputation Adjustment:** When `domain_in_top1m` is True, `random_path_segment`, `url_entropy`, and `excessive_digits` are downgraded from `medium` to `low` with explanatory context citing high-reputation domain link structure. Critical indicators (`ip_host`, `brand_in_subdomain`, `suspicious_tld`, `urlhaus_pattern`) are never downgraded.
 
-### 3. Deepfake image CNN — `deepfake_cnn.pt`
+### 3. Deepfake v2 (single neural artifact) — `deepfake_cnn_v2.pt`
 
-- **Algorithm:** PyTorch CNN (Conv 3→16→32 + MaxPool, FC 8192→64→2), 136,354 parameters, 2 epochs (Adam, CrossEntropyLoss, batch 256) on 32×32 images; inference resizes any input to 32×32, Normalize(0.5), `predict_image` returns P(fake) (class index 0 = 'fake').
-- **Dataset:** CIFAKE (via the accessible mirror `dragonintelligence/CIFAKE-image-dataset`; 100,000 images on disk: 80,000 train / 20,000 held-out test). Labels: real (CIFAR-10 photos) vs fake (AI-generated).
-- **Training metrics:** accuracy 0.9156, precision 0.9122, recall 0.9197, F1 0.9159.
-- **Detection metrics (evaluation report, hybrid, deterministic sample of 1000 held-out images):** accuracy 0.5, precision 0.5, recall 1.0, **F1 0.6667** — identical to the heuristics-only row (see limitations).
-- **Blending:** for images `manipulation_probability = 0.5 × ELA + 0.5 × CNN`; for videos the CNN is averaged over sampled frames and blended with the ELA temporal score. `simulated` stays `false`.
-- **Limitations:** ⚠️ **CIFAKE images are 32×32** — resolution is far below real-world media, so metrics do not transfer to high-resolution photos; the evaluation report flags every sample in its 1000-image deterministic pass (FPR 1.0), reported honestly.
+- **Status:** active — `ml/models/calibration.json` key `deepfake_model_version: "v2"`. This is the **only** neural deepfake artifact: the old 32×32 CIFAKE CNN (`deepfake_cnn.pt`) was deleted along with its loader branch. If the selected artifact is missing, detection degrades to **heuristics-only** (ELA splice + metadata) with an explicit `ml_model` indicator valued `heuristics-only-fallback` and a logged warning — there is no neural fallback.
+- **Purpose:** eliminate false positives on genuine camera and messenger JPEGs (WhatsApp/Telegram re-encode every photo: downscale, JPEG q70-85, EXIF strip) while keeping recall on AI-generated images.
+- **Architecture:** torchvision **MobileNetV3-Small** with ImageNet-pretrained weights (full fine-tune), classifier head replaced with a binary head (real=0 / fake=1), input **128×128**, ImageNet mean/std normalization (`ml/train_deepfake_v2.py`).
+- **Datasets** (see [`docs/datasets.md`](datasets.md) §4): real = GenImage real/ImageNet subset (4,790) + `real_messenger` (10,000 messenger-degraded reals built by `ml/degrade_messenger.py`: longest side ≤ 1600 px, JPEG q70-85, EXIF stripped, optional mild sharpening); fake = GenImage StableDiffusion v1.4 (3,474) + Midjourney (1,360). Class-weighted CrossEntropyLoss (weights 0.6635 / 2.0295).
+
+#### CNN vs ELA Disagreement Decision Matrix
+
+To prevent ELA false-positives on high-texture or high-contrast genuine photos (e.g. `erew.jpeg`) while preserving sensitivity to localized tamper splices, `deepfake_detector.py` enforces the following calibration policy:
+
+| Neural CNN Probability (`cnn_prob`) | ELA Splice Score (`splice_score`) | Policy Action | Effective Manipulation Cap | Max Risk Score & Severity | Indicator Representation |
+|---|---|---|---|---|---|
+| `< 0.10` (`cnn_real_threshold`) | `< 4.0` (`strong_splice_threshold`) | Overrule unconfirmed ELA residual | `weak_splice_manipulation_cap` (`0.35`) | `risk_score <= 40` (Safe or Low) | `high_block_variance` renamed to `ela_weak_splice_unconfirmed` (Low: "localized ELA residual not confirmed by neural model; monitor only") |
+| `< 0.10` (`cnn_real_threshold`) | `splice_score >= 4.0` | Preserve localized tamper splice | Heuristic weight | `>= 41` (Medium or High) | `high_block_variance` retained with explicit override description citing strong localized residual |
+| `< 0.10` (`cnn_real_threshold`) | No splice (`splice_score < 3.0`) | Genuine photo confirmation | `manipulation_cap_without_splice` (`0.35`) | `risk_score <= 40` (Safe or Low) | Standard metadata indicators (`missing_exif`, `global_recompression`) |
+| `>= 0.10` (uncertain or fake) | Any | Standard monotonic 50/50 blend | Uncapped | Blended `max(ela, 0.5*ela + 0.5*cnn)` | Standard `ml_model` indicator + ELA indicators |
+| Degraded (no model) | Any | Fallback to heuristics-only | Heuristic probability | Heuristic score | `heuristics-only-fallback` |
+- **Augmentation (compression invariance):** JPEG quality jitter 60–95, resize jitter ±15%, random horizontal flip, brightness/contrast jitter; EXIF always absent.
+- **Training on this machine (CPU-only, 12 cores, torch 2.14):**
+  - `--quick` (64 px, 3 epochs, 20k samples, frozen backbone, cached decode): **0m51s wall-clock** — well under the 15-minute CPU target.
+  - Full run (128 px, 10 epochs, early stopping patience 3 on validation F1 — never triggered): **18m03s wall-clock**, best validation F1 (fake class) **0.9052**. Decoded tensors cached as `.pt` shards under `ml/cache/deepfake_v2/`; DataLoader `num_workers=4`, `pin_memory`; CUDA AMP engages automatically when a GPU is present.
+- **Evaluation gates** (held-out 10% split, threshold 0.5; tables in `evidence/reports/evaluation.md` + `ml/models/deepfake_v2_metrics.json`):
+  - **FPR — real_clean 0.0376** (n=479) · **real_messenger 0.0220** (n=1000) · real_camera n/a (no contributed files yet) — both messenger/camera targets **< 0.05 ✓**; the WhatsApp-encoded genuine photo (`evidence/media/real_camera_whatsapp.jpg`) is predicted real.
+  - **Per-generator recall — StableDiffusion 0.9193** (n=347) · **Midjourney 0.7426** (n=136).
+- **End-to-end detector result** (ELA 50/50 monotonic blend): WhatsApp sample risk 10 (**safe**); `evidence/media/manipulated.png` risk 79 (**high**).
+- **Limitations:** Midjourney recall (0.74) trails Stable Diffusion — the fetched MJ subset is smaller (1,360 images); the real_camera gate has no contributed photos yet, so camera evidence rests on the messenger subclass plus the single WhatsApp sample; synthetic Pillow splices (the manipulated.png regression sample) are out-of-distribution for the CNN and are caught mainly by the ELA blend.
 
 ### 4. Network anomaly — `network_xgb.pkl` + `network_scaler.pkl`
 
@@ -134,6 +156,7 @@ Macro averages across the six modules — heuristics-only: accuracy 0.6583, prec
 
 - **Circuit breakers:** each remote provider sits behind its own `AsyncCircuitBreaker` (`app/ai/async_circuit_breaker.py`; threshold 3 consecutive failures, 60 s recovery window, CLOSED/OPEN/HALF_OPEN states). While a breaker is OPEN the gateway logs `Circuit breaker OPEN for <provider>, skipping to fallback` and moves to the next provider **instantly**.
 - **Provenance:** every analysis response carries `explanation_provider` (`openrouter` | `groq` | `rule_based` | `cache:<original_provider>`) and `explanation_latency_ms`. Each provider failure logs one warning line: `LLM provider <name> failed after <ms> ms: <reason>`.
-- **Strict JSON contract:** per-module system prompts (`app/ai/prompt_templates.py`) constrain the model to `{"explanation": <paragraph starting with the risk level>, "mitre_techniques": [{"id", "name"}], "recommended_actions": [<action strings>]}`; LLM actions are matched against the seeded 10-entry `response_catalog` and type-cast before insert. The SOC assistant uses `json_mode=false` and grounds answers in the last 20 alerts, citing alert IDs.
+- **Strict JSON contract & Explanation Consistency:** per-module system prompts (`app/ai/prompt_templates.py`) constrain the model to `{"explanation": <paragraph starting with the assessed risk level>, "mitre_techniques": [{"id", "name"}], "recommended_actions": [<action strings>]}`. The final risk score and severity band are injected into the prompt, mandating that the first sentence starts with `<Band> Risk:`. `app/ai/llm_gateway.py` validates the leading band token; on mismatch, it retries once with a correction note; if still mismatched, it server-side replaces the leading band token to ensure 100% narrative consistency across all six modules and the SOC assistant.
+- **Impersonation Weighting Calibration:** `authority_identity` carries LOW weight when detected alone. It escalates to HIGH only when combined with request-type indicators (`payment_request`, `status_confirmation`, `urgency`, `secrecy`, `channel_change`). Benign operational communications (e.g. vendor payment status confirmations from CFO/executives) are guaranteed to score $\le$ MEDIUM.
 - **Cache:** successful explanations are cached in-memory for 3600 s (max 256 entries, thread-safe LRU) keyed by sha256 of module name + normalized input (media: sha256 of the file bytes). Hits return `explanation_provider = "cache:<original_provider>"` with zero latency.
 - **Worst-case latency bound:** 20 s (Groq) + 60 s (OpenRouter) + < 1 s (rule_based) per analysis while providers are healthy; typically far less, zero on cache hits, and near-zero once a breaker has tripped. Detection heuristics, ML models, scoring bands and route signatures are unaffected — only the explanation source changes.
