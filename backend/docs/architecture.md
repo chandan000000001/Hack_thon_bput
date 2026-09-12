@@ -27,7 +27,7 @@ flowchart LR
         RT["Realtime\npostgres_changes on alerts"]
     end
 
-    LLM["LLM provider chain\nGroq 20s -> OpenRouter 60s -> rule_based\nper-provider circuit breakers"]
+    LLM["LLM provider chain\nGroq 15s -> OpenRouter 20s -> rule_based\nper-provider circuit breakers"]
 
     FE -- "HTTPS + Bearer JWT\n(src/services/http.ts)" --> API
     FE -- "signInWithPassword / getSession" --> AUTH
@@ -78,7 +78,7 @@ hybrid_score = max(heuristic_score, round(0.45 * heuristic_score + 0.55 * ml_pro
 
 ## Explainable AI and explanation_provider provenance
 
-`app/ai/llm_gateway.py` tries providers strictly in order — Groq (`GROQ_TIMEOUT_SECONDS`, default 20 s) → OpenRouter (`OPENROUTER_TIMEOUT_SECONDS`, default 60 s) → a local rule-based template — and returns as soon as one succeeds. Providers never produce scores; they only write the strict-JSON explanation contract (`explanation`, `mitre_techniques`, `recommended_actions`; the SOC assistant uses `json_mode=false`).
+`app/ai/llm_gateway.py` tries providers strictly in order — Groq (`GROQ_TIMEOUT_SECONDS`, default 15 s) → OpenRouter (`OPENROUTER_TIMEOUT_SECONDS`, default 20 s) → a local rule-based template — and returns as soon as one succeeds. Providers never produce scores; they only write the strict-JSON explanation contract (`explanation`, `mitre_techniques`, `recommended_actions`; the SOC assistant uses `json_mode=false`).
 
 Every analysis response carries:
 

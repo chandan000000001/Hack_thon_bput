@@ -118,4 +118,9 @@ async def chat_with_assistant(
         "assistant",
         user_message[:200],
     )
-    return {"reply": reply, "context_used": context_used}
+    return {
+        "reply": reply,
+        "context_used": context_used,
+        "explanation_provider": explained["provider"],
+        "explanation_latency_ms": explained["latency_ms"],
+    }

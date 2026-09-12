@@ -39,7 +39,7 @@ Consolidated architecture decision records. Each entry states the decision, the 
 **Code:** `backend/app/ai/async_circuit_breaker.py`, wired in `backend/app/ai/llm_gateway.py`.
 
 ## DR-8 — LLM provider chain with configurable timeouts
-**Decision:** explanations run through a strict provider chain — Groq (`GROQ_TIMEOUT_SECONDS`, default 20 s) → OpenRouter (`OPENROUTER_TIMEOUT_SECONDS`, default 60 s) → local rule-based template (instant, never fails) — Groq first as the fastest provider; results are cached (TTL 3600 s, max 256 entries) and every response carries `explanation_provider` + `explanation_latency_ms` provenance.
+**Decision:** explanations run through a strict provider chain — Groq (`GROQ_TIMEOUT_SECONDS`, default 15 s) → OpenRouter (`OPENROUTER_TIMEOUT_SECONDS`, default 20 s) → local rule-based template (instant, never fails) — Groq first as the fastest provider; results are cached (TTL 3600 s, max 256 entries) and every response carries `explanation_provider` + `explanation_latency_ms` provenance.
 **Rationale:** bounded analysis latency even when a provider degrades; providers never produce scores.
 **Code:** `backend/app/ai/llm_gateway.py`, `groq_client.py`, `openrouter_client.py`, `explanation_cache.py`; commit 619f303 "Reorder LLM provider chain: Groq 20s -> OpenRouter 60s -> rule-based".
 

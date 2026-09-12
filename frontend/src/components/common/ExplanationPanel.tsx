@@ -3,6 +3,17 @@ import { BrainCircuit } from 'lucide-react';
 interface Props {
   explanation: string;
   confidence: number;
+  /** Provenance from the backend: groq | openrouter | rule_based | cache:<orig>. */
+  provider?: string;
+}
+
+function providerCaption(provider?: string): string {
+  if (!provider) return 'SIMULATED XAI OUTPUT';
+  if (provider.startsWith('cache:')) {
+    return `EXPLAINABLE AI OUTPUT - ${provider.slice('cache:'.length).toUpperCase()} (CACHED)`;
+  }
+  if (provider === 'rule_based') return 'HEURISTIC FALLBACK OUTPUT';
+  return `EXPLAINABLE AI OUTPUT - ${provider.toUpperCase()}`;
 }
 
 const KEY_PHRASES = [
@@ -39,13 +50,13 @@ function highlight(text: string): React.ReactNode[] {
   return parts;
 }
 
-export default function ExplanationPanel({ explanation, confidence }: Props) {
+export default function ExplanationPanel({ explanation, confidence, provider }: Props) {
   return (
     <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/40 p-4">
       <div className="flex items-center gap-2">
         <BrainCircuit className="h-4.5 w-4.5 text-red-400" style={{ width: 18, height: 18 }} />
         <h3 className="text-sm font-semibold text-zinc-100">AI Explanation</h3>
-        <span className="ml-auto text-[10px] uppercase tracking-wider text-zinc-500">Simulated XAI output</span>
+        <span className="ml-auto text-[10px] uppercase tracking-wider text-zinc-500">{providerCaption(provider)}</span>
       </div>
       <p className="mt-3 text-[13px] leading-relaxed text-zinc-300">{highlight(explanation)}</p>
       <div className="mt-4">

@@ -185,6 +185,17 @@ def _check_path_keywords(path: str) -> list[dict]:
     return []
 
 
+# Standard authentication path prefixes: a path whose first segment is one of
+# these is the domain owner's own sign-in flow, not a credential-harvesting
+# lure page when the domain itself is high-reputation.
+STANDARD_AUTH_PATH_SEGMENTS = frozenset({"login", "signin", "auth", "session", "oauth"})
+
+
+def _is_standard_auth_path(path: str) -> bool:
+    segments = [segment for segment in path.lower().split("/") if segment]
+    return bool(segments) and segments[0] in STANDARD_AUTH_PATH_SEGMENTS
+
+
 def _path_extension(path: str) -> str:
     last_segment = path.rstrip("/").rsplit("/", 1)[-1]
     if "." not in last_segment:
@@ -312,10 +323,21 @@ def analyze_url_heuristics(url: str) -> list[dict]:
                     "The URL host/path contains an elevated proportion of digits, but the domain is in "
                     "the top-1M reputation whitelist; consistent with legitimate resource IDs."
                 )
+            elif ind_type == "suspicious_path_keyword" and _is_standard_auth_path(parsed.path):
+                ind["severity"] = "low"
+                ind["description"] = (
+                    "standard authentication path on a high-reputation domain"
+                )
 
-    probability = predict_url(url)
-    if probability is not None:
-        # Safety principle: ML may raise but never lower the heuristic
-        # verdict (monotonic blending — see ml_inference.blend_scores).
-        indicators.append(ml_indicator(url_model_artifact(), probability))
+    # Safety principle: ML may raise but never lower the heuristic
+    # verdict (monotonic blending — see ml_inference.blend_scores).
+    # Exception: the model was trained on URLhaus-style phishing whose
+    # /login-style paths make it systematically over-fire on the legitimate
+    # sign-in pages of high-reputation domains (e.g. github.com/login), so
+    # for that whitelisted pattern the ml_model indicator is suppressed and
+    # the heuristic verdict stands. Blend math itself is untouched.
+    if not (is_domain_in_top1m(host) and _is_standard_auth_path(parsed.path)):
+        probability = predict_url(url)
+        if probability is not None:
+            indicators.append(ml_indicator(url_model_artifact(), probability))
     return indicators

@@ -100,3 +100,4 @@ frontend/node_modules/
 
 # ---- Audio ML work (2026-09-11): regenerable crop cache — never commit ----
 backend/ml/cache/
+backend/.gitignore backend/ml

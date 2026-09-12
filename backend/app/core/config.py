@@ -24,19 +24,29 @@ class Settings(BaseSettings):
     # the transport for Auth, Storage, and Realtime.
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:54322/postgres"
 
+    # Phase C-1 background workers: Redis-backed Arq queue for heavy analysis
+    # (deepfake media, bulk log ingestion). When Redis is unreachable or
+    # BACKGROUND_WORKERS_ENABLED is false, callers fall back to synchronous
+    # processing on the request thread.
+    REDIS_URL: str = "redis://localhost:6379"
+    BACKGROUND_WORKERS_ENABLED: bool = True
+
+    # Phase D-1: per-user (or per-IP) request budget, in requests per minute.
+    RATE_LIMIT_RPM: int = 300
+
     API_V1_PREFIX: str = "/api/v1"
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000"
 
-    # Explanation provider chain (strict order): Groq (20 s) -> OpenRouter
-    # (60 s) -> rule-based template. Timeouts bound how long each provider may
+    # Explanation provider chain (strict order): Groq (15 s) -> OpenRouter
+    # (20 s) -> rule-based template. Timeouts bound how long each provider may
     # take before the gateway falls through to the next one.
     GROQ_API_KEY: str = ""
-    GROQ_MODEL: str = "llama-3.1-8b-instant"
-    GROQ_TIMEOUT_SECONDS: float = 20
+    GROQ_MODEL: str = "qwen/qwen3.8-27b"
+    GROQ_TIMEOUT_SECONDS: float = 15
 
     OPENROUTER_API_KEY: str = ""
-    OPENROUTER_MODEL: str = "meta-llama/llama-3.1-8b-instruct:free"
-    OPENROUTER_TIMEOUT_SECONDS: float = 60
+    OPENROUTER_MODEL: str = "liquid/lfm-2.5-2.6b:free"
+    OPENROUTER_TIMEOUT_SECONDS: float = 20
 
     ML_ENABLED: bool = True
     ML_MODELS_DIR: str = "ml/models"

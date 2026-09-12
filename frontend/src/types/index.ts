@@ -54,6 +54,8 @@ export interface AnalysisResult {
   confidence: number;
   indicators: Indicator[];
   explanation: string;
+  /** LLM provenance: groq | openrouter | rule_based | cache:<orig>; undefined in mock mode. */
+  explanationProvider?: string;
   recommendedActions: RecommendedAction[];
   mitreTechniques: MitreTechnique[];
   timestamp: string;
@@ -78,6 +80,8 @@ export interface Alert {
   summary: string;
   indicators: Indicator[];
   explanation: string;
+  /** LLM provenance: groq | openrouter | rule_based | cache:<orig>; undefined in mock mode. */
+  explanationProvider?: string;
   recommendedActions: RecommendedAction[];
   mitreTechniques: MitreTechnique[];
   targetUser?: string;

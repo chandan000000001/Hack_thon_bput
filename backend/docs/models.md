@@ -172,8 +172,8 @@ Macro averages across the six modules — heuristics-only: accuracy 0.6583, prec
 
 | # | Provider | Timeout | Notes |
 |---|----------|---------|-------|
-| 1 | Groq | `GROQ_TIMEOUT_SECONDS` (default 20 s) | OpenAI-compatible `api.groq.com` endpoint, model `GROQ_MODEL` (default `llama-3.1-8b-instant`); skipped instantly when `GROQ_API_KEY` is empty |
-| 2 | OpenRouter | `OPENROUTER_TIMEOUT_SECONDS` (default 60 s) | strict-JSON instruction, model `OPENROUTER_MODEL` (default `meta-llama/llama-3.1-8b-instruct:free`), app-identifying headers (`HTTP-Referer`, `X-Title: CYBERGUARD`) |
+| 1 | Groq | `GROQ_TIMEOUT_SECONDS` (default 20 s) | OpenAI-compatible `api.groq.com` endpoint, model `GROQ_MODEL` (default `qwen/qwen3.8-27b`); skipped instantly when `GROQ_API_KEY` is empty |
+| 2 | OpenRouter | `OPENROUTER_TIMEOUT_SECONDS` (default 20 s) | strict-JSON instruction, model `OPENROUTER_MODEL` (default `openrouter/free`), app-identifying headers (`HTTP-Referer`, `X-Title: CYBERGUARD`) |
 | 3 | rule_based | instant (< 5 ms) | template generated locally from the indicator context when both remote providers fail; never fails |
 
 - **Circuit breakers:** each remote provider sits behind its own `AsyncCircuitBreaker` (`app/ai/async_circuit_breaker.py`; threshold 3 consecutive failures, 60 s recovery window, CLOSED/OPEN/HALF_OPEN states). While a breaker is OPEN the gateway logs `Circuit breaker OPEN for <provider>, skipping to fallback` and moves to the next provider **instantly**.

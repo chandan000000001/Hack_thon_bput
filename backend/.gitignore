@@ -5,3 +5,7 @@
 .venv/
 __pycache__/
 *.pyc
+
+# ML data and cache
+ml/data/
+ml/cache/   

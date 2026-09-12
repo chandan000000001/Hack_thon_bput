@@ -93,6 +93,9 @@ DEFAULT_CALIBRATION: dict[str, Any] = {
     "explanation": {
         "band_prefix_template": "{band} Risk:",
         "max_retries": 1,
+        "provider_chain": ["groq", "openrouter", "rule_based"],
+        "provider_timeout_seconds": {"groq": 15, "openrouter": 20},
+        "provider_models": {"groq": "qwen/qwen3.8-27b", "openrouter": "liquid/lfm-2.5-2.6b:free"},
     },
 }
 

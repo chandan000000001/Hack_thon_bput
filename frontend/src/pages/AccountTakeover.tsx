@@ -249,7 +249,7 @@ export default function AccountTakeover() {
                 </div>
               </div>
               <IndicatorList indicators={result.indicators} />
-              <ExplanationPanel explanation={result.explanation} confidence={result.confidence} />
+              <ExplanationPanel explanation={result.explanation} confidence={result.confidence} provider={result.explanationProvider} />
               <RecommendedActionsPanel
                 actions={result.recommendedActions}
                 onExecute={(actionId) => {

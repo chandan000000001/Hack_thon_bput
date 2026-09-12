@@ -1,8 +1,8 @@
 """LLM provider gateway with a circuit-breaker-guarded fallback chain.
 
 Chain order (strict — fastest provider first):
-    1. Groq        — settings.groq_timeout_seconds      (default 20 s)
-    2. OpenRouter  — settings.openrouter_timeout_seconds (default 60 s)
+    1. Groq        — settings.groq_timeout_seconds      (default 15 s)
+    2. OpenRouter  — settings.openrouter_timeout_seconds (default 20 s)
     3. rule_based  — local template built from the indicator context,
                      instant and never fails
 
@@ -18,6 +18,7 @@ a sha256 of the module name plus normalized input, so identical inputs skip
 the remote chain entirely.
 """
 
+import asyncio
 import hashlib
 import json
 import logging
@@ -25,6 +26,8 @@ import re
 import time
 from collections.abc import Awaitable, Callable
 from typing import Any
+
+import httpx
 
 from app.ai import explanation_cache as cache
 from app.ai.async_circuit_breaker import AsyncCircuitBreaker, CircuitBreakerOpenError
@@ -138,6 +141,28 @@ def make_cache_key_from_bytes(module: str, data: bytes) -> str:
     return hashlib.sha256(module.encode() + b"|" + data).hexdigest()
 
 
+def _looks_like_timeout(exc: Exception) -> bool:
+    """True when a provider failure was caused by a timeout."""
+    if isinstance(exc, (asyncio.TimeoutError, httpx.TimeoutException)):
+        return True
+    return "timed out" in str(exc).lower() or "timeout" in str(exc).lower()
+
+
+def _chain_telemetry(outcomes: dict[str, tuple[str, int]], final_provider: str) -> None:
+    """Emit the one-line per-call chain telemetry.
+
+    Exact form: LLM chain: groq=<outcome>,<ms> openrouter=<outcome>,<ms>
+    final=<provider>. <outcome> is status | timeout | breaker-open | error |
+    skipped — skipped,0ms marks a provider the chain never reached; cache hits
+    report final=cache:<original_provider>.
+    """
+    slots = []
+    for name in ("groq", "openrouter"):
+        outcome, ms = outcomes.get(name, ("skipped", 0))
+        slots.append(f"{name}={outcome},{ms}")
+    logger.info("LLM chain: %s final=%s", " ".join(slots), final_provider)
+
+
 async def explain(
     module: str,
     system_prompt: str,
@@ -171,11 +196,16 @@ async def explain(
             valid, cached_output = _validate_explanation_band(cached_output, expected_band)
             if not valid:
                 cached_output = _apply_server_side_fix(cached_output, expected_band)
+        _chain_telemetry({}, f"cache:{cached['provider']}")
         return {
             "explanation": cached_output,
             "provider": f"cache:{cached['provider']}",
             "latency_ms": 0,
         }
+
+    # Per-provider outcome for the chain telemetry line:
+    # (status | timeout | breaker-open | error, total milliseconds spent).
+    outcomes: dict[str, tuple[str, int]] = {}
 
     for provider_name, provider in PROVIDERS:
         breaker = _BREAKERS[provider_name]
@@ -183,24 +213,31 @@ async def explain(
         try:
             output = await breaker.call(provider, system_prompt, user_prompt, json_mode=json_mode)
         except CircuitBreakerOpenError:
+            outcomes[provider_name] = ("breaker-open", int((time.perf_counter() - started) * 1000))
             logger.warning(
                 "Circuit breaker OPEN for %s, skipping to fallback", provider_name
             )
             continue
         except Exception as exc:  # noqa: BLE001 — any provider failure falls through
             latency_ms = int((time.perf_counter() - started) * 1000)
+            outcomes[provider_name] = (
+                "timeout" if _looks_like_timeout(exc) else "error",
+                latency_ms,
+            )
             logger.warning(
                 "LLM provider %s failed after %d ms: %s", provider_name, latency_ms, exc
             )
             continue
 
         latency_ms = int((time.perf_counter() - started) * 1000)
+        outcomes[provider_name] = ("status", latency_ms)
 
         # Validator: check leading band if expected_band is specified
         if expected_band:
             valid, norm_output = _validate_explanation_band(output, expected_band)
             if valid:
                 cache.set(full_cache_key, {"output": norm_output, "provider": provider_name})
+                _chain_telemetry(outcomes, provider_name)
                 return {"explanation": norm_output, "provider": provider_name, "latency_ms": latency_ms}
 
             # On mismatch: retry once with a correction note
@@ -224,20 +261,24 @@ async def explain(
                 valid_retry, norm_retry = _validate_explanation_band(retry_output, expected_band)
                 if valid_retry:
                     cache.set(full_cache_key, {"output": norm_retry, "provider": provider_name})
+                    _chain_telemetry(outcomes, provider_name)
                     return {"explanation": norm_retry, "provider": provider_name, "latency_ms": latency_ms}
 
                 # Still mismatched after retry: server-side replace the leading band token
                 logger.info("Explanation still mismatched after retry; applying server-side token replacement")
                 fixed_output = _apply_server_side_fix(retry_output, expected_band)
                 cache.set(full_cache_key, {"output": fixed_output, "provider": provider_name})
+                _chain_telemetry(outcomes, provider_name)
                 return {"explanation": fixed_output, "provider": provider_name, "latency_ms": latency_ms}
             except Exception as retry_exc:
                 logger.warning("Retry with correction note failed (%s); applying server-side fix to initial output", retry_exc)
                 fixed_output = _apply_server_side_fix(output, expected_band)
                 cache.set(full_cache_key, {"output": fixed_output, "provider": provider_name})
+                _chain_telemetry(outcomes, provider_name)
                 return {"explanation": fixed_output, "provider": provider_name, "latency_ms": latency_ms}
 
         cache.set(full_cache_key, {"output": output, "provider": provider_name})
+        _chain_telemetry(outcomes, provider_name)
         return {"explanation": output, "provider": provider_name, "latency_ms": latency_ms}
 
     started = time.perf_counter()
@@ -249,4 +290,5 @@ async def explain(
     latency_ms = int((time.perf_counter() - started) * 1000)
     logger.warning("LLM providers exhausted; using rule_based explanation")
     cache.set(full_cache_key, {"output": output, "provider": "rule_based"})
+    _chain_telemetry(outcomes, "rule_based")
     return {"explanation": output, "provider": "rule_based", "latency_ms": latency_ms}

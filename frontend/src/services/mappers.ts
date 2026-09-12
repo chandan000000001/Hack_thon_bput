@@ -89,6 +89,9 @@ export function mapAlert(row: unknown): Alert {
     summary: String(data.summary ?? ''),
     indicators: asArray(data.indicators).map(mapIndicator),
     explanation: String(data.explanation ?? ''),
+    explanationProvider: data.explanation_provider !== undefined && data.explanation_provider !== null
+      ? String(data.explanation_provider)
+      : undefined,
     recommendedActions: asArray(data.recommended_actions).map(mapRecommendedAction),
     mitreTechniques: asArray(data.mitre).map(mapMitreTechnique),
     targetUser: data.target_user ?? undefined,
@@ -228,6 +231,9 @@ export function mapAnalysisResult(row: unknown): AnalysisResult {
     confidence,
     indicators: asArray(data.indicators).map(mapIndicator),
     explanation: String(data.explanation ?? ''),
+    explanationProvider: data.explanation_provider !== undefined && data.explanation_provider !== null
+      ? String(data.explanation_provider)
+      : undefined,
     recommendedActions: asArray(data.recommended_actions).map(mapRecommendedAction),
     mitreTechniques: asArray(data.mitre).map(mapMitreTechnique),
     timestamp: String(data.created_at ?? ''),

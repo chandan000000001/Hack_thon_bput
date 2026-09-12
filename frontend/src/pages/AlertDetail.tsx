@@ -173,7 +173,7 @@ export default function AlertDetail() {
 
       <div>
         {tab === 'indicators' && <IndicatorList indicators={alert.indicators} />}
-        {tab === 'explanation' && <ExplanationPanel explanation={alert.explanation} confidence={Math.min(97, 70 + alert.riskScore / 4)} />}
+        {tab === 'explanation' && <ExplanationPanel explanation={alert.explanation} confidence={Math.min(97, 70 + alert.riskScore / 4)} provider={alert.explanationProvider} />}
         {tab === 'mitre' && (
           <div className="space-y-3">
             <p className="text-xs text-zinc-500">

@@ -186,7 +186,7 @@ export default function PhishingAnalysis() {
                 </div>
               </div>
               <IndicatorList indicators={result.indicators} />
-              <ExplanationPanel explanation={result.explanation} confidence={result.confidence} />
+              <ExplanationPanel explanation={result.explanation} confidence={result.confidence} provider={result.explanationProvider} />
               <div>
                 <h3 className="mb-2 text-sm font-semibold text-zinc-200">MITRE ATT&CK Mapping</h3>
                 <MitreTags techniques={result.mitreTechniques} />

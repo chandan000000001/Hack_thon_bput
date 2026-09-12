@@ -137,6 +137,17 @@ def supabase_login() -> str | None:
 _state: dict[str, str | None] = {"token": None}
 
 
+# Provider distribution across the suite: tallied from every response that
+# carries explanation_provider (groq | openrouter | rule_based | cache:<orig>).
+PROVIDER_COUNTS: dict[str, int] = {}
+
+
+def _tally_provider(body: dict | list) -> None:
+    if isinstance(body, dict) and body.get("explanation_provider"):
+        provider = str(body["explanation_provider"])
+        PROVIDER_COUNTS[provider] = PROVIDER_COUNTS.get(provider, 0) + 1
+
+
 def api(method: str, path: str, token: str, **kwargs) -> tuple[int, dict | list]:
     code: int = 0
     body: dict | list = {}
@@ -158,6 +169,7 @@ def api(method: str, path: str, token: str, **kwargs) -> tuple[int, dict | list]
         if code >= 500 and attempt < 2:
             time.sleep(3)
             continue
+        _tally_provider(body)
         return code, body
     return code, body
 
@@ -458,6 +470,21 @@ def main() -> int:
         "POST /analysis/url malicious URLhaus 2 -> severity high|critical",
         code == 200 and m2_sev in ("high", "critical"),
         f"status {code} severity={m2_sev}",
+    )
+
+    # Residual URL false positive: standard auth path on a high-reputation
+    # domain (top-1M whitelist) must not be flagged for its /login path.
+    code, gh_login = api(
+        "POST",
+        "/analysis/url",
+        token,
+        payload={"source": "regression", "url": "https://www.github.com/login"},
+    )
+    gh_sev = gh_login.get("severity") if isinstance(gh_login, dict) else None
+    check(
+        "POST /analysis/url github.com/login -> severity safe|low",
+        code == 200 and gh_sev in ("safe", "low"),
+        f"status {code} severity={gh_sev}",
     )
 
     # --- impersonation ------------------------------------------------------
@@ -884,6 +911,8 @@ def main() -> int:
         lines.append(f"| {i} | {name} | {'PASS' if ok else 'FAIL'} | {detail or '—'} |")
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     REPORT_PATH.write_text("\n".join(lines) + "\n")
+    distribution = "  ".join(f"{p}={n}" for p, n in sorted(PROVIDER_COUNTS.items())) or "none"
+    print(f"\nProvider distribution across analysis responses: {distribution}")
     print(f"\nSummary written to {REPORT_PATH}")
     print(f"TOTAL: {passed} passed, {failed} failed")
     return 1 if failed else 0

@@ -8,7 +8,7 @@ FastAPI backend for CYBERGUARD: a multi-tenant, permission-matrix-gated threat d
 
 ## Overview
 
-The backend exposes a versioned REST API (`/api/v1`) that ingests security events, runs them through transparent heuristic detectors, scores risk, generates LLM explanations through a timed provider chain (Groq 20 s → OpenRouter 60 s → local rule-based fallback), and persists alerts, incidents, response actions and a full audit trail in Supabase. The React frontend (`../frontend`) consumes the same API and streams new alerts over Supabase Realtime.
+The backend exposes a versioned REST API (`/api/v1`) that ingests security events, runs them through transparent heuristic detectors, scores risk, generates LLM explanations through a timed provider chain (Groq 15 s → OpenRouter 20 s → local rule-based fallback), and persists alerts, incidents, response actions and a full audit trail in Supabase. The React frontend (`../frontend`) consumes the same API and streams new alerts over Supabase Realtime.
 
 ```
 Ingestion → Heuristic Engine → Risk Scoring → XAI Gateway (Groq → OpenRouter → rule-based, circuit-broken) → Alert Generation → Dashboard
@@ -40,7 +40,7 @@ React SPA ──JWT──> FastAPI (12 routers, /api/v1, permission-matrix-gated
                       ├──> Supabase Postgres+RLS  ├──> Supabase Auth (token verification)
                       ├──> Supabase Storage       └──> frontend session (signInWithPassword)
                       ├──> SQLAlchemy async (org-scoped domain reads/writes)
-                      ├──> LLM gateway (XAI: Groq 20s -> OpenRouter 60s -> rule-based, each remote provider behind an async circuit breaker)
+                      ├──> LLM gateway (XAI: Groq 15s -> OpenRouter 20s -> rule-based, each remote provider behind an async circuit breaker)
 Supabase Realtime ──new alert INSERTs──> Dashboard / Alerts pages
 ```
 
@@ -71,10 +71,9 @@ docker compose up --build        # redis + backend + frontend
 
 ```bash
 cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+uv sync
 cp .env.example .env            # Supabase URL/keys; OpenRouter/Groq keys optional (explanations)
-uvicorn app.main:app --reload --port 8000
+uv run uvicorn app.main:app --reload --port 8000
 
 cd ../frontend
 npm install

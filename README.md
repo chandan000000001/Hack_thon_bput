@@ -13,7 +13,7 @@ CYBERGUARD is a full-stack SOC (Security Operations Center) platform built to de
 - **Six detection modules** — phishing (email + SMS text), malicious URL, digital impersonation, account takeover, network/API abuse, and deepfake/media forensics.
 - **Hybrid detection: heuristics + five trained models** — TF-IDF + XGBoost for emails, feature-based XGBoost for URLs, a MobileNetV3 CNN for deepfake images, an LCNN audio anti-spoofing model (ASVspoof 2019), and scaler + XGBoost for KDD99 network flows. Monotonic blending: `hybrid = max(heuristic, round(0.45 × heuristic + 0.55 × ml × 100))` — a trained model may raise a score but never lower the heuristic verdict below it.
 - **Explainable AI with provenance** — every alert carries a human-readable explanation, MITRE ATT&CK techniques and recommended actions; each response includes `explanation_provider` (`groq` | `openrouter` | `rule_based` | `cache:<provider>`) and `explanation_latency_ms`.
-- **LLM gateway chain with circuit breakers** — Groq (`GROQ_TIMEOUT_SECONDS`, default 20 s) → OpenRouter (`OPENROUTER_TIMEOUT_SECONDS`, default 60 s) → local rule-based template, each remote provider behind its own async circuit breaker (3 failures → OPEN for 60 s), with a bounded explanation cache (TTL 3600 s, 256 entries).
+- **LLM gateway chain with circuit breakers** — Groq (`GROQ_TIMEOUT_SECONDS`, default 15 s) → OpenRouter (`OPENROUTER_TIMEOUT_SECONDS`, default 20 s) → local rule-based template, each remote provider behind its own async circuit breaker (3 failures → OPEN for 60 s), with a bounded explanation cache (TTL 3600 s, 256 entries).
 - **Risk bands Safe → Critical** — deterministic indicator scoring (critical 25 / high 15 / medium 5, capped at 100) mapped to bands safe 0–20, low 21–40, medium 41–60, high 61–80, critical 81–100.
 - **RBAC viewer / analyst / admin with a database-backed permission matrix** — 16 granular permission keys in `role_permissions` (migration 0005), enforced by `require_permission(key)` (403 `Missing permission: <key>`); new signups default to `viewer`.
 - **Multi-tenancy via `org_id`** — every user, event, alert, incident and audit row is organization-scoped and filtered at the service layer (migration 0004); RLS is defence in depth.
@@ -95,10 +95,9 @@ Ingestion → Heuristic Engine → Risk Scoring → XAI Gateway (Groq → OpenRo
 
 # 2. Backend
 cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+uv sync
 cp .env.example .env                      # fill in Supabase keys; Groq/OpenRouter keys optional (explanations)
-uvicorn app.main:app --reload --port 8000 # http://localhost:8000/docs
+uv run uvicorn app.main:app --reload --port 8000 # http://localhost:8000/docs
 
 # 3. Frontend (second terminal)
 cd frontend
@@ -122,10 +121,10 @@ Backend (`backend/.env`, loaded by `app/core/config.py`):
 | `SUPABASE_SERVICE_ROLE_KEY` | Privileged key — all DB/storage writes; **backend-only, never commit** | — (required) |
 | `DATABASE_URL` | Async SQLAlchemy connection for the incident domain layer (`postgresql+asyncpg://…`); does **not** replace supabase-py | `postgresql+asyncpg://postgres:postgres@localhost:54322/postgres` |
 | `OPENROUTER_API_KEY` | OpenRouter key; empty skips the provider | `""` |
-| `OPENROUTER_MODEL` | OpenRouter model id | `meta-llama/llama-3.1-8b-instruct:free` |
+| `OPENROUTER_MODEL` | OpenRouter model id | `liquid/lfm-2.5-2.6b:free` |
 | `OPENROUTER_TIMEOUT_SECONDS` | OpenRouter call timeout (s) | `60` |
 | `GROQ_API_KEY` | Groq key; empty skips the provider | `""` |
-| `GROQ_MODEL` | Groq model id | `llama-3.1-8b-instant` |
+| `GROQ_MODEL` | Groq model id | `qwen/qwen3.8-27b` |
 | `GROQ_TIMEOUT_SECONDS` | Groq call timeout (s) | `20` |
 | `CORS_ORIGINS` | Comma-separated allowed browser origins (`*` is rejected at boot while credentials are allowed) | `http://localhost:5173,http://localhost:3000` |
 | `API_V1_PREFIX` | Route prefix | `/api/v1` |

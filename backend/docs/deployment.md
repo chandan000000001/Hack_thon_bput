@@ -7,12 +7,10 @@ Prerequisites: Python 3.11+, Node 18+, a Supabase project (section 4), and optio
 ```bash
 # --- Backend ---
 cd backend
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+uv sync
 cp .env.example .env               # then fill in the values from section 5
 # one-time: run the SQL files in the Supabase SQL editor (see section 4)
-uvicorn app.main:app --reload --port 8000
+uv run uvicorn app.main:app --reload --port 8000
 # interactive API docs: http://localhost:8000/docs
 
 # --- Frontend (second terminal) ---
@@ -103,11 +101,11 @@ Backend (`backend/.env`, loaded by `app/core/config.py`):
 | `SUPABASE_SERVICE_ROLE_KEY` | Privileged key — all DB/storage writes; **backend-only, never commit** | — (required) |
 | `DATABASE_URL` | Async SQLAlchemy connection for the incident domain layer (`postgresql+asyncpg://…`); a driver-less `postgresql://` value is rewritten automatically. Does **not** replace supabase-py (Auth/Storage/Realtime) | `postgresql+asyncpg://postgres:postgres@localhost:54322/postgres` |
 | `GROQ_API_KEY` | Groq key; empty skips Groq in the provider chain | `""` |
-| `GROQ_MODEL` | Groq model id | `llama-3.1-8b-instant` |
-| `GROQ_TIMEOUT_SECONDS` | Groq call timeout in seconds (first provider in the chain) | `20` |
+| `GROQ_MODEL` | Groq model id | `qwen/qwen3.8-27b` |
+| `GROQ_TIMEOUT_SECONDS` | Groq call timeout in seconds (first provider in the chain) | `15` |
 | `OPENROUTER_API_KEY` | OpenRouter key; empty skips OpenRouter | `""` |
-| `OPENROUTER_MODEL` | Model id | `meta-llama/llama-3.1-8b-instruct:free` |
-| `OPENROUTER_TIMEOUT_SECONDS` | OpenRouter call timeout in seconds (second provider) | `60` |
+| `OPENROUTER_MODEL` | Model id | `liquid/lfm-2.5-2.6b:free` |
+| `OPENROUTER_TIMEOUT_SECONDS` | OpenRouter call timeout in seconds (second provider) | `20` |
 | `ML_ENABLED` | Toggles trained-model inference (heuristics-only when false) | `true` |
 | `ML_MODELS_DIR` | Trained-artifact directory | `ml/models` |
 | `API_V1_PREFIX` | Route prefix | `/api/v1` |
@@ -168,8 +166,8 @@ Frontend (`frontend/.env`, Vite build-time):
 - **Circuit breakers:** one `AsyncCircuitBreaker` per remote LLM provider —
   failure threshold 3 consecutive failures, 60 s recovery window,
   CLOSED/OPEN/HALF_OPEN; an OPEN breaker is skipped instantly.
-- **LLM provider chain timeouts:** Groq `GROQ_TIMEOUT_SECONDS` (default 20 s)
-  → OpenRouter `OPENROUTER_TIMEOUT_SECONDS` (default 60 s) → local rule-based
+- **LLM provider chain timeouts:** Groq `GROQ_TIMEOUT_SECONDS` (default 15 s)
+  → OpenRouter `OPENROUTER_TIMEOUT_SECONDS` (default 20 s) → local rule-based
   template (instant). Background jobs additionally cap at `job_timeout=300`.
 - **Health probes:** `GET /api/v1/health` never performs a Supabase
   round-trip per call (30-second cached connectivity) so container

@@ -111,7 +111,7 @@ async def explain_openrouter(
     if json_mode:
         payload["response_format"] = {"type": "json_object"}
 
-    timeout_sec = min(settings.openrouter_timeout_seconds, 12.0)
+    timeout_sec = settings.openrouter_timeout_seconds
     try:
         async with httpx.AsyncClient(timeout=httpx.Timeout(timeout_sec)) as client:
             response = await asyncio.wait_for(
